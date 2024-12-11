@@ -7,7 +7,54 @@
 
 import Foundation
 import UIKit
+//MARK: - UIImageView
+extension UIImageView {
+    static func fromGif(frame: CGRect, resourceName: String) -> (UIImageView?, TimeInterval)? {
+            guard let path = Bundle.main.path(forResource: resourceName, ofType: "gif") else {
+                print("Gif does not exist at that path")
+                return nil
+            }
+            let url = URL(fileURLWithPath: path)
+            guard let gifData = try? Data(contentsOf: url),
+                let source = CGImageSourceCreateWithData(gifData as CFData, nil) else { return nil }
+            
+            var images = [UIImage]()
+            var totalDuration: TimeInterval = 0
+            
+            let imageCount = CGImageSourceGetCount(source)
+            for i in 0 ..< imageCount {
+                if let image = CGImageSourceCreateImageAtIndex(source, i, nil) {
+                    images.append(UIImage(cgImage: image))
+                    
+                    // Get the duration of the frame
+                    if let properties = CGImageSourceCopyPropertiesAtIndex(source, i, nil) as? [CFString: Any],
+                       let gifProperties = properties[kCGImagePropertyGIFDictionary] as? [CFString: Any],
+                       let delayTime = gifProperties[kCGImagePropertyGIFDelayTime] as? NSNumber {
+                        totalDuration += delayTime.doubleValue
+                    }
+                }
+            }
+            
+            let gifImageView = UIImageView(frame: frame)
+            gifImageView.animationImages = images
+            gifImageView.animationRepeatCount = 1
+            gifImageView.startAnimating()
+            
+            // Pause GIF after 1 second
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                gifImageView.stopAnimating()
+                
+                // Set the last frame as the current image (pause effect)
+                if let lastFrame = images.last {
+                    gifImageView.image = lastFrame
+                }
+            }
+            
+            return (gifImageView, totalDuration)  // Return both the UIImageView and the total duration
+        }
+    
 
+}
 //MARK: - Textfield
 extension UITextField{
     

@@ -63,9 +63,11 @@ class TabBarVC: UIViewController{
 //        HideStackViewBtns()
 //       }
     override func viewWillAppear(_ animated: Bool) {
+        isHomeBtnSelect = false
         viewModel.verificationStatus { data in
             self.isStatus = data?.verificationStatus ?? 0
             self.uiSet()
+            NotificationCenter.default.addObserver(self, selector: #selector(self.touchMap(notification:)), name: Notification.Name("touchMap"), object: nil)
         }
     }
     func uiSet(){
@@ -92,7 +94,7 @@ class TabBarVC: UIViewController{
         }
         switch selectedButtonTag {
         case 1:
-            homeSetup()
+//            homeSetup()
             DispatchQueue.main.asyncAfter(deadline: .now()) {
                 self.homeSetup()
             }
@@ -372,40 +374,35 @@ class TabBarVC: UIViewController{
     }
 
     @IBAction func actionHome(_ sender: UIButton) {
+        // Toggle the state of isHomeBtnSelect
+        isHomeBtnSelect.toggle()
         
-            sender.isSelected = !sender.isSelected
-            if sender.isSelected == true{
-                
-                if isHomeBtnSelect{
-                    isHomeBtnSelect = false
-                    let deviceHasNotch = UIApplication.shared.hasNotch
-                    if deviceHasNotch{
-                        heightBottomVw.constant = 104
-                        topShadowView.constant = -60
-                        
-                    }else{
-                        heightBottomVw.constant = 80
-                        topShadowView.constant = -85
-                        
-                    }
-                    NotificationCenter.default.post(name: Notification.Name("TabBar"), object: nil)
-                }
-                homeSetup()
-                DispatchQueue.main.asyncAfter(deadline: .now()) {
-                    self.homeSetup()
-                }
-                selectedButtonTag = sender.tag
-                zoomHomeIcon(isZoomedIn: sender.isSelected)
-                NotificationCenter.default.post(name: Notification.Name("selectHomeBtn"), object: nil)
-                homeButtonsSetup(sender: sender.isSelected)
-            }else{
-                selectedButtonTag = sender.tag
-                zoomHomeIcon(isZoomedIn: sender.isSelected)
-                NotificationCenter.default.post(name: Notification.Name("deSelectHomeBtn"), object: nil)
-                homeButtonsSetup(sender: sender.isSelected)
+        // Perform actions based on the new state
+        if isHomeBtnSelect {
+            // Home button is selected
+            let deviceHasNotch = UIApplication.shared.hasNotch
+            if deviceHasNotch {
+                heightBottomVw.constant = 104
+                topShadowView.constant = -60
+            } else {
+                heightBottomVw.constant = 80
+                topShadowView.constant = -85
             }
-        
+            NotificationCenter.default.post(name: Notification.Name("TabBar"), object: nil)
+            homeSetup()
+            NotificationCenter.default.post(name: Notification.Name("selectHomeBtn"), object: nil)
+        } else {
+            // Home button is deselected
+            NotificationCenter.default.post(name: Notification.Name("deSelectHomeBtn"), object: nil)
         }
+        
+        // Common setup for both states
+        selectedButtonTag = sender.tag
+        sender.isSelected = isHomeBtnSelect // Ensure button reflects the state
+        zoomHomeIcon(isZoomedIn: sender.isSelected)
+        homeButtonsSetup(sender: sender.isSelected)
+    }
+    
     func homeButtonsSetup(sender: Bool) {
         if Store.role == "user"{
             if sender {
@@ -604,5 +601,10 @@ class TabBarVC: UIViewController{
         btnHome.isSelected = false
         btnExplore.isSelected = false
         btnChat.isSelected = false
+    }
+    @objc func touchMap(notification:Notification){
+        isHomeBtnSelect = false
+        homeButtonsSetup(sender: false)
+        self.zoomHomeIcon(isZoomedIn: false)
     }
 }
