@@ -19,7 +19,10 @@ class GigPopupViewVC: UIViewController {
     var selectedId = ""
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        addBackgroundTapRecognizer()
         // Find the index of the selected ID
+        
             if let index = arrData.firstIndex(where: { $0.id == selectedId }) {
                 currentIndex = index
                 
@@ -38,6 +41,22 @@ class GigPopupViewVC: UIViewController {
           
     }
     
+    private func addBackgroundTapRecognizer() {
+        let tapView = UIView(frame: self.view.bounds)
+        tapView.backgroundColor = .clear
+        tapView.isUserInteractionEnabled = true
+
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissView))
+        tapView.addGestureRecognizer(tapGesture)
+        
+        // Insert tapView above collVwGigList
+        self.view.insertSubview(tapView, aboveSubview: collVwGigList)
+    }
+
+      @objc private func dismissView() {
+          self.dismiss(animated: true)
+      }
+  
     private func scrollToCurrentIndex() {
         collVwGigList.layoutIfNeeded() // Ensure the layout is updated
         if arrData.indices.contains(currentIndex) {
@@ -101,6 +120,7 @@ extension GigPopupViewVC: UICollectionViewDataSource,UICollectionViewDelegate,UI
         callBack?(1)
 
     }
+  
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return CGSize(width: collVwGigList.frame.size.width, height: 375)
     }

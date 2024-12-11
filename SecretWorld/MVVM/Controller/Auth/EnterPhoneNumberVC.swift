@@ -219,6 +219,7 @@ class EnterPhoneNumberVC: UIViewController {
     ]
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         let swipeRight = UISwipeGestureRecognizer(target: self, action: #selector(handleSwipe))
                    swipeRight.direction = .right
                    view.addGestureRecognizer(swipeRight)

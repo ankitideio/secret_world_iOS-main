@@ -41,9 +41,9 @@ struct ClusterPoint: Hashable {
     }
     static func == (lhs: ClusterPoint, rhs: ClusterPoint) -> Bool {
         return lhs.coordinate.latitude == rhs.coordinate.latitude &&
-               lhs.coordinate.longitude == rhs.coordinate.longitude &&
-               lhs.price == rhs.price &&
-               lhs.seen == rhs.seen
+        lhs.coordinate.longitude == rhs.coordinate.longitude &&
+        lhs.price == rhs.price &&
+        lhs.seen == rhs.seen
     }
 }
 
@@ -93,7 +93,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
     @IBOutlet var heightViewShadow: NSLayoutConstraint!
     @IBOutlet var tblVwList: UITableView!
     @IBOutlet var btnUpArrow: UIButton!
-
+    
     //MARK: - VARIABLES
     var stickers: [MSSticker] = []
     var isAnnotationViewVisible = false
@@ -152,7 +152,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
     var visibleIndex = 0
     var isInMyLocation = true
     var isWorldWide = true
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         let status = CLLocationManager.authorizationStatus()
@@ -164,7 +164,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
         default:
             print("Location permission not determined")
         }
-
+        
     }
     override func viewWillAppear(_ animated: Bool){
         willAppear()
@@ -177,21 +177,21 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
             viewWorldwide.isHidden = true
             viewInMyLocation.isHidden = true
         }
-      animateZoomInOut()
-      let dateFormatter = DateFormatter()
-      dateFormatter.dateFormat = "EEEE"
-      currentDay = dateFormatter.string(from: Date())
-      let status = CLLocationManager.authorizationStatus()
-      switch status {
-      case .restricted, .denied:
-          removeDataWhileLocationDenied()
-          locationDeniedAlert()
-      case .authorizedWhenInUse, .authorizedAlways:
-              self.getWillApearAllData()
-      default:
-          print("Location permission not determined")
-      }
-  }
+        animateZoomInOut()
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "EEEE"
+        currentDay = dateFormatter.string(from: Date())
+        let status = CLLocationManager.authorizationStatus()
+        switch status {
+        case .restricted, .denied:
+            removeDataWhileLocationDenied()
+            locationDeniedAlert()
+        case .authorizedWhenInUse, .authorizedAlways:
+            self.getWillApearAllData()
+        default:
+            print("Location permission not determined")
+        }
+    }
     func getWillApearAllData(){
         
         homeListenerCall = false
@@ -211,14 +211,26 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
             socketData()
         }
     }
-
+    
+    func addCurrentLocationMarker() {
+        let someCoordinate = CLLocationCoordinate2D(latitude: currentLat, longitude: currentLong)
+        
+        let originalImage = UIImage(named: "blueDot")!
+        let resizedImage = resizeImage(originalImage, to: CGSize(width: 35, height: 35))
+        var pointAnnotation = PointAnnotation(coordinate: someCoordinate)
+        pointAnnotation.image = .init(image: resizedImage ?? UIImage(), name: "blueDot")
+        let pointAnnotationManager = mapView.annotations.makePointAnnotationManager()
+        pointAnnotationManager.annotations = [pointAnnotation]
+    }
+    
     func floatingActionButtonDidOpen(_ button: JJFloatingActionButton) {
         actionButton.buttonImage = UIImage(named: "more25")
-       
+        
     }
     func floatingActionButtonDidClose(_ button: JJFloatingActionButton) {
         actionButton.buttonImage = UIImage(named: "more25")
     }
+    
     func getDidLoadData(){
         let nib = UINib(nibName: "StoreCVC", bundle: nil)
         collVwStore.register(nib, forCellWithReuseIdentifier: "StoreCVC")
@@ -230,8 +242,10 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
         NotificationCenter.default.addObserver(self, selector: #selector(self.HandleHomeTabClick(notification:)), name: Notification.Name("TabBar"), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.getLocationAllow(notification:)), name: Notification.Name("locationAllow"), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.getLocationDenied(notification:)), name: Notification.Name("locationDenied"), object: nil)
-
+        
         NotificationCenter.default.addObserver(self, selector: #selector(self.methodOfReceivedGetTabBar(notification:)), name: Notification.Name("TabBar"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.methodOfReceivedSelectHome(notification:)), name: Notification.Name("selectHomeBtn"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.methodOfReceiveddeSelectHome(notification:)), name: Notification.Name("deSelectHomeBtn"), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.selectOtherTab(notification:)), name: Notification.Name("SelectOther"), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.SelectBusiness(notification:)), name: Notification.Name("businessSel"), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.selectGig(notification:)), name: Notification.Name("gigSel"), object: nil)
@@ -239,6 +253,10 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
         
     }
     @objc func HandleHomeTabClick(notification: Notification) {
+        
+        self.viewWorldwide.isHidden = true
+        self.viewInMyLocation.isHidden = true
+        
         let status = CLLocationManager.authorizationStatus()
         switch status {
         case .restricted, .denied:
@@ -248,7 +266,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
             
             self.dismiss(animated: false)
             self.btnUpArrow.setImage(UIImage(named:"uparrow"), for: .normal)
-                self.tblVwList.isScrollEnabled = false
+            self.tblVwList.isScrollEnabled = false
         default:
             
             print("Location permission not determined")
@@ -277,8 +295,8 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
         getWillApearAllData()
         getDidLoadData()
     }
-
-     func getWorlwideGigs(){
+    
+    func getWorlwideGigs(){
         mapView.viewAnnotations.removeAll()
         homeListenerCall = false
         mapView.viewAnnotations.removeAll()
@@ -291,33 +309,59 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                      lat: self.mapView.mapboxMap.cameraState.center.latitude,
                      long: self.mapView.mapboxMap.cameraState.center.longitude)
         self.getEarning(radius: self.mapRadius,
-                   lat: self.mapView.mapboxMap.cameraState.center.latitude,
-                   long: self.mapView.mapboxMap.cameraState.center.longitude)
+                        lat: self.mapView.mapboxMap.cameraState.center.latitude,
+                        long: self.mapView.mapboxMap.cameraState.center.longitude)
         self.animateZoomInOut()
-
+        
     }
-     func getInmylocationGigs(){
-         mapView.viewAnnotations.removeAll()
-         homeListenerCall = false
-         mapView.viewAnnotations.removeAll()
-         customAnnotations.removeAll()
-         removePointClusters()
-         removeAllArray()
+    func getInmylocationGigs(){
+        mapView.viewAnnotations.removeAll()
+        homeListenerCall = false
+        mapView.viewAnnotations.removeAll()
+        customAnnotations.removeAll()
+        removePointClusters()
+        removeAllArray()
         self.mapData(radius: self.mapRadius,
                      type: 1,
                      gigType:1,
                      lat: self.mapView.mapboxMap.cameraState.center.latitude,
                      long: self.mapView.mapboxMap.cameraState.center.longitude)
         self.getEarning(radius: self.mapRadius,
-                   lat: self.mapView.mapboxMap.cameraState.center.latitude,
-                   long: self.mapView.mapboxMap.cameraState.center.longitude)
+                        lat: self.mapView.mapboxMap.cameraState.center.latitude,
+                        long: self.mapView.mapboxMap.cameraState.center.longitude)
         self.animateZoomInOut()
-
+        
     }
+    
     @objc func SelectBusiness(notification:Notification){
+        self.viewBusinessList.isHidden = false
         if homeListenerCall{
             
             getBusinessData(visibleIndex: 0)
+        }
+    }
+    
+    @objc func methodOfReceivedSelectHome(notification:Notification){
+        if isSelectType == 3{
+            viewStoreList.isHidden = true
+        }else if isSelectType == 2{
+            viewBusinessList.isHidden = true
+        }else{
+            
+            self.viewWorldwide.isHidden = true
+            self.viewInMyLocation.isHidden = true
+        }
+        
+    }
+    @objc func methodOfReceiveddeSelectHome(notification:Notification){
+        if isSelectType == 3{
+            viewStoreList.isHidden = false
+        }else if isSelectType == 2{
+            viewBusinessList.isHidden = false
+        }else{
+            
+            self.viewWorldwide.isHidden = false
+            self.viewInMyLocation.isHidden = false
         }
     }
     @objc func selectGig(notification:Notification){
@@ -326,6 +370,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
         }
     }
     @objc func selectStore(notification:Notification){
+        self.viewStoreList.isHidden = false
         if homeListenerCall{
             getStoreData(visibleIndex: 0)
         }
@@ -335,12 +380,31 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
         centerVisibleItem(in: collVwBusiness)
         centerVisibleItem(in: collVwStore)
     }
-
+    
     private func centerVisibleItem(in collectionView: UICollectionView) {
         let centerPoint = CGPoint(x: collectionView.contentOffset.x + collectionView.frame.midX,
-                                   y: collectionView.frame.midY)
+                                  y: collectionView.frame.midY)
         if let indexPath = collectionView.indexPathForItem(at: centerPoint) {
             collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
+            let visibleRect = CGRect(origin: collectionView.contentOffset, size: collectionView.bounds.size)
+            if let visibleIndexPath = collectionView.indexPathForItem(at: CGPoint(x: visibleRect.midX, y: visibleRect.midY)) {
+                print("Currently visible index: \(visibleIndexPath.row)")
+                let item = arrData[visibleIndexPath.row]
+                let uniqueID = "businessSingle_\(item.id ?? "")"
+                self.visibleIndex = visibleIndexPath.row
+                
+                self.arrSinglePopUpAnnotation.removeAll()
+                
+                self.downloadSingleBusinessImage(at: visibleIndexPath.row, isMove: true)
+                
+                self.downloadBusinessImage(at: visibleIndexPath.row)
+                self.downloadPopUpImage(at: visibleIndexPath.row, isScroll: true)
+                let centerCoordinate = CLLocationCoordinate2D(latitude: item.lat ?? 0, longitude: item.long ?? 0)
+                mapView.mapboxMap.setCamera(to: CameraOptions(center: centerCoordinate, zoom: mapView.mapboxMap.cameraState.zoom))
+                
+//                self.downloadSinglePopUpImage(at: visibleIndexPath.row, isScroll: true)
+                
+            }
         } else {
             print("No item found at the center of \(collectionView)")
         }
@@ -361,7 +425,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
     @objc func overlayTapped() {
         tappedAnyWhere()
         
-      }
+    }
     func tappedAnyWhere(){
         if homeListenerCall{
             if type == 1{
@@ -385,14 +449,14 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                 
             }
         }
-
-      }
-   
+        
+    }
+    
     func addMapView(currentLat:Double,currentLong:Double){
         let mapInitOptions = MapInitOptions(
             cameraOptions: CameraOptions(
                 center: CLLocationCoordinate2D(latitude: currentLat, longitude: currentLong),
-                zoom: 10 
+                zoom: 10
             )
         )
         
@@ -401,47 +465,49 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
             self.mapView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
             self.vwCustomMap.addSubview(self.mapView)
             if let solar = Solar(coordinate: CLLocationCoordinate2D(latitude: self.currentLat, longitude: self.currentLong)) {
-                      self.solar = solar
-                      let isDaytime = solar.isDaytime
-                      print(isDaytime ? "It's day time!" : "It's night time!")
-                      if isDaytime{
-                          if let styleURL = URL(string: "mapbox://styles/kevinzhang23a/cm2bod8mi00qg01pgepsohjq0") {
-                              self.mapView.mapboxMap.loadStyle(StyleURI(url: styleURL) ?? .light)
-                          }
-          
-                      }else{
-                          self.mapView.mapboxMap.styleURI = .dark
-                      }
-                      }
+                self.solar = solar
+                let isDaytime = solar.isDaytime
+                print(isDaytime ? "It's day time!" : "It's night time!")
+                if isDaytime{
+                    if let styleURL = URL(string: "mapbox://styles/kevinzhang23a/cm2bod8mi00qg01pgepsohjq0") {
+                        self.mapView.mapboxMap.loadStyle(StyleURI(url: styleURL) ?? .light)
+                    }
+                    
+                }else{
+                    self.mapView.mapboxMap.styleURI = .dark
+                }
+            }
             self.mapView.ornaments.scaleBarView.isHidden = true
             self.mapView.ornaments.logoView.isHidden = true
+            
             self.mapView.gestures.delegate = self
+            self.addCurrentLocationMarker()
             let tapGesture = UITapGestureRecognizer(target: self, action: #selector(self.overlayTapped))
             self.mapView.addGestureRecognizer(tapGesture)
             let deviceHasNotch = UIApplication.shared.hasNotch
             if Store.role == "user"{
                 if deviceHasNotch{
-                  self.topMapVw.constant = -59
-                  self.bottomCollVw.constant = 65
+                    self.topMapVw.constant = -59
+                    self.bottomCollVw.constant = 65
                     
                 }else{
-                  self.topMapVw.constant = 0
-                  self.bottomCollVw.constant = 80
+                    self.topMapVw.constant = 0
+                    self.bottomCollVw.constant = 80
                     
                 }
                 
             }else{
                 if deviceHasNotch{
-                  self.topMapVw.constant = -59
-                  self.bottomCollVw.constant = 75
+                    self.topMapVw.constant = -59
+                    self.bottomCollVw.constant = 75
                 }else{
-                  self.topMapVw.constant = 0
-                  self.bottomCollVw.constant = 100
+                    self.topMapVw.constant = 0
+                    self.bottomCollVw.constant = 100
                 }
                 
             }
-              
-
+            
+            
         }
     }
     
@@ -466,17 +532,17 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
         })
     }
     func startPulsingAnimation(on button: UIButton) {
-            // Create a scaling animation
-            let scaleAnimation = CABasicAnimation(keyPath: "transform.scale")
-            scaleAnimation.fromValue = 1.0
-            scaleAnimation.toValue = 1.1
-            scaleAnimation.duration = 0.8
-            scaleAnimation.autoreverses = true
-            scaleAnimation.repeatCount = .infinity
-
-            // Add the animation to the button's layer
-            button.layer.add(scaleAnimation, forKey: "pulsing")
-        }
+        // Create a scaling animation
+        let scaleAnimation = CABasicAnimation(keyPath: "transform.scale")
+        scaleAnimation.fromValue = 1.0
+        scaleAnimation.toValue = 1.1
+        scaleAnimation.duration = 0.8
+        scaleAnimation.autoreverses = true
+        scaleAnimation.repeatCount = .infinity
+        
+        // Add the animation to the button's layer
+        button.layer.add(scaleAnimation, forKey: "pulsing")
+    }
     //MARK: - FUNCTIONS
     func uiSet(){
         print("Device Token---",Store.deviceToken ?? "")
@@ -674,21 +740,21 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                             }
                             self.tblVwList.reloadData()
                         }else if type == 2{
-                            if self.arrData.count > 0 {
-                                self.viewStoreList.isHidden = false
-                            }else{
-                                self.viewStoreList.isHidden = true
-                            }
+//                            if self.arrData.count > 0 {
+//                                self.viewStoreList.isHidden = false
+//                            }else{
+//                                self.viewStoreList.isHidden = true
+//                            }
                             self.heightViewShadow.constant = 0
                             self.viewNoMatch.isHidden = true
                             self.viewGigList.isHidden = true
                             self.collVwStore.reloadData()
                         }else{
-                            if self.arrData.count > 0 {
-                                self.viewBusinessList.isHidden = false
-                            }else{
-                                self.viewBusinessList.isHidden = true
-                            }
+//                            if self.arrData.count > 0 {
+//                                self.viewBusinessList.isHidden = false
+//                            }else{
+//                                self.viewBusinessList.isHidden = true
+//                            }
                             self.heightViewShadow.constant = 0
                             self.viewNoMatch.isHidden = true
                             self.viewGigList.isHidden = true
@@ -733,10 +799,11 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                                 
                         
                             case 2: // Business
-                              
-                                if index == self.visibleIndex{
-                                    self.downloadSingleBusinessImage(at: index)
-                                }
+                            
+                                    if index == self.visibleIndex{
+                                        self.downloadSingleBusinessImage(at: index, isMove: false)
+                                    }
+                                
                                 self.downloadBusinessImage(at: index)
                             default: // Popup
                                 centerCoordinate = CLLocationCoordinate2D(latitude: i.lat ?? 0, longitude: i.long ?? 0)
@@ -748,12 +815,13 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                           
                                
                                
-                                self.downloadSinglePopUpImage(at: self.visibleIndex,isScroll: false)
-                                    let imageName = (self.mapView.mapboxMap.styleURI == .dark) ? "popup 1" : "blackPopup"
+//                                self.downloadSinglePopUpImage(at: self.visibleIndex,isScroll: false)
+                                let difference = self.popUpTime(endTime: i.endDate ?? "")
+                                    let imageName = (self.mapView.mapboxMap.styleURI == .dark) ? "newPopUp" : "newPopUp"
                                     if i.image == nil || i.image == ""{
-                                        let imageName = (self.mapView.mapboxMap.styleURI == .dark) ? "popup 1" : "blackPopup"
+                                        let imageName = (self.mapView.mapboxMap.styleURI == .dark) ? "newPopUp" : "newPopUp"
                                         if let baseImage = UIImage(named: imageName),
-                                           let resizedImage = self.resizeImage(baseImage, to: CGSize(width: 35, height: 35)) {
+                                           let resizedImage = self.resizeImagePopUp(baseImage, to: CGSize(width: 61, height: 93), withText: difference, at: CGPoint(x: 0, y: 10)) {
                                             var pointAnnotation = PointAnnotation(coordinate: centerCoordinate)
                                             pointAnnotation.image = .init(image: resizedImage, name: "popup_\(index)")
                                             if index < self.arrPopUpPointAnnotations.count {
@@ -763,7 +831,8 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                                             }
                                         }
                                     }else{
-                                        self.downloadPopUpImage(at: index)
+                                        self.downloadPopUpImage(at: index, isScroll: false)
+                           
                                     }
                                 }
 
@@ -775,7 +844,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                                 self.processGigImageAndAnnotation(for: i, at: index)
                             case "business": // Gig
                                 if index == self.visibleIndex{
-                                    self.downloadSingleBusinessImage(at: 0)
+                                    self.downloadSingleBusinessImage(at: 0, isMove: false)
                                 }
                                 self.downloadBusinessImage(at: index)
                             default: // Popup
@@ -788,9 +857,9 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                                 
                                 
                                 
-                                let imageName = (self.mapView.mapboxMap.styleURI == .dark) ? "popup 1" : "blackPopup"
+                                let imageName = (self.mapView.mapboxMap.styleURI == .dark) ? "newPopUp" : "newPopUp"
                                 if let baseImage = UIImage(named: imageName),
-                                                 let resizedImage = self.resizeImage(baseImage, to: CGSize(width: 35, height: 35)) {
+                                                 let resizedImage = self.resizeImage(baseImage, to: CGSize(width: 61, height: 93)) {
                                                   var pointAnnotation = PointAnnotation(coordinate: centerCoordinate)
                                                   pointAnnotation.image = .init(image: resizedImage, name: "popup_\(index)")
                                                   if index < self.arrGigPointAnnotations.count {
@@ -894,11 +963,11 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
 
         
         DispatchQueue.main.async {
-            if self.mapView.mapboxMap.cameraState.zoom > 7 {
+//            if self.mapView.mapboxMap.cameraState.zoom > 7 {
                 self.pointAnnotationManager?.annotations = self.arrGigPointAnnotations
-            } else {
-                self.pointAnnotationManager?.annotations = []
-            }
+//            } else {
+//                self.pointAnnotationManager?.annotations = []
+//            }
           
 
         }
@@ -1156,7 +1225,9 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
         let item = arrData[index]
         let uniqueID = "popupSingle_\(item.id ?? "")"
         let centerCoordinate = CLLocationCoordinate2D(latitude: item.lat ?? 0, longitude: item.long ?? 0)
-
+        if isScroll{
+            mapView.mapboxMap.setCamera(to: CameraOptions(center: centerCoordinate, zoom: mapView.mapboxMap.cameraState.zoom))
+        }
         // Remove annotations if the index is not equal to visibleIndex
         if isScroll == true{
             if index != self.visibleIndex {
@@ -1166,9 +1237,9 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
         }
         // Process the visibleIndex
         let centerCoordinate1 = CLLocationCoordinate2D(latitude: arrData[index].lat ?? 0, longitude: arrData[index].long ?? 0)
-        let imageName = "logo"
+        let imageName = "newPopUp"
         if let baseImage = UIImage(named: imageName),
-           let resizedImage = self.resizeImage(baseImage, to: CGSize(width: 50, height: 50)) {
+           let resizedImage = self.resizeImage(baseImage, to: CGSize(width: 61, height: 93)) {
             var pointAnnotation = PointAnnotation(coordinate: centerCoordinate1)
             pointAnnotation.image = .init(image: resizedImage, name: uniqueID)
 
@@ -1183,39 +1254,49 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
 
         DispatchQueue.main.async {
             if self.mapView.mapboxMap.cameraState.zoom > 7 {
-                let combinedAnnotations = self.arrSinglePopUpAnnotation + self.arrPopUpPointAnnotations
-                self.pointAnnotationManager?.annotations = combinedAnnotations
+//                let combinedAnnotations = self.arrSinglePopUpAnnotation + self.arrPopUpPointAnnotations
+//                self.pointAnnotationManager?.annotations = combinedAnnotations
+                if self.viewStoreList.isHidden{
+                    let combinedAnnotations = self.arrPopUpPointAnnotations
+                    self.pointAnnotationManager?.annotations = combinedAnnotations
+                }else{
+                    let combinedAnnotations = self.arrSinglePopUpAnnotation + self.arrPopUpPointAnnotations
+                    self.pointAnnotationManager?.annotations = combinedAnnotations
+                }
             } else {
                 self.pointAnnotationManager?.annotations = []
             }
         }
     }
-    func downloadPopUpImage(at index: Int) {
+    func downloadPopUpImage(at index: Int,isScroll:Bool) {
         if Store.role == "user"{
             
           guard index < arrData.count, Store.role == "user", isSelectType == 3 else { return }
           let item = arrData[index]
           let uniqueID = "popup_\(item.id ?? "")"
-          guard let baseImage = UIImage(named: "pinn"),
+          guard let baseImage = UIImage(named: "newPopUp"),
              let logoURL = URL(string: item.image ?? "") else {
-            downloadPopUpImage(at: index + 1)
+              downloadPopUpImage(at: index + 1, isScroll: isScroll)
             return
           }
           let centerCoordinate = CLLocationCoordinate2D(latitude: item.lat ?? 0, longitude: item.long ?? 0)
+            if isScroll{
+                mapView.mapboxMap.setCamera(to: CameraOptions(center: centerCoordinate, zoom: mapView.mapboxMap.cameraState.zoom))
+             
+            }
           if !arrPoint.contains(where: { $0.coordinates == centerCoordinate }) {
             arrPoint.append(Point(centerCoordinate))
             self.isAppendHeatMap = true
           }
           // Begin download with completion block
-            
+            let difference = popUpTime(endTime: item.endDate ?? "")
             SDWebImageDownloader.shared.downloadImage(with: logoURL) { [weak self] overlayImage, _, _, error in
               guard let self = self else { return }
               if let overlayImage = overlayImage {
-                        let combinedImage = self.combineImages(
-                          baseImage: baseImage,
-                          overlayImage: overlayImage,
-                          baseSize: CGSize(width: 44, height: 46),
-                          overlaySize: CGSize(width: 28, height: 28), type: "popup"
+                  let combinedImage = self.combineImagesPopUp(baseImage: baseImage,
+                                                              overlayImage: overlayImage,
+                                                              baseSize: CGSize(width: 61, height: 93),
+                                                              overlaySize: CGSize(width: 28, height: 28), type: "popup", text: difference
                         )
                         if combinedImage == nil {
                           print("Failed to create combined image")
@@ -1232,9 +1313,14 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                            if self.mapView.mapboxMap.cameraState.zoom > 7{
                            
           //                      self.pointAnnotationManager?.annotations = self.arrPopUpPointAnnotations
-                                  let combinedAnnotations = self.arrSinglePopUpAnnotation + self.arrPopUpPointAnnotations
-                                       self.pointAnnotationManager?.annotations = combinedAnnotations
-                              
+                               if self.viewStoreList.isHidden{
+                                   let combinedAnnotations = self.arrPopUpPointAnnotations
+                                   self.pointAnnotationManager?.annotations = combinedAnnotations
+                               }else{
+//                                   let combinedAnnotations = self.arrSinglePopUpAnnotation + self.arrPopUpPointAnnotations
+                                   let combinedAnnotations = self.arrPopUpPointAnnotations
+                                   self.pointAnnotationManager?.annotations = combinedAnnotations
+                               }
                             }else{
                               self.pointAnnotationManager.annotations = []
                             }
@@ -1247,9 +1333,9 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
           guard index < arrData.count, Store.role != "user" else { return }
           let item = arrData[index]
           let uniqueID = "popup_\(item.id ?? "")"
-          guard let baseImage = UIImage(named: "pinn"),
+          guard let baseImage = UIImage(named: "newPopUp"),
              let logoURL = URL(string: item.image ?? "") else {
-            downloadPopUpImage(at: index+1)
+              downloadPopUpImage(at: index+1, isScroll: isScroll)
             return
           }
           let centerCoordinate = CLLocationCoordinate2D(latitude: item.lat ?? 0, longitude: item.lat ?? 0)
@@ -1261,11 +1347,11 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
           SDWebImageDownloader.shared.downloadImage(with: logoURL) { [weak self] overlayImage, _, _, error in
             guard let self = self else { return }
             if let overlayImage = overlayImage {
-              let combinedImage = self.combineImages(
+              let combinedImage = self.combineImagesPopUp(
                 baseImage: baseImage,
                 overlayImage: overlayImage,
                 baseSize: CGSize(width: 40, height: 50),
-                overlaySize: CGSize(width: 30, height: 30), type: "popup"
+                overlaySize: CGSize(width: 30, height: 30), type: "popup", text: "05.10"
               )
               var pointAnnotation = PointAnnotation(coordinate: centerCoordinate)
               pointAnnotation.image = .init(image: combinedImage ?? UIImage(), name: uniqueID)
@@ -1289,7 +1375,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
         }
       }
   
-  
+   
         func downloadBusinessImage(at index: Int) {
             if Store.role == "user"{
                 guard index < arrData.count, Store.role == "user", isSelectType == 2 else { return }
@@ -1327,8 +1413,13 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                             }
                             DispatchQueue.main.async {
                                if self.mapView.mapboxMap.cameraState.zoom > 7{
-                                   let combinedAnnotations = self.arrSingleBuisnessAnnotation + self.arrBusinessPointAnnotations
-                                        self.pointAnnotationManager?.annotations = combinedAnnotations
+                                   if self.viewBusinessList.isHidden{
+                                       let combinedAnnotations =  self.arrBusinessPointAnnotations
+                                       self.pointAnnotationManager?.annotations = combinedAnnotations
+                                   }else{
+                                       let combinedAnnotations = self.arrSingleBuisnessAnnotation + self.arrBusinessPointAnnotations
+                                       self.pointAnnotationManager?.annotations = combinedAnnotations
+                                   }
                                 }else{
                                     self.pointAnnotationManager.annotations = []
                                 }
@@ -1387,17 +1478,21 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
             }
         }
    
-    func downloadSingleBusinessImage(at index: Int) {
+    func downloadSingleBusinessImage(at index: Int,isMove:Bool) {
+       
         if Store.role == "user"{
             guard index < arrData.count, Store.role == "user", isSelectType == 2 else { return }
             let item = arrData[index]
             let uniqueID = "businessSingle_\(item.id ?? "")"
             guard let baseImage = UIImage(named: "marker2"),
                   let logoURL = URL(string: item.profilePhoto ?? "") else {
-                downloadSingleBusinessImage(at: index)
+                downloadSingleBusinessImage(at: index, isMove: isMove)
                 return
             }
             let centerCoordinate = CLLocationCoordinate2D(latitude: item.latitude ?? 0, longitude: item.longitude ?? 0)
+            if isMove{
+                mapView.mapboxMap.setCamera(to: CameraOptions(center: centerCoordinate, zoom: mapView.mapboxMap.cameraState.zoom))
+            }
             if !arrPoint.contains(where: { $0.coordinates == centerCoordinate }) {
                 arrPoint.append(Point(centerCoordinate))
                 self.isAppendHeatMap = true
@@ -1415,27 +1510,29 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                     var pointAnnotation = PointAnnotation(coordinate: centerCoordinate)
                     pointAnnotation.image = .init(image: combinedImage ?? UIImage(), name: uniqueID)
                     // Check if annotation already exists for this unique ID
-
+                    
                     if let existingIndex = self.arrSingleBuisnessAnnotation.firstIndex(where: { $0.image?.name == uniqueID }) {
                         self.arrSingleBuisnessAnnotation.removeAll()
                         self.arrSingleBuisnessAnnotation.append(pointAnnotation)
-                          
-                        } else {
-                            self.arrSingleBuisnessAnnotation.removeAll()
-                            self.arrSingleBuisnessAnnotation.append(pointAnnotation)
-                        }
-                        DispatchQueue.main.async {
-                           if self.mapView.mapboxMap.cameraState.zoom > 7{
-                               self.pointAnnotationManager?.annotations = self.arrSingleBuisnessAnnotation
-                            }else{
-                                self.pointAnnotationManager.annotations = []
-                            }
-
-                        }
+                        
+                    } else {
+                        self.arrSingleBuisnessAnnotation.removeAll()
+                        self.arrSingleBuisnessAnnotation.append(pointAnnotation)
+                        
                     }
-
+                    DispatchQueue.main.async {
+                        if self.mapView.mapboxMap.cameraState.zoom > 7{
+                            self.pointAnnotationManager?.annotations = self.arrSingleBuisnessAnnotation
+                        }else{
+                            self.pointAnnotationManager.annotations = []
+                        }
+                        
+                    }
+                }
+                
             }
         }
+    
     }
     
     func resizeImage(_ image: UIImage, to size: CGSize) -> UIImage? {
@@ -1444,7 +1541,43 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
       image.draw(in: CGRect(origin: .zero, size: size))
       return UIGraphicsGetImageFromCurrentImageContext()
     }
-   
+    
+    func resizeImagePopUp(_ image: UIImage, to size: CGSize, withText text: String, at point: CGPoint) -> UIImage? {
+        // Set up text attributes
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: UIFont.systemFont(ofSize: 8), // Adjust font size
+            .foregroundColor: UIColor.white // Adjust text color
+        ]
+        
+        // Calculate text size
+        let textSize = text.size(withAttributes: attributes)
+        print("Text size: \(textSize)") // Debugging
+        
+        // Adjust the image width based on the text size
+        let adjustedWidth = max(size.width, textSize.width+50)
+        let adjustedHeight = size.height
+
+        // Start graphics context with adjusted size
+        UIGraphicsBeginImageContextWithOptions(CGSize(width: adjustedWidth, height: adjustedHeight), false, 0.0)
+        defer { UIGraphicsEndImageContext() }
+        
+        // Draw the resized image to fit the adjusted size
+        image.draw(in: CGRect(origin: .zero, size: CGSize(width: adjustedWidth, height: adjustedHeight)))
+        
+        // Calculate the text position (centered horizontally, 20 points from bottom)
+        let textRect = CGRect(
+            x: (adjustedWidth - textSize.width) / 2,
+            y: max(0, adjustedHeight - textSize.height - 23),
+            width: textSize.width,
+            height: textSize.height
+        )
+        
+        print("Text Rect: \(textRect)") // Debugging
+        text.draw(in: textRect, withAttributes: attributes)
+        
+        // Retrieve the new image with text
+        return UIGraphicsGetImageFromCurrentImageContext()
+    }
 
     func resizeGigImage(_ image: UIImage, to price: Int, withTitle title: String, width: Int, height: Int) -> UIImage {
         let size = CGSize(width: width, height: height)
@@ -1496,13 +1629,95 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
         return resultImage ?? image
     }
 
+    func combineImagesPopUp(
+        baseImage: UIImage,
+        overlayImage: UIImage,
+        baseSize: CGSize,
+        overlaySize: CGSize,
+        type: String,
+        text: String
+    ) -> UIImage? {
+        // Set up text attributes
+        let textAttributes: [NSAttributedString.Key: Any] = [
+            .font: UIFont.systemFont(ofSize: 8),
+            .foregroundColor: UIColor.white,
+            .backgroundColor: UIColor.clear
+        ]
+        
+        // Calculate text size
+        let textSize = text.size(withAttributes: textAttributes)
+        print("Text size: \(textSize)") // Debugging
+        
+        // Adjust base width based on text width
+        let adjustedBaseWidth = max(baseSize.width, textSize.width + 50) // Adding some padding around the text
+        let adjustedBaseSize = CGSize(width: adjustedBaseWidth, height: baseSize.height)
+
+        // Start graphics context with adjusted base size
+        UIGraphicsBeginImageContextWithOptions(adjustedBaseSize, false, 0.0)
+        guard let context = UIGraphicsGetCurrentContext() else {
+            print("Failed to create graphics context.")
+            return nil
+        }
+        
+        // Draw the base image with the adjusted size
+        baseImage.draw(in: CGRect(origin: .zero, size: adjustedBaseSize))
+        
+        // Draw the overlay image
+        let overlayOrigin = CGPoint(x: (adjustedBaseSize.width - overlaySize.width) / 2, y: 8)
+        let overlayRect = CGRect(origin: overlayOrigin, size: overlaySize)
+        let path = UIBezierPath(ovalIn: overlayRect)
+        context.saveGState()
+        path.addClip()
+        overlayImage.draw(in: overlayRect)
+        context.restoreGState()
+        
+        // Draw the text
+        let textRect = CGRect(
+            x: max(0, (adjustedBaseSize.width - textSize.width) / 2),
+            y: max(0, adjustedBaseSize.height - textSize.height - 23),
+            width: textSize.width,
+            height: textSize.height
+        )
+        
+        print("Text Rect: \(textRect)") // Debugging
+        text.draw(in: textRect, withAttributes: textAttributes)
+        
+        // Get the combined image from the context
+        let combinedImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        
+        return combinedImage
+    }
     
+    func popUpTime(endTime: String) -> String {
+        let dateFormatter = ISO8601DateFormatter()
+        dateFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+
+        // Parse the end time into a Date object
+        if let endTime = dateFormatter.date(from: endTime) {
+            // Get the current date and time
+            let currentTime = Date()
+
+            // Calculate the difference in hours and minutes
+            let calendar = Calendar.current
+            let components = calendar.dateComponents([.hour, .minute], from: currentTime, to: endTime)
+            
+            if let hours = components.hour, let minutes = components.minute {
+                // Return the difference as a string
+                return "\(hours)h \(minutes)m"
+            } else {
+                return "Could not calculate the difference."
+            }
+        } else {
+            return "0h 0m"
+        }
+    }
     func combineImages(baseImage: UIImage, overlayImage: UIImage, baseSize: CGSize, overlaySize: CGSize, overlayPosition: CGPoint? = nil,type:String) -> UIImage? {
       UIGraphicsBeginImageContextWithOptions(baseSize, false, 0.0)
       baseImage.draw(in: CGRect(origin: .zero, size: baseSize))
       let overlayOrigin = overlayPosition ?? CGPoint(
         x: (baseSize.width - overlaySize.width) / 2,
-        y: type == "business" ? 3 : 5
+        y: type == "business" ? 3 : 8
       )
       let overlayFrame = CGRect(origin: overlayOrigin, size: overlaySize)
       let path = UIBezierPath(ovalIn: overlayFrame)
@@ -1610,6 +1825,17 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
     func gestureManager(_ gestureManager: MapboxMaps.GestureManager, didBegin gestureType: MapboxMaps.GestureType) {
         
         print("DidBegan")
+       
+        if isSelectType == 2{
+            self.viewBusinessList.isHidden = true
+           
+        }else if isSelectType == 3{
+            self.viewStoreList.isHidden = true
+        }else{
+            self.viewInMyLocation.isHidden = false
+            self.viewWorldwide.isHidden = false
+        }
+        NotificationCenter.default.post(name: Notification.Name("touchMap"), object: nil)
         DispatchQueue.main.asyncAfter(deadline: .now()){
             if self.gigPopUpShow == true{
                 if self.mapView.viewAnnotations.allAnnotations.count > 0{
@@ -2026,12 +2252,12 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
 //            btnGig.setImage(UIImage(named: "selworld"), for: .normal)
 //            selectLocationType = "world"
 //            Store.GigType = 1
-//            
+//
 //        }else{
 //            btnGig.setImage(UIImage(named: "selmy"), for: .normal)
 //            selectLocationType = "myLocation"
 //            Store.GigType = 0
-//         
+//
 //        }
         customAnnotations.removeAll()
         removePointClusters()
@@ -2229,6 +2455,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
         self.visibleIndex = visibleIndex
         customAnnotations.removeAll()
         removePointClusters()
+        viewBusinessList.isHidden = false
         viewGigList.isHidden = true
         viewStoreList.isHidden = true
         viewNoMatch.isHidden = true
@@ -2699,7 +2926,9 @@ extension ExploreTabVC:UICollectionViewDelegate,UICollectionViewDataSource,UICol
             cell.isComing = true
             if arrData.count > 0{
                 cell.indexpath = indexPath.row
-                cell.arrCategories = arrData[indexPath.row].categoryName ?? []
+                if arrData[indexPath.row].categoryName?.count ?? 0 > 0{
+                    cell.arrCategories = arrData[indexPath.row].categoryName ?? []
+                }
                 cell.uiSet()
                 let business = arrData[indexPath.row]
                 let rating = business.UserRating ?? 0
@@ -2802,17 +3031,18 @@ extension ExploreTabVC:UICollectionViewDelegate,UICollectionViewDataSource,UICol
         guard let collectionView = scrollView as? UICollectionView else { return }
           
           let visibleRect = CGRect(origin: collectionView.contentOffset, size: collectionView.bounds.size)
-          if let visibleIndexPath = collectionView.indexPathForItem(at: CGPoint(x: visibleRect.midX, y: visibleRect.midY)) {
-              print("Currently visible index: \(visibleIndexPath.row)")
-              let item = arrData[visibleIndexPath.row]
-              let uniqueID = "businessSingle_\(item.id ?? "")"
-              self.visibleIndex = visibleIndexPath.row
-              self.arrSinglePopUpAnnotation.removeAll()
-              self.downloadSingleBusinessImage(at: visibleIndexPath.row)
-              
-              self.downloadBusinessImage(at: visibleIndexPath.row)
-              self.downloadSinglePopUpImage(at: visibleIndexPath.row, isScroll: true)
-          }
+//          if let visibleIndexPath = collectionView.indexPathForItem(at: CGPoint(x: visibleRect.midX, y: visibleRect.midY)) {
+//              print("Currently visible index: \(visibleIndexPath.row)")
+//              let item = arrData[visibleIndexPath.row]
+//              let uniqueID = "businessSingle_\(item.id ?? "")"
+//              self.visibleIndex = visibleIndexPath.row
+//              self.arrSinglePopUpAnnotation.removeAll()
+//              self.downloadSingleBusinessImage(at: visibleIndexPath.row)
+//
+//              self.downloadBusinessImage(at: visibleIndexPath.row)
+//              self.downloadSinglePopUpImage(at: visibleIndexPath.row, isScroll: true)
+//
+//          }
        centerCell()
     }
     func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
@@ -2946,3 +3176,4 @@ extension ExploreTabVC: MSStickerBrowserViewDataSource{
         print("Sticker selected: \(sticker.localizedDescription)")
     }
 }
+
