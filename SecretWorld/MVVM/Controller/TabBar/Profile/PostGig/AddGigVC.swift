@@ -13,7 +13,8 @@ class AddGigVC: UIViewController {
     @IBOutlet var txtFldSelectDate: UITextField!
     @IBOutlet var txtFldSelectTime: UITextField!
     @IBOutlet var imgVwUploadBtnGif: UIImageView!
-    
+    @IBOutlet var lblUploadImage: UILabel!
+    @IBOutlet var btnUploadImg: UIButton!
     @IBOutlet var lblPlus: UILabel!
     @IBOutlet var lblUploadPhoto: UILabel!
     @IBOutlet var txtFldGigType: UITextField!
@@ -29,10 +30,6 @@ class AddGigVC: UIViewController {
     @IBOutlet var txtFldTitle: UITextField!
     @IBOutlet var txtFldName: UITextField!
     @IBOutlet var imgVwUpload: UIImageView!
-    @IBOutlet weak var imgVwFixed: UIImageView!
-    @IBOutlet weak var imgVwHourly: UIImageView!
-    @IBOutlet weak var imgVwCash: UIImageView!
-    @IBOutlet weak var imgVwOther: UIImageView!
     
     //MARK: - VARIABLES
     var selectGigType = ""
@@ -42,7 +39,6 @@ class AddGigVC: UIViewController {
     var viewModel  = AddGigVM()
     var lat = Double()
     var long = Double()
-   // var gigType = "" //gigType = "worldwide" gigType = "inMyLocation"
     var gigDetail:GetGigDetailData?
     var walletViewModel = PaymentVM()
     var walletAmount = 0
@@ -51,41 +47,39 @@ class AddGigVC: UIViewController {
     var selectedStartDate = ""
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        uiSet()
+    }
+    func uiSet(){
+        txtFldTitle.delegate = self
         let swipeRight = UISwipeGestureRecognizer(target: self, action: #selector(handleSwipe))
                   swipeRight.direction = .right
                   view.addGestureRecognizer(swipeRight)
-        uiSet()
-    }
-    @objc func handleSwipe() {
-        Store.AddGigImage = nil
-        Store.AddGigDetail = nil
-        if isComing{
-            SceneDelegate().tabBarHomeRoot()
-        }else{
-            self.navigationController?.popViewController(animated: true)
-        }
-            }
-    func uiSet(){
-        txtFldTitle.delegate = self
+        setupDatePicker(for:txtFldSelectDate, mode: .date, selector: #selector(startDateDonePressed))
+        setupDatePicker(for: txtFldSelectTime, mode: .time, selector: #selector(startTimeDonePressed))
+        setupDatePicker(for: txtFldTastDuration, mode: .countDownTimer, selector: #selector(timePickerDonePressed))
         if isComing == true{
-            setupDatePicker(for:txtFldSelectDate, mode: .date, selector: #selector(startDateDonePressed))
-            setupDatePicker(for: txtFldSelectTime, mode: .time, selector: #selector(startTimeDonePressed))
-            setupDatePicker(for: txtFldTastDuration, mode: .countDownTimer, selector: #selector(timePickerDonePressed))
-//            NotificationCenter.default.addObserver(self, selector: #selector(self.GigCreatedSuccessfullyAlert(notification:)), name: Notification.Name("gigCreated"), object: nil)
             getCommisionApi()
+            if let gifImageView = UIImageView.fromGif(frame: imgVwUploadBtnGif.bounds, resourceName: "upload") {
+                // Assign the animation images to the IBOutlet
+                imgVwUploadBtnGif.animationImages = gifImageView.animationImages
+                imgVwUploadBtnGif.animationDuration = gifImageView.animationDuration
+                imgVwUploadBtnGif.startAnimating()
+            } else {
+                print("Failed to load GIF")
+            }
+
             lblTitleScreen.text = "Add Gig"
             if Store.GigImg == UIImage(named: "") || Store.GigImg == nil || Store.AddGigImage == UIImage(named: "") || Store.AddGigImage == nil{
-                self.isUploading = false
-                self.viewOfAdddPhotoLbls.isHidden = false
-                self.btnDelete.isHidden = true
+                isUploading = false
+                viewOfAdddPhotoLbls.isHidden = false
+                btnDelete.isHidden = true
                 lblPlus.isHidden = false
                 lblUploadPhoto.isHidden = false
             }else{
                 imgVwUpload.image = Store.AddGigImage
-                self.isUploading = true
-                self.viewOfAdddPhotoLbls.isHidden = true
-                self.btnDelete.isHidden = true
+                isUploading = true
+                viewOfAdddPhotoLbls.isHidden = true
+                btnDelete.isHidden = true
                 lblPlus.isHidden = true
                 lblUploadPhoto.isHidden = true
             }
@@ -114,7 +108,6 @@ class AddGigVC: UIViewController {
             }
             btnCreateUpdate.setTitle("Create", for: .normal)
         }else{
-            
             Store.AddGigImage = nil
             Store.AddGigDetail = nil
             lblTitleScreen.text = "Edit Gig"
@@ -125,7 +118,20 @@ class AddGigVC: UIViewController {
                 imgVwUpload.image = UIImage(named: "")
                 lblPlus.isHidden = false
                 lblUploadPhoto.isHidden = false
+                imgVwUploadBtnGif.isHidden = false
+                imgVwTick.isHidden = true
+                if let gifImageView = UIImageView.fromGif(frame: imgVwUploadBtnGif.bounds, resourceName: "upload") {
+                    // Assign the animation images to the IBOutlet
+                    imgVwUploadBtnGif.animationImages = gifImageView.animationImages
+                    imgVwUploadBtnGif.animationDuration = gifImageView.animationDuration
+                    imgVwUploadBtnGif.startAnimating()
+                } else {
+                    print("Failed to load GIF")
+                }
+
             }else{
+                imgVwUploadBtnGif.isHidden = true
+                imgVwTick.isHidden = false
                 isUploading = true
                 btnDelete.isHidden = true
                 lblPlus.isHidden = true
@@ -133,6 +139,15 @@ class AddGigVC: UIViewController {
                 imgVwUpload.imageLoad(imageUrl: gigDetail?.image ?? "")
                 Store.GigImg = imgVwUpload.image
             }
+            let iso8601String = gigDetail?.startDate ?? ""
+            let result = formatDateAndTime(from: iso8601String)
+            if let date = result.formattedDate, let time = result.formattedTime {
+                txtFldSelectDate.text = date
+                txtFldSelectTime.text = time
+            }
+
+            txtFldTastDuration.text = gigDetail?.serviceDuration ?? ""
+            txtFldServicetype.text = gigDetail?.serviceName ?? ""
             txtFldName.text = gigDetail?.user?.name ?? ""
             txtVwAbout.text = gigDetail?.about ?? ""
             txtFldLocation.text = gigDetail?.place ?? ""
@@ -143,8 +158,6 @@ class AddGigVC: UIViewController {
             textViewDidChange(self.txtVwAbout)
             lat = gigDetail?.lat ?? 0.0
             long = gigDetail?.long ?? 0.0
-            
-            
             if gigDetail?.type == "worldwide"{
                 gigLocationType = 0
                 txtFldGigType.text = "Worldwide"
@@ -156,107 +169,17 @@ class AddGigVC: UIViewController {
             }
         }
     }
-    @objc func startTimeDonePressed() {
-        if let datePicker = txtFldSelectTime.inputView as? UIDatePicker {
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "dd-MM-yyyy"
-            let currentDate = dateFormatter.string(from: Date())
-            let selectedStartDateText = txtFldSelectDate.text ?? ""
-            if selectedStartDateText == currentDate {
-                datePicker.minimumDate = Date()
-            } else {
-                datePicker.minimumDate = nil
-            }
-            updateTextField(txtFldSelectTime, datePicker: datePicker)
+    @objc func handleSwipe() {
+        Store.AddGigImage = nil
+        Store.AddGigDetail = nil
+        if isComing{
+            SceneDelegate().tabBarHomeRoot()
+        }else{
+            self.navigationController?.popViewController(animated: true)
         }
-        txtFldSelectTime.resignFirstResponder()
-    }
 
-    @objc func startDateDonePressed() {
-        if let datePicker = txtFldSelectDate.inputView as? UIDatePicker {
-            updateTextField(txtFldSelectDate, datePicker: datePicker)
         }
-        txtFldSelectDate.resignFirstResponder()
-    }
-    @objc func timePickerDonePressed() {
-        if let datePicker = txtFldTastDuration.inputView as? UIDatePicker {
-            updateTextField(txtFldTastDuration, datePicker: datePicker)
-        }
-        txtFldTastDuration.resignFirstResponder()
-    }
-    func setupDatePicker(for textField: UITextField, mode: UIDatePicker.Mode, selector: Selector) {
-        let datePicker = UIDatePicker()
-        datePicker.datePickerMode = mode
-        if #available(iOS 13.4, *) {
-            datePicker.preferredDatePickerStyle = .wheels
-        }
-        datePicker.translatesAutoresizingMaskIntoConstraints = false
-        textField.inputView = datePicker
-        let toolbar = UIToolbar()
-        toolbar.sizeToFit()
-        let flexibleSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-        let doneButton = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: selector)
-        toolbar.setItems([flexibleSpace, doneButton], animated: true)
-        textField.inputAccessoryView = toolbar
-        datePicker.addTarget(self, action: #selector(datePickerValueChanged(_:)), for: .valueChanged)
-        datePicker.tag = textField.tag
-    }
 
-    @objc func datePickerValueChanged(_ sender: UIDatePicker) {
-        switch sender.tag {
-        case 1:
-            updateTextField(txtFldSelectDate, datePicker: sender)
-        case 2:
-            updateTextField(txtFldSelectTime, datePicker: sender)
-        case 3:
-            updateTextField(txtFldTastDuration, datePicker: sender)
-        default:
-            break
-        }
-    }
-
-    func updateTextField(_ textField: UITextField, datePicker: UIDatePicker) {
-        let dateFormatter = DateFormatter()
-        
-        if textField == txtFldSelectDate {
-            dateFormatter.dateFormat = "dd-MM-yyyy"
-            textField.text = dateFormatter.string(from: datePicker.date)
-            
-            
-        } else if textField == txtFldSelectTime {
-            dateFormatter.dateFormat = "hh:mm a"
-            textField.text = dateFormatter.string(from: datePicker.date)
-        } else if textField == txtFldTastDuration {
-            // Use 24-hour format to capture the duration in hours and minutes
-            dateFormatter.dateFormat = "HH:mm"
-            let durationString = dateFormatter.string(from: datePicker.date)
-            
-            // Split the duration into hours and minutes
-            let timeComponents = durationString.split(separator: ":")
-            if timeComponents.count == 2 {
-                let hours = Int(timeComponents[0]) ?? 0
-                let minutes = Int(timeComponents[1]) ?? 0
-                
-                // Create the string with hours and minutes
-                var durationText = ""
-                
-                if hours > 0 {
-                    durationText += "\(hours) hour" + (hours > 1 ? "s" : "") // Adding plural if needed
-                }
-                
-                if minutes > 0 {
-                    if !durationText.isEmpty {
-                        durationText += " " // Adding "and" between hours and minutes
-                    }
-                    durationText += "\(minutes) min" // Singular "min"
-                }
-                
-                textField.text = durationText
-            }
-        }
-    }
-
-    
     func getCommisionApi(){
         walletViewModel.GetComissionApi{ data in
             Store.commisionAmount = data?.result?.commission
@@ -300,20 +223,19 @@ class AddGigVC: UIViewController {
             vc.callBack = { [weak self] image in
                 guard let self = self else { return }
                 if Store.GigImg == UIImage(named: "") || Store.GigImg == nil{
+                    self.lblUploadPhoto.text = "Upload Image"
                     self.lblUploadPhoto.isHidden = false
                     self.lblPlus.isHidden = false
                     self.imgVwUpload.image = UIImage(named: "")
                     self.imgVwUploadBtnGif.isHidden = false
                     self.imgVwTick.isHidden = true
-                    //self.imgVwUploadBtnGif.image = UIImage(named: "uploading-to-cloud-VWQJD1A1A0")
-                   // self.imgVwTick.image = UIImage(named: "")
                     self.isUploading = false
                     self.viewOfAdddPhotoLbls.isHidden = false
                     self.btnDelete.isHidden = true
                 }else{
+                    self.lblUploadPhoto.text = "Uploaded Image"
                     self.imgVwUploadBtnGif.isHidden = true
                     self.imgVwTick.isHidden = false
-                    //self.imgVwTick.image = UIImage(named: "icon_donetick")
                     self.lblUploadPhoto.isHidden = true
                     self.lblPlus.isHidden = true
                     self.imgVwUpload.image = image
@@ -323,10 +245,9 @@ class AddGigVC: UIViewController {
         }else{
             
             ImagePicker().pickImage(self) { image in
+                self.lblUploadPhoto.text = "Uploaded Image"
                 self.imgVwUploadBtnGif.isHidden = true
                 self.imgVwTick.isHidden = false
-//                self.imgVwUploadBtnGif.image = UIImage(named: "")
-//                self.imgVwTick.image = UIImage(named: "icon_donetick")
                 self.imgVwUpload.image = image
                 self.isUploading = true
                 Store.GigImg = image
@@ -343,24 +264,6 @@ class AddGigVC: UIViewController {
         }else{
             self.navigationController?.popViewController(animated: true)
         }
-    }
-    
-    @IBAction func actionFixed(_ sender: UIButton) {
-        imgVwFixed.image = UIImage(named: "selectedGender")
-        imgVwHourly.image = UIImage(named: "unselect 1")
-    }
-    @IBAction func actionHourly(_ sender: UIButton) {
-        imgVwFixed.image = UIImage(named: "unselect 1")
-        imgVwHourly.image = UIImage(named: "selectedGender")
-    }
-    @IBAction func actionCash(_ sender: UIButton) {
-        imgVwCash.image = UIImage(named: "selectedGender")
-        imgVwOther.image = UIImage(named: "unselect 1")
-    }
-    
-    @IBAction func actionOther(_ sender: UIButton) {
-        imgVwCash.image = UIImage(named: "unselect 1")
-        imgVwOther.image = UIImage(named: "selectedGender")
     }
     @IBAction func actionDelete(_ sender: UIButton) {
         isUploading = false
@@ -394,9 +297,6 @@ class AddGigVC: UIViewController {
         }
         self.navigationController?.pushViewController(vc, animated: true)
     }
-//    @objc func GigCreatedSuccessfullyAlert(notification:Notification){
-//        successAlert()
-//    }
     func successAlert(){
         let vc = self.storyboard?.instantiateViewController(withIdentifier: "GigCreatedVC") as! GigCreatedVC
         vc.modalPresentationStyle = .overFullScreen
@@ -407,39 +307,15 @@ class AddGigVC: UIViewController {
         }
         self.navigationController?.present(vc, animated: false)
     }
-    func convertDateFormat(selectedDate: String) -> String? {
-        // Define the input date format
-        let inputDateFormat = "dd-MM-yyyy"
-        // Define the output date format
-        let outputDateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
-        
-        let dateFormatter = DateFormatter()
-        dateFormatter.locale = Locale(identifier: "en_US_POSIX") // Ensure consistent parsing
-        dateFormatter.timeZone = TimeZone(secondsFromGMT: 0) // Ensure UTC timezone
-        
-        // Convert from input string to Date
-        dateFormatter.dateFormat = inputDateFormat
-        guard let date = dateFormatter.date(from: selectedDate) else {
-            return nil
-        }
-        
-        // Convert from Date to output string
-        dateFormatter.dateFormat = outputDateFormat
-        let iso8601String = dateFormatter.string(from: date)
-        
-        return iso8601String
-    }
-
+    
     @IBAction func actionCreate(_ sender: UIButton) {
-        print("Current Gig Type: \(txtFldGigType.text ?? "")")
-        print("select Gig Type: \(selectGigType)")
-        
-        print("selectedStartDate: \(txtFldSelectDate.text ?? "")")
-        if let convertedDate = convertDateFormat(selectedDate: txtFldSelectDate.text ?? "") {
-            print("Converted Date: \(convertedDate)")
-            selectedStartDate = convertedDate
-            
+        if let selectedDate = txtFldSelectDate.text,
+           let selectedTime = txtFldSelectTime.text,
+           let combinedDate = combineDateAndTime(dateString: selectedDate, timeString: selectedTime) {
+            print("Combined ISO 8601 Date: \(combinedDate)")
+            selectedStartDate = combinedDate
         }
+        
         if txtFldName.text == ""{
             showSwiftyAlert("", "Please enter user name", false)
         }else if txtFldTitle.text == ""{
@@ -466,11 +342,7 @@ class AddGigVC: UIViewController {
             showSwiftyAlert("", "Please enter valid fee amount", false)
         }else if Int(txtFldfee.text ?? "0") ?? 0 <= 19 {
             showSwiftyAlert("", "Please enter more than $20", false)
-        }
-//        else if txtVwAbout.text == ""{
-//            showSwiftyAlert("", "Description of the gig is required", false)
-//        }
-        else{
+        }else{
             Store.AddGigImage = imgVwUpload.image
             Store.AddGigDetail = ["title":txtFldTitle.text ?? "",
                                   "lat":lat,
@@ -485,189 +357,189 @@ class AddGigVC: UIViewController {
                 let tenPercent = fee * 10 / 100
                 Store.GigFees = tenPercent
             }
-                if Store.role == "b_user"{
-                    if self.isComing == true{
-                        isGigResponse = true
-                        self.viewModel.checAddGig(price: Int(self.txtFldfee.text ?? "") ?? 0) { message in
-                            let vc = self.storyboard?.instantiateViewController(withIdentifier: "PlatformfeePopUpVC") as! PlatformfeePopUpVC
-                            vc.titleText = message
-                            vc.callBack = { [weak self] isPay in
-                                             guard let self = self else { return }
-                                if self.imgVwUpload.image == UIImage(named: ""){
-                                    self.viewModel.AddGigApi(usertype: "business_user",
-                                                             image: UIImageView(image: UIImage(named: "")),
-                                                             name: self.txtFldName.text ?? "",
-                                                             title: self.txtFldTitle.text ?? "",
-                                                             serviceName: txtFldServicetype.text ?? "",
-                                                             serviceDuration: txtFldTastDuration.text ?? "",
-                                                             startDate:txtFldSelectDate.text ?? "",
-                                                             place: self.txtFldLocation.text ?? "",
-                                                             lat: self.lat,
-                                                             long: self.long,
-                                                             participants: self.txtFldPaticipants.text ?? "",
-                                                             type: self.selectGigType,
-                                                             price: Int(self.txtFldfee.text ?? "") ?? 0,
-                                                             about: self.txtVwAbout.text ?? "",
-                                                             isImageNil: true) { data in
-                                        Store.AddGigImage = nil
-                                        Store.AddGigDetail = nil
-                                        self.successAlert()
-                                    }
-                                }else{
-                                    self.viewModel.AddGigApi(usertype: "business_user", image: self.imgVwUpload,
-                                                             name: self.txtFldName.text ?? "",
-                                                             title: self.txtFldTitle.text ?? "",
-                                                             serviceName: txtFldServicetype.text ?? "",
-                                                             serviceDuration: txtFldTastDuration.text ?? "",
-                                                             startDate:txtFldSelectDate.text ?? "",
-                                                             place: self.txtFldLocation.text ?? "",
-                                                             lat: self.lat,
-                                                             long: self.long,
-                                                             participants: self.txtFldPaticipants.text ?? "",
-                                                             type: self.selectGigType,
-                                                             price: Int(self.txtFldfee.text ?? "") ?? 0,
-                                                             about: self.txtVwAbout.text ?? "",
-                                                             isImageNil: false) { data in
-                                        Store.AddGigImage = nil
-                                        Store.AddGigDetail = nil
-                                        self.successAlert()
-//                                        let vc = self.storyboard?.instantiateViewController(withIdentifier: "GigCreatedVC") as! GigCreatedVC
+//                if Store.role == "b_user"{
+//                    if self.isComing == true{
+//                        isGigResponse = true
+//                        self.viewModel.checAddGig(price: Int(self.txtFldfee.text ?? "") ?? 0) { message in
+//                            let vc = self.storyboard?.instantiateViewController(withIdentifier: "PlatformfeePopUpVC") as! PlatformfeePopUpVC
+//                            vc.titleText = message
+//                            vc.callBack = { [weak self] isPay in
+//                                             guard let self = self else { return }
+//                                if self.imgVwUpload.image == UIImage(named: ""){
+//                                    self.viewModel.AddGigApi(usertype: "business_user",
+//                                                             image: UIImageView(image: UIImage(named: "")),
+//                                                             name: self.txtFldName.text ?? "",
+//                                                             title: self.txtFldTitle.text ?? "",
+//                                                             serviceName: txtFldServicetype.text ?? "",
+//                                                             serviceDuration: txtFldTastDuration.text ?? "",
+//                                                             startDate:txtFldSelectDate.text ?? "",
+//                                                             place: self.txtFldLocation.text ?? "",
+//                                                             lat: self.lat,
+//                                                             long: self.long,
+//                                                             participants: self.txtFldPaticipants.text ?? "",
+//                                                             type: self.selectGigType,
+//                                                             price: Int(self.txtFldfee.text ?? "") ?? 0,
+//                                                             about: self.txtVwAbout.text ?? "",
+//                                                             isImageNil: true) { data in
+//                                        Store.AddGigImage = nil
+//                                        Store.AddGigDetail = nil
+//                                        self.successAlert()
+//                                    }
+//                                }else{
+//                                    self.viewModel.AddGigApi(usertype: "business_user", image: self.imgVwUpload,
+//                                                             name: self.txtFldName.text ?? "",
+//                                                             title: self.txtFldTitle.text ?? "",
+//                                                             serviceName: txtFldServicetype.text ?? "",
+//                                                             serviceDuration: txtFldTastDuration.text ?? "",
+//                                                             startDate:txtFldSelectDate.text ?? "",
+//                                                             place: self.txtFldLocation.text ?? "",
+//                                                             lat: self.lat,
+//                                                             long: self.long,
+//                                                             participants: self.txtFldPaticipants.text ?? "",
+//                                                             type: self.selectGigType,
+//                                                             price: Int(self.txtFldfee.text ?? "") ?? 0,
+//                                                             about: self.txtVwAbout.text ?? "",
+//                                                             isImageNil: false) { data in
+//                                        Store.AddGigImage = nil
+//                                        Store.AddGigDetail = nil
+//                                        self.successAlert()
+////                                        let vc = self.storyboard?.instantiateViewController(withIdentifier: "GigCreatedVC") as! GigCreatedVC
+////                                        vc.modalPresentationStyle = .overFullScreen
+////                                        vc.callBack = {
+////                                            Store.tabBarNotificationPosted = false
+////                                            SceneDelegate().GigListVCRoot()
+////                                        }
+////                                        self.navigationController?.present(vc, animated: false)
+//                                    }
+//                                }
+//                            }
+//                            vc.modalPresentationStyle = .overFullScreen
+//                            self.navigationController?.present(vc, animated: false)
+//                        }
+//                    }else{
+//                        if "\(gigFees ?? 0)" == txtFldfee.text ?? ""{
+//                            print("equal")
+//                            if self.imgVwUpload.image == UIImage(named: ""){
+//                                self.viewModel.UpdateGigApi(id: self.gigDetail?.id ?? "",
+//                                                            image: UIImageView(image: UIImage(named: "")),
+//                                                            name: self.txtFldName.text ?? "",
+//                                                            title: self.txtFldTitle.text ?? "",
+//                                                            serviceName: txtFldServicetype.text ?? "",
+//                                                            serviceDuration: txtFldTastDuration.text ?? "",
+//                                                            startDate:txtFldSelectDate.text ?? "",
+//                                                            place: self.txtFldLocation.text ?? "",
+//                                                            lat: self.lat, long: self.long,
+//                                                            type: selectGigType,
+//                                                            participants: self.txtFldPaticipants.text ?? "",
+//                                                            price: Int(self.txtFldfee.text ?? "") ?? 0,
+//                                                            about: self.txtVwAbout.text ?? "",
+//                                                            isImageNil: true) { message in
+//                                    let vc = self.storyboard?.instantiateViewController(withIdentifier: "CommonPopUpVC") as! CommonPopUpVC
+//                                    vc.modalPresentationStyle = .overFullScreen
+//                                    vc.isSelect = 10
+//                                    vc.message = message
+//                                    vc.callBack = {[weak self] in
+//                                        guard let self = self else { return }
+//                                        SceneDelegate().GigListVCRoot()
+//                                    }
+//                                    self.navigationController?.present(vc, animated: false)
+//                                }
+//                            }else{
+//                                self.viewModel.UpdateGigApi(id: self.gigDetail?.id ?? "",
+//                                                            image: self.imgVwUpload,
+//                                                            name: self.txtFldName.text ?? "",
+//                                                            title: self.txtFldTitle.text ?? "",
+//                                                            serviceName: txtFldServicetype.text ?? "",
+//                                                            serviceDuration: txtFldTastDuration.text ?? "",
+//                                                            startDate:txtFldSelectDate.text ?? "",
+//                                                            place: self.txtFldLocation.text ?? "",
+//                                                            lat: self.lat, long: self.long,
+//                                                            type: selectGigType,
+//                                                            participants: self.txtFldPaticipants.text ?? "",
+//                                                            price: Int(self.txtFldfee.text ?? "") ?? 0,
+//                                                            about: self.txtVwAbout.text ?? "",
+//                                                            isImageNil: false) { message in
+//                                let vc = self.storyboard?.instantiateViewController(withIdentifier: "CommonPopUpVC") as! CommonPopUpVC
+//                                vc.modalPresentationStyle = .overFullScreen
+//                                vc.isSelect = 10
+//                                vc.message = message
+//                                vc.callBack = {[weak self] in
+//                                    guard let self = self else { return }
+//                                    SceneDelegate().GigListVCRoot()
+//                                }
+//                                self.navigationController?.present(vc, animated: false)
+//                            }
+//                        }
+//                        }else{
+//                            print("not equal")
+//                            self.viewModel.checUpdateGig(gigId: self.gigDetail?.id ?? "", price: Int(self.txtFldfee.text ?? "") ?? 0) { message in
+//                                let vc = self.storyboard?.instantiateViewController(withIdentifier: "PlatformfeePopUpVC") as! PlatformfeePopUpVC
+//                                if let gigFees = self.gigFees,
+//                                   let feeValue = Int(self.txtFldfee.text ?? ""),
+//                                   gigFees > feeValue {
+//                                    vc.isAmountLess = true
+//                                }else{
+//                                    vc.isAmountLess = false
+//                                }
+//
+//                                vc.titleText = message
+//                                vc.callBack = { [weak self] isPay in
+//                                    guard let self = self else { return }
+//                                    if self.imgVwUpload.image == UIImage(named: ""){
+//                                        self.viewModel.UpdateGigApi(id: self.gigDetail?.id ?? "", 
+//                                                                    image:UIImageView(image: UIImage(named: "")),
+//                                                                    name: self.txtFldName.text ?? "",
+//                                                                    title: self.txtFldTitle.text ?? "",
+//                                                                    serviceName: txtFldServicetype.text ?? "",
+//                                                                    serviceDuration: txtFldTastDuration.text ?? "",
+//                                                                    startDate:txtFldSelectDate.text ?? "",
+//                                                                    place: self.txtFldLocation.text ?? "",
+//                                                                    lat: self.lat, long: self.long,
+//                                                                    type: self.selectGigType,
+//                                                                    participants: self.txtFldPaticipants.text ?? "",
+//                                                                    price: Int(self.txtFldfee.text ?? "") ?? 0,
+//                                                                    about: self.txtVwAbout.text ?? "",
+//                                                                    isImageNil: true) { message in
+//                                            let vc = self.storyboard?.instantiateViewController(withIdentifier: "CommonPopUpVC") as! CommonPopUpVC
+//                                            vc.modalPresentationStyle = .overFullScreen
+//                                            vc.isSelect = 10
+//                                            vc.message = message
+//                                            vc.callBack = {[weak self] in
+//                                                guard let self = self else { return }
+//                                                SceneDelegate().GigListVCRoot()
+//                                            }
+//                                            self.navigationController?.present(vc, animated: false)
+//                                        }
+//                                    }else{
+//                                        self.viewModel.UpdateGigApi(id: self.gigDetail?.id ?? "",
+//                                                                    image: self.imgVwUpload,
+//                                                                    name: self.txtFldName.text ?? "",
+//                                                                    title: self.txtFldTitle.text ?? "",
+//                                                                    serviceName: txtFldServicetype.text ?? "",
+//                                                                    serviceDuration: txtFldTastDuration.text ?? "",
+//                                                                    startDate:txtFldSelectDate.text ?? "",
+//                                                                    place: self.txtFldLocation.text ?? "",
+//                                                                    lat: self.lat, long: self.long,
+//                                                                    type: self.selectGigType,
+//                                                                    participants: self.txtFldPaticipants.text ?? "", price: Int(self.txtFldfee.text ?? "") ?? 0, about: self.txtVwAbout.text ?? "", isImageNil: false) { message in
+//                                        let vc = self.storyboard?.instantiateViewController(withIdentifier: "CommonPopUpVC") as! CommonPopUpVC
 //                                        vc.modalPresentationStyle = .overFullScreen
-//                                        vc.callBack = {
-//                                            Store.tabBarNotificationPosted = false
+//                                        vc.isSelect = 10
+//                                        vc.message = message
+//                                        vc.callBack = {[weak self] in
+//                                            guard let self = self else { return }
 //                                            SceneDelegate().GigListVCRoot()
 //                                        }
 //                                        self.navigationController?.present(vc, animated: false)
-                                    }
-                                }
-                            }
-                            vc.modalPresentationStyle = .overFullScreen
-                            self.navigationController?.present(vc, animated: false)
-                        }
-                    }else{
-                        if "\(gigFees ?? 0)" == txtFldfee.text ?? ""{
-                            print("equal")
-                            if self.imgVwUpload.image == UIImage(named: ""){
-                                self.viewModel.UpdateGigApi(id: self.gigDetail?.id ?? "",
-                                                            image: UIImageView(image: UIImage(named: "")),
-                                                            name: self.txtFldName.text ?? "",
-                                                            title: self.txtFldTitle.text ?? "",
-                                                            serviceName: txtFldServicetype.text ?? "",
-                                                            serviceDuration: txtFldTastDuration.text ?? "",
-                                                            startDate:txtFldSelectDate.text ?? "",
-                                                            place: self.txtFldLocation.text ?? "",
-                                                            lat: self.lat, long: self.long,
-                                                            type: selectGigType,
-                                                            participants: self.txtFldPaticipants.text ?? "",
-                                                            price: Int(self.txtFldfee.text ?? "") ?? 0,
-                                                            about: self.txtVwAbout.text ?? "",
-                                                            isImageNil: true) { message in
-                                    let vc = self.storyboard?.instantiateViewController(withIdentifier: "CommonPopUpVC") as! CommonPopUpVC
-                                    vc.modalPresentationStyle = .overFullScreen
-                                    vc.isSelect = 10
-                                    vc.message = message
-                                    vc.callBack = {[weak self] in
-                                        guard let self = self else { return }
-                                        SceneDelegate().GigListVCRoot()
-                                    }
-                                    self.navigationController?.present(vc, animated: false)
-                                }
-                            }else{
-                                self.viewModel.UpdateGigApi(id: self.gigDetail?.id ?? "",
-                                                            image: self.imgVwUpload,
-                                                            name: self.txtFldName.text ?? "",
-                                                            title: self.txtFldTitle.text ?? "",
-                                                            serviceName: txtFldServicetype.text ?? "",
-                                                            serviceDuration: txtFldTastDuration.text ?? "",
-                                                            startDate:txtFldSelectDate.text ?? "",
-                                                            place: self.txtFldLocation.text ?? "",
-                                                            lat: self.lat, long: self.long,
-                                                            type: selectGigType,
-                                                            participants: self.txtFldPaticipants.text ?? "",
-                                                            price: Int(self.txtFldfee.text ?? "") ?? 0,
-                                                            about: self.txtVwAbout.text ?? "",
-                                                            isImageNil: false) { message in
-                                let vc = self.storyboard?.instantiateViewController(withIdentifier: "CommonPopUpVC") as! CommonPopUpVC
-                                vc.modalPresentationStyle = .overFullScreen
-                                vc.isSelect = 10
-                                vc.message = message
-                                vc.callBack = {[weak self] in
-                                    guard let self = self else { return }
-                                    SceneDelegate().GigListVCRoot()
-                                }
-                                self.navigationController?.present(vc, animated: false)
-                            }
-                        }
-                        }else{
-                            print("not equal")
-                            self.viewModel.checUpdateGig(gigId: self.gigDetail?.id ?? "", price: Int(self.txtFldfee.text ?? "") ?? 0) { message in
-                                let vc = self.storyboard?.instantiateViewController(withIdentifier: "PlatformfeePopUpVC") as! PlatformfeePopUpVC
-                                if let gigFees = self.gigFees,
-                                   let feeValue = Int(self.txtFldfee.text ?? ""),
-                                   gigFees > feeValue {
-                                    vc.isAmountLess = true
-                                }else{
-                                    vc.isAmountLess = false
-                                }
-
-                                vc.titleText = message
-                                vc.callBack = { [weak self] isPay in
-                                    guard let self = self else { return }
-                                    if self.imgVwUpload.image == UIImage(named: ""){
-                                        self.viewModel.UpdateGigApi(id: self.gigDetail?.id ?? "", 
-                                                                    image:UIImageView(image: UIImage(named: "")),
-                                                                    name: self.txtFldName.text ?? "",
-                                                                    title: self.txtFldTitle.text ?? "",
-                                                                    serviceName: txtFldServicetype.text ?? "",
-                                                                    serviceDuration: txtFldTastDuration.text ?? "",
-                                                                    startDate:txtFldSelectDate.text ?? "",
-                                                                    place: self.txtFldLocation.text ?? "",
-                                                                    lat: self.lat, long: self.long,
-                                                                    type: self.selectGigType,
-                                                                    participants: self.txtFldPaticipants.text ?? "",
-                                                                    price: Int(self.txtFldfee.text ?? "") ?? 0,
-                                                                    about: self.txtVwAbout.text ?? "",
-                                                                    isImageNil: true) { message in
-                                            let vc = self.storyboard?.instantiateViewController(withIdentifier: "CommonPopUpVC") as! CommonPopUpVC
-                                            vc.modalPresentationStyle = .overFullScreen
-                                            vc.isSelect = 10
-                                            vc.message = message
-                                            vc.callBack = {[weak self] in
-                                                guard let self = self else { return }
-                                                SceneDelegate().GigListVCRoot()
-                                            }
-                                            self.navigationController?.present(vc, animated: false)
-                                        }
-                                    }else{
-                                        self.viewModel.UpdateGigApi(id: self.gigDetail?.id ?? "",
-                                                                    image: self.imgVwUpload,
-                                                                    name: self.txtFldName.text ?? "",
-                                                                    title: self.txtFldTitle.text ?? "",
-                                                                    serviceName: txtFldServicetype.text ?? "",
-                                                                    serviceDuration: txtFldTastDuration.text ?? "",
-                                                                    startDate:txtFldSelectDate.text ?? "",
-                                                                    place: self.txtFldLocation.text ?? "",
-                                                                    lat: self.lat, long: self.long,
-                                                                    type: self.selectGigType,
-                                                                    participants: self.txtFldPaticipants.text ?? "", price: Int(self.txtFldfee.text ?? "") ?? 0, about: self.txtVwAbout.text ?? "", isImageNil: false) { message in
-                                        let vc = self.storyboard?.instantiateViewController(withIdentifier: "CommonPopUpVC") as! CommonPopUpVC
-                                        vc.modalPresentationStyle = .overFullScreen
-                                        vc.isSelect = 10
-                                        vc.message = message
-                                        vc.callBack = {[weak self] in
-                                            guard let self = self else { return }
-                                            SceneDelegate().GigListVCRoot()
-                                        }
-                                        self.navigationController?.present(vc, animated: false)
-                                    }
-                                }
-                                }
-                                    vc.modalPresentationStyle = .overFullScreen
-                                    self.navigationController?.present(vc, animated: false)
-                            }
-                        }
-                    }
-                }else{
+//                                    }
+//                                }
+//                                }
+//                                    vc.modalPresentationStyle = .overFullScreen
+//                                    self.navigationController?.present(vc, animated: false)
+//                            }
+//                        }
+//                    }
+//                }else{
                     if self.isComing == true{
                         isGigResponse = true
                         self.viewModel.checAddGig(price: Int(self.txtFldfee.text ?? "") ?? 0) { message in
@@ -692,18 +564,18 @@ class AddGigVC: UIViewController {
                                                                  price: Int(self.txtFldfee.text ?? "") ?? 0,
                                                                  about: self.txtVwAbout.text ?? "",
                                                                  isImageNil: true){ data in
-                                            Store.AddGigImage = nil
-                                            Store.AddGigDetail = nil
-                                            let vc = self.storyboard?.instantiateViewController(withIdentifier: "GigCreatedVC") as! GigCreatedVC
-                                            vc.modalPresentationStyle = .overFullScreen
-                                            vc.callBack = {[weak self] in
-                                                guard let self = self else { return }
-                                                Store.tabBarNotificationPosted = false
-                                                SceneDelegate().GigListVCRoot()
+                                            
+                                                Store.AddGigImage = nil
+                                                Store.AddGigDetail = nil
+                                                let vc = self.storyboard?.instantiateViewController(withIdentifier: "GigCreatedVC") as! GigCreatedVC
+                                                vc.modalPresentationStyle = .overFullScreen
+                                                vc.callBack = {[weak self] in
+                                                    guard let self = self else { return }
+                                                    Store.tabBarNotificationPosted = false
+                                                    SceneDelegate().GigListVCRoot()
+                                                }
+                                                self.navigationController?.present(vc, animated: false)
                                             }
-                                            self.navigationController?.present(vc, animated: false)
-                                        }
-                                    
                                 
                                 }else{
                                     
@@ -720,6 +592,7 @@ class AddGigVC: UIViewController {
                                                              type: self.selectGigType,
                                                              price: Int(self.txtFldfee.text ?? "") ?? 0,
                                                              about: self.txtVwAbout.text ?? "", isImageNil: false){ data in
+                                        
                                         Store.AddGigImage = nil
                                         Store.AddGigDetail = nil
                                         let vc = self.storyboard?.instantiateViewController(withIdentifier: "GigCreatedVC") as! GigCreatedVC
@@ -737,14 +610,21 @@ class AddGigVC: UIViewController {
                             self.navigationController?.present(vc, animated: false)
                         }
                     }else{
+                        
                         if "\(gigFees ?? 0)" == txtFldfee.text ?? ""{
                             print("equal")
                             if self.imgVwUpload.image == UIImage(named: ""){
                                 self.viewModel.UpdateGigApi(id: self.gigDetail?.id ?? "", image: UIImageView(image: UIImage(named: "")), name: self.txtFldName.text ?? "", title: self.txtFldTitle.text ?? "",
                                                             serviceName: txtFldServicetype.text ?? "",
                                                             serviceDuration: txtFldTastDuration.text ?? "",
-                                                            startDate:txtFldSelectDate.text ?? "",place: self.txtFldLocation.text ?? "", lat: self.lat, long: self.long,
-                                                            type: selectGigType, participants: self.txtFldPaticipants.text ?? "", price: Int(self.txtFldfee.text ?? "") ?? 0, about: self.txtVwAbout.text ?? "", isImageNil: true) { message in
+                                                            startDate:selectedStartDate,
+                                                            place: self.txtFldLocation.text ?? "",
+                                                            lat: self.lat, long: self.long,
+                                                            type: selectGigType,
+                                                            participants: self.txtFldPaticipants.text ?? "",
+                                                            price: Int(self.txtFldfee.text ?? "") ?? 0,
+                                                            about: self.txtVwAbout.text ?? "",
+                                                            isImageNil: true) { message in
                                     let vc = self.storyboard?.instantiateViewController(withIdentifier: "CommonPopUpVC") as! CommonPopUpVC
                                     vc.modalPresentationStyle = .overFullScreen
                                     vc.isSelect = 10
@@ -759,7 +639,12 @@ class AddGigVC: UIViewController {
                                 self.viewModel.UpdateGigApi(id: self.gigDetail?.id ?? "", image: self.imgVwUpload, name: self.txtFldName.text ?? "", title: self.txtFldTitle.text ?? "",
                                                             serviceName: txtFldServicetype.text ?? "",
                                                             serviceDuration: txtFldTastDuration.text ?? "",
-                                                            startDate:txtFldSelectDate.text ?? "",place: self.txtFldLocation.text ?? "", lat: self.lat, long: self.long, type: selectGigType, participants: self.txtFldPaticipants.text ?? "", price: Int(self.txtFldfee.text ?? "") ?? 0, about: self.txtVwAbout.text ?? "", isImageNil: false) { message in
+                                                            startDate:selectedStartDate,
+                                                            place: self.txtFldLocation.text ?? "",
+                                                            lat: self.lat, long: self.long,
+                                                            type: selectGigType,
+                                                            participants: self.txtFldPaticipants.text ?? "",
+                                                            price: Int(self.txtFldfee.text ?? "") ?? 0, about: self.txtVwAbout.text ?? "", isImageNil: false) { message in
                                     let vc = self.storyboard?.instantiateViewController(withIdentifier: "CommonPopUpVC") as! CommonPopUpVC
                                     vc.modalPresentationStyle = .overFullScreen
                                     vc.isSelect = 10
@@ -789,7 +674,8 @@ class AddGigVC: UIViewController {
                                         self.viewModel.UpdateGigApi(id: self.gigDetail?.id ?? "", image: UIImageView(image: UIImage(named: "")), name: self.txtFldName.text ?? "", title: self.txtFldTitle.text ?? "",
                                                                     serviceName: txtFldServicetype.text ?? "",
                                                                     serviceDuration: txtFldTastDuration.text ?? "",
-                                                                    startDate:txtFldSelectDate.text ?? "",place: self.txtFldLocation.text ?? "", lat: self.lat, long: self.long, type: self.selectGigType, participants: self.txtFldPaticipants.text ?? "", price: Int(self.txtFldfee.text ?? "") ?? 0, about: self.txtVwAbout.text ?? "", isImageNil: true) { message in
+                                                                    startDate:selectedStartDate,
+                                                                    place: self.txtFldLocation.text ?? "", lat: self.lat, long: self.long, type: self.selectGigType, participants: self.txtFldPaticipants.text ?? "", price: Int(self.txtFldfee.text ?? "") ?? 0, about: self.txtVwAbout.text ?? "", isImageNil: true) { message in
                                             let vc = self.storyboard?.instantiateViewController(withIdentifier: "CommonPopUpVC") as! CommonPopUpVC
                                             vc.modalPresentationStyle = .overFullScreen
                                             vc.isSelect = 10
@@ -804,7 +690,8 @@ class AddGigVC: UIViewController {
                                         self.viewModel.UpdateGigApi(id: self.gigDetail?.id ?? "", image: self.imgVwUpload, name: self.txtFldName.text ?? "", title: self.txtFldTitle.text ?? "",
                                                                     serviceName: txtFldServicetype.text ?? "",
                                                                     serviceDuration: txtFldTastDuration.text ?? "",
-                                                                    startDate:txtFldSelectDate.text ?? "",place: self.txtFldLocation.text ?? "", lat: self.lat, long: self.long, type: self.selectGigType, participants: self.txtFldPaticipants.text ?? "", price: Int(self.txtFldfee.text ?? "") ?? 0, about: self.txtVwAbout.text ?? "", isImageNil: false) { message in
+                                                                    startDate:selectedStartDate,
+                                                                    place: self.txtFldLocation.text ?? "", lat: self.lat, long: self.long, type: self.selectGigType, participants: self.txtFldPaticipants.text ?? "", price: Int(self.txtFldfee.text ?? "") ?? 0, about: self.txtVwAbout.text ?? "", isImageNil: false) { message in
                                             let vc = self.storyboard?.instantiateViewController(withIdentifier: "CommonPopUpVC") as! CommonPopUpVC
                                             vc.modalPresentationStyle = .overFullScreen
                                             vc.isSelect = 10
@@ -824,7 +711,7 @@ class AddGigVC: UIViewController {
                     }
                 }
             }
-    }
+    //}
 }
 //MARK: - UITextViewDelegate
 extension AddGigVC: UITextViewDelegate{
@@ -857,4 +744,166 @@ extension AddGigVC: UITextFieldDelegate {
             }
             return true
         }
+}
+//MARK: - combineDateAndTime, date and time format
+extension AddGigVC{
+    func formatServiceDuration(for duration: Date) -> String? {
+        let calendar = Calendar.current
+        let components = calendar.dateComponents([.hour, .minute], from: duration)
+        guard let hours = components.hour, let minutes = components.minute else { return nil }
+        // Ensure duration is within the valid range
+        if hours == 0 && minutes < 1 {
+            return nil // Minimum "00:01 hours"
+        } else if hours > 24 || (hours == 24 && minutes > 0) {
+            return nil // Maximum "24:00 hours"
+        }
+        
+        // Format the duration
+        return String(format: "%02d:%02d hours", hours, minutes)
+    }
+    func formatDateAndTime(from iso8601String: String) -> (formattedDate: String?, formattedTime: String?) {
+        // Define the input and output formats
+        let inputDateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+        let dateOutputFormat = "dd-MM-yyyy"
+        let timeOutputFormat = "hh:mm a"
+        
+        // Create a date formatter
+        let dateFormatter = DateFormatter()
+        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+        dateFormatter.timeZone = TimeZone(secondsFromGMT: 0) // UTC timezone
+        dateFormatter.dateFormat = inputDateFormat
+        
+        // Parse the ISO 8601 string into a Date object
+        guard let date = dateFormatter.date(from: iso8601String) else {
+            return (nil, nil) // Return nil if parsing fails
+        }
+        
+        // Format the date into the desired formats
+        dateFormatter.dateFormat = dateOutputFormat
+        let formattedDate = dateFormatter.string(from: date)
+        
+        dateFormatter.dateFormat = timeOutputFormat
+        let formattedTime = dateFormatter.string(from: date)
+        
+        return (formattedDate, formattedTime)
+    }
+
+    func combineDateAndTime(dateString: String, timeString: String) -> String? {
+        // Define the input formats for date and time
+        let dateInputFormat = "dd-MM-yyyy"
+        let timeInputFormat = "hh:mm a"
+        let outputDateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+        
+        // Create a date formatter for the date part
+        let dateFormatter = DateFormatter()
+        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+        dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
+        
+        // Parse the date
+        dateFormatter.dateFormat = dateInputFormat
+        guard let date = dateFormatter.date(from: dateString) else { return nil }
+        
+        // Parse the time
+        dateFormatter.dateFormat = timeInputFormat
+        guard let time = dateFormatter.date(from: timeString) else { return nil }
+        
+        // Combine date and time
+        let calendar = Calendar.current
+        var dateComponents = calendar.dateComponents([.year, .month, .day], from: date)
+        let timeComponents = calendar.dateComponents([.hour, .minute], from: time)
+        dateComponents.hour = timeComponents.hour
+        dateComponents.minute = timeComponents.minute
+        
+        // Create the combined date
+        guard let combinedDate = calendar.date(from: dateComponents) else { return nil }
+        
+        // Format the combined date into the output format
+        dateFormatter.dateFormat = outputDateFormat
+        let iso8601String = dateFormatter.string(from: combinedDate)
+        return iso8601String
+    }
+}
+
+//MARK: - Handle textfiled datepicker
+extension AddGigVC{
+    @objc func startTimeDonePressed() {
+        if let datePicker = txtFldSelectTime.inputView as? UIDatePicker {
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "dd-MM-yyyy"
+            let currentDate = dateFormatter.string(from: Date())
+            let selectedStartDateText = txtFldSelectDate.text ?? ""
+            if selectedStartDateText == currentDate {
+                datePicker.minimumDate = Date()
+            } else {
+                datePicker.minimumDate = nil
+            }
+            updateTextField(txtFldSelectTime, datePicker: datePicker)
+        }
+        txtFldSelectTime.resignFirstResponder()
+    }
+
+    @objc func startDateDonePressed() {
+        if let datePicker = txtFldSelectDate.inputView as? UIDatePicker {
+            updateTextField(txtFldSelectDate, datePicker: datePicker)
+        }
+        txtFldSelectDate.resignFirstResponder()
+    }
+    @objc func timePickerDonePressed() {
+        if let datePicker = txtFldTastDuration.inputView as? UIDatePicker {
+            // Format and validate the service duration
+            if let formattedDuration = formatServiceDuration(for: datePicker.date) {
+                txtFldTastDuration.text = formattedDuration
+            }
+        }
+        txtFldTastDuration.resignFirstResponder()
+    }
+    func setupDatePicker(for textField: UITextField, mode: UIDatePicker.Mode, selector: Selector) {
+        let datePicker = UIDatePicker()
+        datePicker.datePickerMode = mode
+        if #available(iOS 13.4, *) {
+            datePicker.preferredDatePickerStyle = .wheels
+        }
+        datePicker.translatesAutoresizingMaskIntoConstraints = false
+        textField.inputView = datePicker
+        let toolbar = UIToolbar()
+        toolbar.sizeToFit()
+        let flexibleSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        let doneButton = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: selector)
+        toolbar.setItems([flexibleSpace, doneButton], animated: true)
+        textField.inputAccessoryView = toolbar
+        datePicker.addTarget(self, action: #selector(datePickerValueChanged(_:)), for: .valueChanged)
+        datePicker.tag = textField.tag
+    }
+
+    @objc func datePickerValueChanged(_ sender: UIDatePicker) {
+        switch sender.tag {
+        case 1:
+            updateTextField(txtFldSelectDate, datePicker: sender)
+        case 2:
+            updateTextField(txtFldSelectTime, datePicker: sender)
+        case 3:
+            updateTextField(txtFldTastDuration, datePicker: sender)
+        default:
+            break
+        }
+    }
+
+    func updateTextField(_ textField: UITextField, datePicker: UIDatePicker) {
+        let dateFormatter = DateFormatter()
+        if textField == txtFldSelectDate {
+            dateFormatter.dateFormat = "dd-MM-yyyy"
+            textField.text = dateFormatter.string(from: datePicker.date)
+        } else if textField == txtFldSelectTime {
+            dateFormatter.dateFormat = "hh:mm a"
+            textField.text = dateFormatter.string(from: datePicker.date)
+        } else if textField == txtFldTastDuration {
+            // Use 24-hour format to capture the duration in hours and minutes
+                   dateFormatter.dateFormat = "HH:mm"
+                   let durationString = dateFormatter.string(from: datePicker.date)
+                   // Ensure the format is "<HH:MM> hours"
+                   textField.text = "\(durationString) hours"
+            
+        }
+    }
+
 }

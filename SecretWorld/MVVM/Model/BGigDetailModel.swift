@@ -23,14 +23,14 @@ struct GetGigDetailData: Codable {
     let image: String?
     let participants: String?
     let price,paymentStatus: Int?
-    let about: String?
+    let about,serviceDuration,serviceName,startDate: String?
     let user: UserDetailes?
     let appliedParticipants: Int?
     let reviews: [ReviewGigBuser]?
 
     enum CodingKeys: String, CodingKey {
         case id = "_id"
-        case name, title, place, lat, status, long, type, image, participants, price, about, user, appliedParticipants, reviews,paymentStatus
+        case name, title, place, lat, status, long, type, image, participants, price, about, user, appliedParticipants, reviews,paymentStatus,serviceDuration,serviceName,startDate
     }
 }
 

@@ -50,20 +50,13 @@ class TabBarVC: UIViewController{
     var viewModel = AuthVM()
     var isStatus = 0
     var isGigType = true
-    var isStoreType = true
-    var isBusinessType = true
-    var isHomeBtnSelect = true
+//    var isStoreType = true
+//    var isBusinessType = true
 
     override func viewDidLoad() {
         super.viewDidLoad()
-//        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissView))
-//                view.addGestureRecognizer(tapGesture)
     }
-//    @objc func dismissView() {
-//        HideStackViewBtns()
-//       }
     override func viewWillAppear(_ animated: Bool) {
-        isHomeBtnSelect = false
         viewModel.verificationStatus { data in
             self.isStatus = data?.verificationStatus ?? 0
             self.uiSet()
@@ -94,7 +87,6 @@ class TabBarVC: UIViewController{
         }
         switch selectedButtonTag {
         case 1:
-//            homeSetup()
             DispatchQueue.main.asyncAfter(deadline: .now()) {
                 self.homeSetup()
             }
@@ -293,14 +285,15 @@ class TabBarVC: UIViewController{
         btnProfile.isSelected = false
     }
     @IBAction func actionBusiness(_ sender: UIButton) {
-        if isBusinessType{
+//        sender.isSelected = !sender.isSelected
+//        if sender.isSelected{
             btnHome.isSelected = false
-            btnGig.isSelected = false
-            btnStore.isSelected = false
+//            btnGig.isSelected = false
+            //btnStore.isSelected = false
 
             isGigType = true
-            isBusinessType = false
-            isStoreType = true
+//            isBusinessType = false
+//            isStoreType = true
             viewBusiness.backgroundColor = .app
             imgVwBusiness.image = UIImage(named: "selBB")
             lblBusiness.textColor = .white
@@ -316,16 +309,15 @@ class TabBarVC: UIViewController{
             // Notify observers (optional)
             NotificationCenter.default.post(name: Notification.Name("businessSel"), object: nil)
             HideStackViewBtns()
-        }else{
-            HideStackViewBtns()
-        }
+//        }else{
+//            HideStackViewBtns()
+//        }
     }
     @IBAction func actionGig(_ sender: UIButton) {
-        if isGigType{
             btnHome.isSelected = false
             isGigType = false
-            isBusinessType = true
-            isStoreType = true
+//            isBusinessType = true
+//            isStoreType = true
             viewGig.backgroundColor = .app
             imgVwGig.image = UIImage(named: "selG")
             lblGig.textColor = .white
@@ -339,22 +331,21 @@ class TabBarVC: UIViewController{
             lblStore.textColor = .black
             NotificationCenter.default.post(name: Notification.Name("gigSel"), object: nil)
             HideStackViewBtns()
-        }else{
-            HideStackViewBtns()
-        }
     }
     @IBAction func actionPopup(_ sender: UIButton) {
-        if isStoreType{
-            btnHome.isSelected = false
+//        sender.isSelected = !sender.isSelected
+//        if sender.isSelected{
+            
             isGigType = true
-            isBusinessType = true
-            isStoreType = false
+//            isBusinessType = true
+//            isStoreType = false
             viewStore.backgroundColor = .app
             imgVwStore.image = UIImage(named: "selP")
             lblStore.textColor = .white
-            
-            btnBusiness.isSelected = false
-            btnGig.isSelected = false
+        
+            btnHome.isSelected = false
+//            btnBusiness.isSelected = false
+//            btnGig.isSelected = false
             
             viewBusiness.backgroundColor = .white
             imgVwBusiness.image = UIImage(named: "noSelBB")
@@ -367,18 +358,15 @@ class TabBarVC: UIViewController{
             
             NotificationCenter.default.post(name: Notification.Name("storeSel"), object: nil)
             HideStackViewBtns()
-        }else{
-            HideStackViewBtns()
-        }
+//        }else{
+//            HideStackViewBtns()
+//        }
         
     }
 
     @IBAction func actionHome(_ sender: UIButton) {
-        // Toggle the state of isHomeBtnSelect
-        isHomeBtnSelect.toggle()
-        
-        // Perform actions based on the new state
-        if isHomeBtnSelect {
+        sender.isSelected = !sender.isSelected
+        if sender.isSelected {
             // Home button is selected
             let deviceHasNotch = UIApplication.shared.hasNotch
             if deviceHasNotch {
@@ -398,7 +386,6 @@ class TabBarVC: UIViewController{
         
         // Common setup for both states
         selectedButtonTag = sender.tag
-        sender.isSelected = isHomeBtnSelect // Ensure button reflects the state
         zoomHomeIcon(isZoomedIn: sender.isSelected)
         homeButtonsSetup(sender: sender.isSelected)
     }
@@ -462,7 +449,7 @@ class TabBarVC: UIViewController{
         btnProfile.isSelected = false
     }
     @IBAction func actionExplore(_ sender: UIButton) {
-        isHomeBtnSelect = true
+        //isHomeBtnSelect = true
         homeButtonsSetup(sender: false)
         self.zoomHomeIcon(isZoomedIn: false)
         let deviceHasNotch = UIApplication.shared.hasNotch
@@ -522,7 +509,6 @@ class TabBarVC: UIViewController{
         btnMenu.isSelected = false
     }
     @IBAction func actionChat(_ sender: UIButton) {
-        isHomeBtnSelect = true
         homeButtonsSetup(sender: false)
         self.zoomHomeIcon(isZoomedIn: false)
         let deviceHasNotch = UIApplication.shared.hasNotch
@@ -562,7 +548,6 @@ class TabBarVC: UIViewController{
         btnMenu.isSelected = false
     }
     @IBAction func actionProfile(_ sender: UIButton) {
-        isHomeBtnSelect = true
         homeButtonsSetup(sender: false)
         self.zoomHomeIcon(isZoomedIn: false)
         let deviceHasNotch = UIApplication.shared.hasNotch
@@ -603,7 +588,6 @@ class TabBarVC: UIViewController{
         btnChat.isSelected = false
     }
     @objc func touchMap(notification:Notification){
-        isHomeBtnSelect = false
         homeButtonsSetup(sender: false)
         self.zoomHomeIcon(isZoomedIn: false)
     }

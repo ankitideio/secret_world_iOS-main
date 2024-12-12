@@ -12,6 +12,7 @@ class PopUpVM {
     var jsonString = ""
     func AddPopUpApi(usertype: String,
                      place:String,
+                     storeType:Int,
                      name: String,
                      business_logo: UIImageView,
                      image: UIImageView,
@@ -51,6 +52,7 @@ class PopUpVM {
                 if isMarker{
                      param = [
                         "place": place,
+                        "storeType": storeType,
                         "usertype": usertype,
                         "name": name,
                         "business_logo": imageInfo,
@@ -65,6 +67,7 @@ class PopUpVM {
                 }else{
                      param = [
                         "place": place,
+                        "storeType": storeType,
                         "usertype": usertype,
                         "name": name,
                         "business_logo": imageInfo,
@@ -108,6 +111,7 @@ class PopUpVM {
     func UpdatePopUpApi(id:String,
                         name: String,
                         usertype: String,
+                        storeType: Int,
                         business_logo: UIImageView,
                         image: UIImageView,
                         startDate: String,
@@ -149,6 +153,7 @@ class PopUpVM {
                         "id":id,
                         "name": name,
                         "usertype": usertype,
+                        "storeType": storeType,
                         "business_logo": imageInfo,
                         "image": markerImageInfo,
                         "startDate": startDate,
@@ -164,6 +169,7 @@ class PopUpVM {
                         "id":id,
                         "name": name,
                         "usertype": usertype,
+                        "storeType": storeType,
                         "business_logo": imageInfo,
                         "startDate": startDate,
                         "endDate": endDate,
