@@ -49,6 +49,7 @@ struct ClusterPoint: Hashable {
 
 class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureManagerDelegate {
     //MARK: - OUTLETS
+    @IBOutlet var bottomStackVwRefreshAndRecenter: NSLayoutConstraint!
     @IBOutlet var btnInMyLocation: UIButton!
     @IBOutlet var imgVwInMyLocation: UIImageView!
     @IBOutlet var viewInMyLocation: UIView!
@@ -150,8 +151,6 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
     fileprivate let actionButton = JJFloatingActionButton()
     var mapView:MapView!
     var visibleIndex = 0
-    var isInMyLocation = true
-    var isWorldWide = true
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -171,8 +170,14 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
     }
     func willAppear(){
         if type == 1{
-            viewWorldwide.isHidden = false
-            viewInMyLocation.isHidden = false
+            viewWorldwide.isHidden = true
+            viewInMyLocation.isHidden = true
+            if viewGigList.isHidden{
+                bottomStackVwRefreshAndRecenter.constant = 30
+            }else{
+                bottomStackVwRefreshAndRecenter.constant = 10
+            }
+
         }else{
             viewWorldwide.isHidden = true
             viewInMyLocation.isHidden = true
@@ -335,10 +340,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
     
     @objc func SelectBusiness(notification:Notification){
         self.viewBusinessList.isHidden = false
-        if homeListenerCall{
-            
             getBusinessData(visibleIndex: 0)
-        }
     }
     
     @objc func methodOfReceivedSelectHome(notification:Notification){
@@ -347,7 +349,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
         }else if isSelectType == 2{
             viewBusinessList.isHidden = true
         }else{
-            
+            self.viewGigList.isHidden = true
             self.viewWorldwide.isHidden = true
             self.viewInMyLocation.isHidden = true
         }
@@ -359,21 +361,26 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
         }else if isSelectType == 2{
             viewBusinessList.isHidden = false
         }else{
-            
-            self.viewWorldwide.isHidden = false
-            self.viewInMyLocation.isHidden = false
+            self.viewGigList.isHidden = true
+            self.viewWorldwide.isHidden = true
+            self.viewInMyLocation.isHidden = true
         }
     }
     @objc func selectGig(notification:Notification){
-        if homeListenerCall{
+            viewGigList.isHidden = false
+            viewInMyLocation.isHidden = false
+            viewWorldwide.isHidden = false
+            if viewGigList.isHidden{
+                bottomStackVwRefreshAndRecenter.constant = 25
+            }else{
+                bottomStackVwRefreshAndRecenter.constant = 10
+            }
             getGigData()
-        }
+        
     }
     @objc func selectStore(notification:Notification){
         self.viewStoreList.isHidden = false
-        if homeListenerCall{
             getStoreData(visibleIndex: 0)
-        }
     }
     
     func centerCell() {
@@ -396,11 +403,10 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                 self.arrSinglePopUpAnnotation.removeAll()
                 
                 self.downloadSingleBusinessImage(at: visibleIndexPath.row, isMove: true)
-                
                 self.downloadBusinessImage(at: visibleIndexPath.row)
                 self.downloadPopUpImage(at: visibleIndexPath.row, isScroll: true)
-                let centerCoordinate = CLLocationCoordinate2D(latitude: item.lat ?? 0, longitude: item.long ?? 0)
-                mapView.mapboxMap.setCamera(to: CameraOptions(center: centerCoordinate, zoom: mapView.mapboxMap.cameraState.zoom))
+//                let centerCoordinate = CLLocationCoordinate2D(latitude: item.lat ?? 0, longitude: item.long ?? 0)
+//                mapView.mapboxMap.setCamera(to: CameraOptions(center: centerCoordinate, zoom: mapView.mapboxMap.cameraState.zoom))
                 
 //                self.downloadSinglePopUpImage(at: visibleIndexPath.row, isScroll: true)
                 
@@ -726,12 +732,10 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                             if self.arrData.count > 0 {
                                 self.heightViewShadow.constant = 60
                                 self.viewNoMatch.isHidden = true
-                                self.viewGigList.isHidden = false
                                 
                             } else {
                                 self.heightViewShadow.constant = 0
                                 self.viewNoMatch.isHidden = false
-                                self.viewGigList.isHidden = true
                             }
                             if self.arrData.count == 1{
                                 self.lblGigCount.text = "\(self.arrData.count) Result"
@@ -740,21 +744,11 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                             }
                             self.tblVwList.reloadData()
                         }else if type == 2{
-//                            if self.arrData.count > 0 {
-//                                self.viewStoreList.isHidden = false
-//                            }else{
-//                                self.viewStoreList.isHidden = true
-//                            }
                             self.heightViewShadow.constant = 0
                             self.viewNoMatch.isHidden = true
                             self.viewGigList.isHidden = true
                             self.collVwStore.reloadData()
                         }else{
-//                            if self.arrData.count > 0 {
-//                                self.viewBusinessList.isHidden = false
-//                            }else{
-//                                self.viewBusinessList.isHidden = true
-//                            }
                             self.heightViewShadow.constant = 0
                             self.viewNoMatch.isHidden = true
                             self.viewGigList.isHidden = true
@@ -812,16 +806,13 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                                     self.isAppendHeatMap = true
                                 }
                                 //popupMarker
-                          
-                               
-                               
 //                                self.downloadSinglePopUpImage(at: self.visibleIndex,isScroll: false)
                                 let difference = self.popUpTime(endTime: i.endDate ?? "")
                                     let imageName = (self.mapView.mapboxMap.styleURI == .dark) ? "newPopUp" : "newPopUp"
                                     if i.image == nil || i.image == ""{
                                         let imageName = (self.mapView.mapboxMap.styleURI == .dark) ? "newPopUp" : "newPopUp"
                                         if let baseImage = UIImage(named: imageName),
-                                           let resizedImage = self.resizeImagePopUp(baseImage, to: CGSize(width: 61, height: 93), withText: difference, at: CGPoint(x: 0, y: 10)) {
+                                           let resizedImage = self.resizeImagePopUp(baseImage, to: CGSize(width: 61, height: 83), withText: difference, at: CGPoint(x: 0, y: 10)) {
                                             var pointAnnotation = PointAnnotation(coordinate: centerCoordinate)
                                             pointAnnotation.image = .init(image: resizedImage, name: "popup_\(index)")
                                             if index < self.arrPopUpPointAnnotations.count {
@@ -859,7 +850,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                                 
                                 let imageName = (self.mapView.mapboxMap.styleURI == .dark) ? "newPopUp" : "newPopUp"
                                 if let baseImage = UIImage(named: imageName),
-                                                 let resizedImage = self.resizeImage(baseImage, to: CGSize(width: 61, height: 93)) {
+                                                 let resizedImage = self.resizeImage(baseImage, to: CGSize(width: 61, height: 83)) {
                                                   var pointAnnotation = PointAnnotation(coordinate: centerCoordinate)
                                                   pointAnnotation.image = .init(image: resizedImage, name: "popup_\(index)")
                                                   if index < self.arrGigPointAnnotations.count {
@@ -1239,7 +1230,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
         let centerCoordinate1 = CLLocationCoordinate2D(latitude: arrData[index].lat ?? 0, longitude: arrData[index].long ?? 0)
         let imageName = "newPopUp"
         if let baseImage = UIImage(named: imageName),
-           let resizedImage = self.resizeImage(baseImage, to: CGSize(width: 61, height: 93)) {
+           let resizedImage = self.resizeImage(baseImage, to: CGSize(width: 61, height: 83)) {
             var pointAnnotation = PointAnnotation(coordinate: centerCoordinate1)
             pointAnnotation.image = .init(image: resizedImage, name: uniqueID)
 
@@ -1295,7 +1286,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
               if let overlayImage = overlayImage {
                   let combinedImage = self.combineImagesPopUp(baseImage: baseImage,
                                                               overlayImage: overlayImage,
-                                                              baseSize: CGSize(width: 61, height: 93),
+                                                              baseSize: CGSize(width: 61, height: 83),
                                                               overlaySize: CGSize(width: 28, height: 28), type: "popup", text: difference
                         )
                         if combinedImage == nil {
@@ -1545,7 +1536,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
     func resizeImagePopUp(_ image: UIImage, to size: CGSize, withText text: String, at point: CGPoint) -> UIImage? {
         // Set up text attributes
         let attributes: [NSAttributedString.Key: Any] = [
-            .font: UIFont.systemFont(ofSize: 8), // Adjust font size
+            .font: UIFont.systemFont(ofSize: 6), // Adjust font size
             .foregroundColor: UIColor.white // Adjust text color
         ]
         
@@ -1554,7 +1545,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
         print("Text size: \(textSize)") // Debugging
         
         // Adjust the image width based on the text size
-        let adjustedWidth = max(size.width, textSize.width+50)
+        let adjustedWidth = max(size.width, textSize.width+20)
         let adjustedHeight = size.height
 
         // Start graphics context with adjusted size
@@ -1567,7 +1558,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
         // Calculate the text position (centered horizontally, 20 points from bottom)
         let textRect = CGRect(
             x: (adjustedWidth - textSize.width) / 2,
-            y: max(0, adjustedHeight - textSize.height - 23),
+            y: max(0, adjustedHeight - textSize.height - 22),
             width: textSize.width,
             height: textSize.height
         )
@@ -1639,7 +1630,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
     ) -> UIImage? {
         // Set up text attributes
         let textAttributes: [NSAttributedString.Key: Any] = [
-            .font: UIFont.systemFont(ofSize: 8),
+            .font: UIFont.systemFont(ofSize: 6),
             .foregroundColor: UIColor.white,
             .backgroundColor: UIColor.clear
         ]
@@ -1649,7 +1640,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
         print("Text size: \(textSize)") // Debugging
         
         // Adjust base width based on text width
-        let adjustedBaseWidth = max(baseSize.width, textSize.width + 50) // Adding some padding around the text
+        let adjustedBaseWidth = max(baseSize.width, textSize.width + 20) // Adding some padding around the text
         let adjustedBaseSize = CGSize(width: adjustedBaseWidth, height: baseSize.height)
 
         // Start graphics context with adjusted base size
@@ -1674,7 +1665,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
         // Draw the text
         let textRect = CGRect(
             x: max(0, (adjustedBaseSize.width - textSize.width) / 2),
-            y: max(0, adjustedBaseSize.height - textSize.height - 23),
+            y: max(0, adjustedBaseSize.height - textSize.height - 22),
             width: textSize.width,
             height: textSize.height
         )
@@ -1832,8 +1823,15 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
         }else if isSelectType == 3{
             self.viewStoreList.isHidden = true
         }else{
-            self.viewInMyLocation.isHidden = false
-            self.viewWorldwide.isHidden = false
+            self.viewInMyLocation.isHidden = true
+            self.viewWorldwide.isHidden = true
+            self.viewGigList.isHidden = true
+            if viewNoMatch.isHidden{
+                bottomStackVwRefreshAndRecenter.constant = 25
+            }else{
+                bottomStackVwRefreshAndRecenter.constant = 10
+            }
+           
         }
         NotificationCenter.default.post(name: Notification.Name("touchMap"), object: nil)
         DispatchQueue.main.asyncAfter(deadline: .now()){
@@ -2057,7 +2055,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                 if self.arrData.count > 0 {
                     self.viewNoMatch.isHidden = true
                 } else {
-                    self.viewNoMatch.isHidden = false
+                    self.viewNoMatch.isHidden = true
                 }
         }
     }
@@ -2093,13 +2091,8 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                             height: fabs(MKMapPoint(bottomRight).y - MKMapPoint(topLeft).y))
         )
         let boundary = MKCoordinateRegion(mapBoundary)
-//        mapVw.setCameraBoundary(MKMapView.CameraBoundary(coordinateRegion: boundary), animated: true)
         // Print radius to debug
         print("Restricting map with radius (meters): \(radiusInMeters)")
-        
-
-        // Update zoom range dynamically
-//        mapVw.setCameraZoomRange(MKMapView.CameraZoomRange(minCenterCoordinateDistance: 10000, maxCenterCoordinateDistance: radiusInMeters * 2), animated: true)
     }
 
 
@@ -2107,14 +2100,14 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
     //MARK: - BUTTON ACTION
     @IBAction func actionInMyLocation(_ sender: UIButton) {
         self.dismiss(animated: true)
-        if isInMyLocation{
             viewInMyLocation.animateRefreshAndRecenter()
             Store.GigType = 1
-            isInMyLocation = false
-            isWorldWide = true
+            viewGigList.isHidden = false
+            viewInMyLocation.isHidden = true
+            viewWorldwide.isHidden = true
             getInmylocationGigs()
             myLocationSetup()
-        }
+        
     }
     func myLocationSetup(){
         viewInMyLocation.backgroundColor = .app
@@ -2125,14 +2118,14 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
     }
     @IBAction func actionWorldWide(_ sender: UIButton) {
         self.dismiss(animated: true)
-        if isWorldWide{
             viewWorldwide.animateRefreshAndRecenter()
             Store.GigType = 0
-            isInMyLocation = true
-            isWorldWide = false
+            viewGigList.isHidden = false
+            viewInMyLocation.isHidden = true
+            viewWorldwide.isHidden = true
             getWorlwideGigs()
             worldwideSetup()
-        }
+        
     }
     func worldwideSetup(){
         viewInMyLocation.backgroundColor = .white
@@ -2289,8 +2282,8 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
 
     }
     func getGigData(){
-        viewWorldwide.isHidden = false
-        viewInMyLocation.isHidden = false
+//        viewWorldwide.isHidden = false
+//        viewInMyLocation.isHidden = false
         heightViewShadow.constant = 0
         viewBusinessList.isHidden = true
         viewStoreList.isHidden = true
@@ -2482,6 +2475,12 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                     DispatchQueue.main.asyncAfter(deadline: .now()+0.5){
                         self.getWillApearAllData()
                     }
+                    if self.arrData.count > 0{
+                        self.viewBusinessList.isHidden = false
+                    }else{
+                        self.viewBusinessList.isHidden = true
+                    }
+
                     isSelectStoreAndBusinessBtn()
                 }
             }
@@ -2529,6 +2528,11 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
             removePointClusters()
             viewRefresh.animateRefreshAndRecenter()
             removeAllArray()
+            if viewNoMatch.isHidden{
+                bottomStackVwRefreshAndRecenter.constant = 25
+            }else{
+                bottomStackVwRefreshAndRecenter.constant = 10
+            }
             tblVwList.reloadData()
             collVwStore.reloadData()
             collVwBusiness.reloadData()
@@ -2555,6 +2559,11 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
         customAnnotations.removeAll()
         removePointClusters()
         removeAllArray()
+        if viewNoMatch.isHidden{
+            bottomStackVwRefreshAndRecenter.constant = 25
+        }else{
+            bottomStackVwRefreshAndRecenter.constant = 10
+        }
         tblVwList.reloadData()
         collVwStore.reloadData()
         collVwBusiness.reloadData()

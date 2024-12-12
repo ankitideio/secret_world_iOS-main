@@ -24,13 +24,13 @@ struct PopupDetailData: Codable {
     let status: Status?
     let createdAt, updatedAt: String?
     let user: UserDetaa?
-    let Requests,timeStatus: Int?
+    let Requests,timeStatus,storeType: Int?
 
     enum CodingKeys: String, CodingKey {
         case id = "_id"
         case name, usertype,timeStatus
         case businessLogo = "business_logo"
-        case description, addProducts, lat, long, startDate, endDate, status, createdAt, updatedAt, user,place,Requests,image
+        case description, addProducts, lat, long, startDate, endDate, status, createdAt, updatedAt, user,place,Requests,image,storeType
        
     }
 }

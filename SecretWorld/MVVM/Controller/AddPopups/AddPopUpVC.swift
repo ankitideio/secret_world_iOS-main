@@ -17,6 +17,7 @@ struct Products {
 }
 class AddPopUpVC: UIViewController,UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     //MARK: - OUTLETS
+    @IBOutlet var txtFldPopupType: UITextField!
     @IBOutlet var btnMarkerLogo: UIButton!
     @IBOutlet var imgVwMarkerLogo: UIImageView!
     @IBOutlet var btnCreate: UIButton!
@@ -51,8 +52,17 @@ class AddPopUpVC: UIViewController,UIImagePickerControllerDelegate, UINavigation
     var arrEditProducts = [AddProducts]()
     var callBack:(()->())?
     var popupDetails:PopupDetailData?
+    var popUptype = 3
     override func viewDidLoad() {
         super.viewDidLoad()
+        uiSet()
+    }
+    
+    @objc func handleSwipe() {
+               navigationController?.popViewController(animated: true)
+           }
+    
+    func uiSet(){
         let swipeRight = UISwipeGestureRecognizer(target: self, action: #selector(handleSwipe))
                   swipeRight.direction = .right
                   view.addGestureRecognizer(swipeRight)
@@ -62,12 +72,7 @@ class AddPopUpVC: UIViewController,UIImagePickerControllerDelegate, UINavigation
         txtFldEndTime.tag = 4
         let nibNearBy = UINib(nibName: "ProductListTVC", bundle: nil)
         tblVwList.register(nibNearBy, forCellReuseIdentifier: "ProductListTVC")
-        uiSet()
-    }
-    @objc func handleSwipe() {
-               navigationController?.popViewController(animated: true)
-           }
-    func uiSet(){
+
         txtVwDescription.delegate = self
         if isComing == true{
             // Update promote business
@@ -75,8 +80,15 @@ class AddPopUpVC: UIViewController,UIImagePickerControllerDelegate, UINavigation
             btnCreate.setTitle("Update", for: .normal)
             btnPopupLogo.setImage(UIImage(named: ""), for: .normal)
             imgVwPopupLogo.imageLoad(imageUrl: popupDetails?.businessLogo ?? "")
+            popUptype = popupDetails?.storeType ?? 0
+            if popupDetails?.storeType == 1{
+                txtFldPopupType.text = "One the go"
+            }else if popupDetails?.storeType == 2{
+                txtFldPopupType.text = "Still"
+            }else{
+                txtFldPopupType.text = "Hidden"
+            }
             if popupDetails?.image == "" || popupDetails?.image == nil{
-                
                 btnMarkerLogo.setImage(UIImage(named: "Group25"), for: .normal)
             }else{
                 
@@ -104,204 +116,26 @@ class AddPopUpVC: UIViewController,UIImagePickerControllerDelegate, UINavigation
         }
         setupDatePickers()
     }
-      func setupDatePickers() {
-        setupDatePicker(for: txtFldStartDate, mode: .date, selector: #selector(startDateDonePressed))
-        setupDatePicker(for: txtFldEndDate, mode: .date, selector: #selector(endDateDonePressed))
-        setupDatePicker(for: txtFldStartTime, mode: .time, selector: #selector(startTimeDonePressed))
-        setupDatePicker(for: txtFldEndTime, mode: .time, selector: #selector(endTimeDonePressed))
-      }
-    @objc func actionStartTime() {
-      if let datePicker = txtFldStartTime.inputView as? UIDatePicker {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "h:mm a"
-        selectedStartTime = dateFormatter.string(from: datePicker.date)
-        let currentDate = Date()
-        dateFormatter.dateFormat = "dd-MM-yyyy"
-        let currentDateString = dateFormatter.string(from: currentDate)
-        if txtFldStartDate.text == currentDateString {
-          if datePicker.date < currentDate {
-            datePicker.date = currentDate
-            txtFldStartTime.text = nil
-          } else {
-            datePicker.minimumDate = currentDate
-            txtFldStartTime.text = selectedStartTime
-          }
-        } else {
-          datePicker.minimumDate = nil
-          txtFldStartTime.text = selectedStartTime
-        }
-      }
-    }
-      func setupDatePicker(for textField: UITextField, mode: UIDatePicker.Mode, selector: Selector) {
-        let datePicker = UIDatePicker()
-        datePicker.datePickerMode = mode
-        if #available(iOS 13.4, *) {
-          datePicker.preferredDatePickerStyle = .wheels
-        }
-        datePicker.translatesAutoresizingMaskIntoConstraints = false
-        textField.inputView = datePicker
-          if textField == txtFldStartDate || textField == txtFldEndDate{
-              datePicker.minimumDate = Date()
-          }
-        let toolbar = UIToolbar()
-        toolbar.sizeToFit()
-        let flexibleSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-        let doneButton = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: selector)
-        // Add the flexible space item first and then the "Done" button
-        toolbar.setItems([flexibleSpace, doneButton], animated: true)
-        textField.inputAccessoryView = toolbar
-        datePicker.addTarget(self, action: #selector(datePickerValueChanged(_:)), for: .valueChanged)
-        datePicker.tag = textField.tag
-      }
-      @objc func datePickerValueChanged(_ sender: UIDatePicker) {
-        switch sender.tag {
-        case 1:
-          updateTextField(txtFldStartDate, datePicker: sender)
-        case 2:
-          updateTextField(txtFldEndDate, datePicker: sender)
-        case 3:
-          updateTextField(txtFldStartTime, datePicker: sender)
-        case 4:
-          updateTextField(txtFldEndTime, datePicker: sender)
-        default:
-          break
-        }
-      }
-    func updateTextField(_ textField: UITextField, datePicker: UIDatePicker) {
-      let dateFormatter = DateFormatter()
-      if textField == txtFldStartDate || textField == txtFldEndDate {
-        dateFormatter.dateFormat = "dd-MM-yyyy"
-      } else if textField == txtFldStartTime || textField == txtFldEndTime {
-        dateFormatter.dateFormat = "h:mm a"
-      }
-      textField.text = dateFormatter.string(from: datePicker.date)
-      validateDateAndTime()
-    }
-      @objc func startDateDonePressed() {
-        if let datePicker = txtFldStartDate.inputView as? UIDatePicker {
-          updateTextField(txtFldStartDate, datePicker: datePicker)
-        }
-        txtFldStartDate.resignFirstResponder()
-      }
-      @objc func endDateDonePressed() {
-        if let datePicker = txtFldEndDate.inputView as? UIDatePicker {
-          updateTextField(txtFldEndDate, datePicker: datePicker)
-        }
-        txtFldEndDate.resignFirstResponder()
-      }
-    @objc func startTimeDonePressed() {
-        if let datePicker = txtFldStartTime.inputView as? UIDatePicker {
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "dd-MM-yyyy"
-            let currentDate = dateFormatter.string(from: Date())
-            let selectedStartDateText = txtFldStartDate.text ?? ""
-            if selectedStartDateText == currentDate {
-                datePicker.minimumDate = Date()
-            } else {
-                datePicker.minimumDate = nil
-            }
-            updateTextField(txtFldStartTime, datePicker: datePicker)
-        }
-        txtFldStartTime.resignFirstResponder()
-    }
-      @objc func endTimeDonePressed() {
-        if let datePicker = txtFldEndTime.inputView as? UIDatePicker {
-          updateTextField(txtFldEndTime, datePicker: datePicker)
-        }
-        txtFldEndTime.resignFirstResponder()
-      }
-    func validateDateAndTime() {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "dd-MM-yyyy"
-        let currentDate = Date()
-        // Validate start time
-        if let datePicker = txtFldStartTime.inputView as? UIDatePicker {
-            let selectedStartDateText = txtFldStartDate.text ?? ""
-            if let selectedStartDate = dateFormatter.date(from: selectedStartDateText) {
-                if Calendar.current.isDate(selectedStartDate, inSameDayAs: currentDate) {
-                    datePicker.minimumDate = currentDate
-                    let timeFormatter = DateFormatter()
-                            timeFormatter.dateFormat = "h:mm a"
-                    let currentTimeString = timeFormatter.string(from: currentDate)
-                                print("Current Time: \(currentTimeString)")
-                    if currentTimeString > txtFldStartTime.text ?? ""{
-                        txtFldStartTime.text = ""
-                    }
-                } else {
-                    
-                    datePicker.minimumDate = nil
-                }
-            }
-        }
-        // Validate end time
-        if let datePicker = txtFldEndTime.inputView as? UIDatePicker {
-            let selectedEndDateText = txtFldEndDate.text ?? ""
-            if let selectedEndDate = dateFormatter.date(from: selectedEndDateText) {
-                if Calendar.current.isDate(selectedEndDate, inSameDayAs: currentDate) {
-                    datePicker.minimumDate = currentDate
-                } else {
-                    
-                    datePicker.minimumDate = nil
-                }
-            }
-        }
-        guard let startDateText = txtFldStartDate.text,
-              let endDateText = txtFldEndDate.text,
-              let startTimeText = txtFldStartTime.text,
-              let endTimeText = txtFldEndTime.text else {
-            return
-        }
-        guard let startDate = dateFormatter.date(from: startDateText),
-              let endDate = dateFormatter.date(from: endDateText) else {
-            return
-        }
-        if startDate == endDate {
-            dateFormatter.dateFormat = "h:mm a"
-            guard let startTime = dateFormatter.date(from: startTimeText),
-                  let endTime = dateFormatter.date(from: endTimeText) else {
-                return
-            }
-            if endTime <= startTime {
-                
-                txtFldEndTime.text = ""
-                showSwiftyAlert("", "Enter valid time.", false)
-            }
-        }else if startDate > endDate {
-            
-            txtFldEndDate.text = ""
-            showSwiftyAlert("", "Enter valid date.", false)
-        }
-    }
-    func convertDateString(_ dateString: String) -> String? {
-        let dateFormatter = DateFormatter()
-//        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
-        if dateString.contains(".") {
-            dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
-        } else {
-            dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
-        }
-        if let date = dateFormatter.date(from: dateString) {
-            dateFormatter.dateFormat = "dd-MM-yyyy"
-            return dateFormatter.string(from: date)
-        }
-        return nil
-    }
-    func convertTimeString(_ dateString: String) -> String? {
-        let dateFormatter = DateFormatter()
-//        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
-        if dateString.contains(".") {
-            dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
-        } else {
-            dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
-        }
-        if let date = dateFormatter.date(from: dateString) {
-            dateFormatter.dateFormat = "h:mm a"
-            return dateFormatter.string(from: date)
-        }
-        return nil
-    }
     //MARK: - BUTTON ACTIONS
     
+    @IBAction func actionChoosetype(_ sender: UIButton) {
+        let vc = self.storyboard?.instantiateViewController(withIdentifier: "PopupTypeVC") as! PopupTypeVC
+        vc.modalPresentationStyle = .overFullScreen
+        vc.popUptype = popUptype
+        vc.callBack = {[weak self] type in
+            guard let self = self else { return }
+            self.popUptype = type ?? 0
+            if popUptype == 0{
+                txtFldPopupType.text = "Hidden"
+            }else if popUptype == 1{
+                txtFldPopupType.text = "On the go"
+            }else{
+                txtFldPopupType.text = "Still"
+            }
+        }
+        self.navigationController?.present(vc, animated: true)
+
+    }
     @IBAction func actionUploadMarkerLogo(_ sender: UIButton) {
         if isUploadMarker == true{
             do {
@@ -414,6 +248,7 @@ class AddPopUpVC: UIViewController,UIImagePickerControllerDelegate, UINavigation
         self.navigationController?.present(vc, animated: true)
     }
     @IBAction func actionCreate(_ sender: UIButton) {
+        
         if imgVwPopupLogo.image == UIImage(named: "") || imgVwPopupLogo.image == nil{
             showSwiftyAlert("", "No logo selected. Please choose an image to upload", false)
         }else  if imgVwMarkerLogo.image == UIImage(named: "") || imgVwMarkerLogo.image == nil{
@@ -428,6 +263,8 @@ class AddPopUpVC: UIViewController,UIImagePickerControllerDelegate, UINavigation
             } else {
                 showSwiftyAlert("", "Add product", false)
             }
+        }else if txtFldPopupType.text == ""{
+            showSwiftyAlert("", "Please select your popup type", false)
         }else if txtFldLOcation.text == ""{
             showSwiftyAlert("", "Please select your location", false)
         }else if txtFldStartDate.text == ""{
@@ -506,7 +343,7 @@ class AddPopUpVC: UIViewController,UIImagePickerControllerDelegate, UINavigation
                     if self.imgVwMarkerLogo.image == UIImage(named: ""){
                         viewModel.UpdatePopUpApi(id: popupDetails?.id ?? "",
                                                  name: txtFldName.text ?? "",
-                                                 usertype: "user",
+                                                 usertype: "user", storeType: popUptype,
                                                  business_logo: imgVwPopupLogo,
                                                  image: imgVwMarkerLogo,
                                                  startDate: startDateTimeUTC,
@@ -537,7 +374,7 @@ class AddPopUpVC: UIViewController,UIImagePickerControllerDelegate, UINavigation
                             self.imgVwMarkerLogo.image = processedImage
                             viewModel.UpdatePopUpApi(id: popupDetails?.id ?? "",
                                                      name: txtFldName.text ?? "",
-                                                     usertype: "user",
+                                                     usertype: "user", storeType: popUptype,
                                                      business_logo: imgVwPopupLogo,
                                                      image: imgVwMarkerLogo,
                                                      startDate: startDateTimeUTC,
@@ -567,7 +404,7 @@ class AddPopUpVC: UIViewController,UIImagePickerControllerDelegate, UINavigation
                 }else{
                     //add
                     if self.imgVwMarkerLogo.image == UIImage(named: ""){
-                        viewModel.AddPopUpApi(usertype: "user", place: txtFldLOcation.text ?? "", name: txtFldName.text ?? "",
+                        viewModel.AddPopUpApi(usertype: "user", place: txtFldLOcation.text ?? "", storeType: popUptype, name: txtFldName.text ?? "",
                                               business_logo: imgVwPopupLogo,
                                               image: imgVwMarkerLogo,
                                               startDate: startDateTimeUTC ,
@@ -595,7 +432,7 @@ class AddPopUpVC: UIViewController,UIImagePickerControllerDelegate, UINavigation
                             // Remove background from the image
                                 let processedImage = try BackgroundRemoval().removeBackground(image: imgVwMarkerLogo.image ?? UIImage())
                                 self.imgVwMarkerLogo.image = processedImage
-                            viewModel.AddPopUpApi(usertype: "user", place: txtFldLOcation.text ?? "", name: txtFldName.text ?? "",
+                            viewModel.AddPopUpApi(usertype: "user", place: txtFldLOcation.text ?? "", storeType: popUptype, name: txtFldName.text ?? "",
                                                   business_logo: imgVwPopupLogo,
                                                   image: imgVwMarkerLogo,
                                                   startDate: startDateTimeUTC ,
@@ -667,9 +504,17 @@ class AddPopUpVC: UIViewController,UIImagePickerControllerDelegate, UINavigation
 extension AddPopUpVC: UITableViewDelegate,UITableViewDataSource{
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if isComing == true{
-            return  arrEditProducts.count
+            if arrEditProducts.count > 0{
+                return  arrEditProducts.count
+            }else{
+                return 0
+            }
         }else{
-            return  arrProducts.count
+            if arrProducts.count > 0{
+                return  arrProducts.count
+            }else{
+                return 0
+            }
         }
     }
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -677,11 +522,15 @@ extension AddPopUpVC: UITableViewDelegate,UITableViewDataSource{
         cell.btnEdit.tag = indexPath.row
         cell.btnEdit.addTarget(self, action: #selector(ActionEditProduct), for: .touchUpInside)
         if isComing == true{
-            cell.lblProductName.text = "\(indexPath.row + 1). \(arrEditProducts[indexPath.row].productName ?? "")"
-            cell.lblPrice.text = "$\(arrEditProducts[indexPath.row].price ?? 0)"
+            if arrEditProducts.count > 0{
+                cell.lblProductName.text = "\(indexPath.row + 1). \(arrEditProducts[indexPath.row].productName ?? "")"
+                cell.lblPrice.text = "$\(arrEditProducts[indexPath.row].price ?? 0)"
+            }
         }else{
-            cell.lblProductName.text = "\(indexPath.row + 1). \(arrProducts[indexPath.row].name ?? "")"
-            cell.lblPrice.text = "$\(arrProducts[indexPath.row].price ?? 0)"
+            if arrProducts.count > 0{
+                cell.lblProductName.text = "\(indexPath.row + 1). \(arrProducts[indexPath.row].name ?? "")"
+                cell.lblPrice.text = "$\(arrProducts[indexPath.row].price ?? 0)"
+            }
         }
         return cell
     }
@@ -744,4 +593,204 @@ extension AddPopUpVC: UITextViewDelegate{
         let newText = (textView.text as NSString).replacingCharacters(in: range, with: text)
         return newText.count <= 250
     }
+}
+//MARK: - Handle textfields datepicker
+extension AddPopUpVC{
+    func setupDatePickers() {
+      setupDatePicker(for: txtFldStartDate, mode: .date, selector: #selector(startDateDonePressed))
+      setupDatePicker(for: txtFldEndDate, mode: .date, selector: #selector(endDateDonePressed))
+      setupDatePicker(for: txtFldStartTime, mode: .time, selector: #selector(startTimeDonePressed))
+      setupDatePicker(for: txtFldEndTime, mode: .time, selector: #selector(endTimeDonePressed))
+    }
+  @objc func actionStartTime() {
+    if let datePicker = txtFldStartTime.inputView as? UIDatePicker {
+      let dateFormatter = DateFormatter()
+      dateFormatter.dateFormat = "h:mm a"
+      selectedStartTime = dateFormatter.string(from: datePicker.date)
+      let currentDate = Date()
+      dateFormatter.dateFormat = "dd-MM-yyyy"
+      let currentDateString = dateFormatter.string(from: currentDate)
+      if txtFldStartDate.text == currentDateString {
+        if datePicker.date < currentDate {
+          datePicker.date = currentDate
+          txtFldStartTime.text = nil
+        } else {
+          datePicker.minimumDate = currentDate
+          txtFldStartTime.text = selectedStartTime
+        }
+      } else {
+        datePicker.minimumDate = nil
+        txtFldStartTime.text = selectedStartTime
+      }
+    }
+  }
+    func setupDatePicker(for textField: UITextField, mode: UIDatePicker.Mode, selector: Selector) {
+      let datePicker = UIDatePicker()
+      datePicker.datePickerMode = mode
+      if #available(iOS 13.4, *) {
+        datePicker.preferredDatePickerStyle = .wheels
+      }
+      datePicker.translatesAutoresizingMaskIntoConstraints = false
+      textField.inputView = datePicker
+        if textField == txtFldStartDate || textField == txtFldEndDate{
+            datePicker.minimumDate = Date()
+        }
+      let toolbar = UIToolbar()
+      toolbar.sizeToFit()
+      let flexibleSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+      let doneButton = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: selector)
+      // Add the flexible space item first and then the "Done" button
+      toolbar.setItems([flexibleSpace, doneButton], animated: true)
+      textField.inputAccessoryView = toolbar
+      datePicker.addTarget(self, action: #selector(datePickerValueChanged(_:)), for: .valueChanged)
+      datePicker.tag = textField.tag
+    }
+    @objc func datePickerValueChanged(_ sender: UIDatePicker) {
+      switch sender.tag {
+      case 1:
+        updateTextField(txtFldStartDate, datePicker: sender)
+      case 2:
+        updateTextField(txtFldEndDate, datePicker: sender)
+      case 3:
+        updateTextField(txtFldStartTime, datePicker: sender)
+      case 4:
+        updateTextField(txtFldEndTime, datePicker: sender)
+      default:
+        break
+      }
+    }
+  func updateTextField(_ textField: UITextField, datePicker: UIDatePicker) {
+    let dateFormatter = DateFormatter()
+    if textField == txtFldStartDate || textField == txtFldEndDate {
+      dateFormatter.dateFormat = "dd-MM-yyyy"
+    } else if textField == txtFldStartTime || textField == txtFldEndTime {
+      dateFormatter.dateFormat = "h:mm a"
+    }
+    textField.text = dateFormatter.string(from: datePicker.date)
+    validateDateAndTime()
+  }
+    @objc func startDateDonePressed() {
+      if let datePicker = txtFldStartDate.inputView as? UIDatePicker {
+        updateTextField(txtFldStartDate, datePicker: datePicker)
+      }
+      txtFldStartDate.resignFirstResponder()
+    }
+    @objc func endDateDonePressed() {
+      if let datePicker = txtFldEndDate.inputView as? UIDatePicker {
+        updateTextField(txtFldEndDate, datePicker: datePicker)
+      }
+      txtFldEndDate.resignFirstResponder()
+    }
+  @objc func startTimeDonePressed() {
+      if let datePicker = txtFldStartTime.inputView as? UIDatePicker {
+          let dateFormatter = DateFormatter()
+          dateFormatter.dateFormat = "dd-MM-yyyy"
+          let currentDate = dateFormatter.string(from: Date())
+          let selectedStartDateText = txtFldStartDate.text ?? ""
+          if selectedStartDateText == currentDate {
+              datePicker.minimumDate = Date()
+          } else {
+              datePicker.minimumDate = nil
+          }
+          updateTextField(txtFldStartTime, datePicker: datePicker)
+      }
+      txtFldStartTime.resignFirstResponder()
+  }
+    @objc func endTimeDonePressed() {
+      if let datePicker = txtFldEndTime.inputView as? UIDatePicker {
+        updateTextField(txtFldEndTime, datePicker: datePicker)
+      }
+      txtFldEndTime.resignFirstResponder()
+    }
+  func validateDateAndTime() {
+      let dateFormatter = DateFormatter()
+      dateFormatter.dateFormat = "dd-MM-yyyy"
+      let currentDate = Date()
+      // Validate start time
+      if let datePicker = txtFldStartTime.inputView as? UIDatePicker {
+          let selectedStartDateText = txtFldStartDate.text ?? ""
+          if let selectedStartDate = dateFormatter.date(from: selectedStartDateText) {
+              if Calendar.current.isDate(selectedStartDate, inSameDayAs: currentDate) {
+                  datePicker.minimumDate = currentDate
+                  let timeFormatter = DateFormatter()
+                          timeFormatter.dateFormat = "h:mm a"
+                  let currentTimeString = timeFormatter.string(from: currentDate)
+                              print("Current Time: \(currentTimeString)")
+                  if currentTimeString > txtFldStartTime.text ?? ""{
+                      txtFldStartTime.text = ""
+                  }
+              } else {
+                  
+                  datePicker.minimumDate = nil
+              }
+          }
+      }
+      // Validate end time
+      if let datePicker = txtFldEndTime.inputView as? UIDatePicker {
+          let selectedEndDateText = txtFldEndDate.text ?? ""
+          if let selectedEndDate = dateFormatter.date(from: selectedEndDateText) {
+              if Calendar.current.isDate(selectedEndDate, inSameDayAs: currentDate) {
+                  datePicker.minimumDate = currentDate
+              } else {
+                  
+                  datePicker.minimumDate = nil
+              }
+          }
+      }
+      guard let startDateText = txtFldStartDate.text,
+            let endDateText = txtFldEndDate.text,
+            let startTimeText = txtFldStartTime.text,
+            let endTimeText = txtFldEndTime.text else {
+          return
+      }
+      guard let startDate = dateFormatter.date(from: startDateText),
+            let endDate = dateFormatter.date(from: endDateText) else {
+          return
+      }
+      if startDate == endDate {
+          dateFormatter.dateFormat = "h:mm a"
+          guard let startTime = dateFormatter.date(from: startTimeText),
+                let endTime = dateFormatter.date(from: endTimeText) else {
+              return
+          }
+          if endTime <= startTime {
+              
+              txtFldEndTime.text = ""
+              showSwiftyAlert("", "Enter valid time.", false)
+          }
+      }else if startDate > endDate {
+          
+          txtFldEndDate.text = ""
+          showSwiftyAlert("", "Enter valid date.", false)
+      }
+  }
+  func convertDateString(_ dateString: String) -> String? {
+      let dateFormatter = DateFormatter()
+//        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
+      if dateString.contains(".") {
+          dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+      } else {
+          dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
+      }
+      if let date = dateFormatter.date(from: dateString) {
+          dateFormatter.dateFormat = "dd-MM-yyyy"
+          return dateFormatter.string(from: date)
+      }
+      return nil
+  }
+  func convertTimeString(_ dateString: String) -> String? {
+      let dateFormatter = DateFormatter()
+//        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
+      if dateString.contains(".") {
+          dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+      } else {
+          dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
+      }
+      if let date = dateFormatter.date(from: dateString) {
+          dateFormatter.dateFormat = "h:mm a"
+          return dateFormatter.string(from: date)
+      }
+      return nil
+  }
+
 }
