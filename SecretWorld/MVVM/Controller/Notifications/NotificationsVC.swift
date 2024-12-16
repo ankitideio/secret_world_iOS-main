@@ -21,6 +21,7 @@ class NotificationsVC: UIViewController {
     var isComingNotification = false
     var popUpId = ""
     var callBack:(()->())?
+    var isCalling = false
     private let refreshControl = UIRefreshControl()
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -32,7 +33,10 @@ class NotificationsVC: UIViewController {
     }
 
     @objc func handleSwipe() {
-        self.navigationController?.popViewController(animated: true)
+        if isCalling{
+            self.navigationController?.popViewController(animated: true)
+            self.callBack?()
+        }
     }
     func uiSet(){
         if isComingNotification == true{
@@ -72,6 +76,7 @@ class NotificationsVC: UIViewController {
 
     func notificationsApi(){
     viewModel.getNotification { data in
+        
         if data?.notifications?.count ?? 0 > 0 {
             self.lblNoData.isHidden = true
         } else {
@@ -110,6 +115,7 @@ class NotificationsVC: UIViewController {
         self.tblVw.estimatedRowHeight = 50
         self.tblVw.rowHeight = UITableView.automaticDimension
         self.tblVw.reloadData()
+        self.isCalling = true
     }
 }
         func convertTimestampToDateString(timestamp: String) -> String? {
@@ -123,8 +129,10 @@ class NotificationsVC: UIViewController {
         }
     
     @IBAction func actionBack(_ sender: UIButton) {
-        self.navigationController?.popViewController(animated: true)
-        self.callBack?()
+        if isCalling{
+            self.navigationController?.popViewController(animated: true)
+            self.callBack?()
+        }
     }
     
     @IBAction func actionNotification(_ sender: UIButton) {

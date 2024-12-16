@@ -33,6 +33,7 @@
 		000435D22CEDE34100D991F0 /* MainVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000435D12CEDE34100D991F0 /* MainVC.swift */; };
 		000435D42CEDF4E500D991F0 /* SideMenuVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000435D32CEDF4E500D991F0 /* SideMenuVC.swift */; };
 		000435D62CEDFEFA00D991F0 /* SideMenuTVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000435D52CEDFEFA00D991F0 /* SideMenuTVC.swift */; };
+		0004A63C2D0CA45B00463E68 /* BackgroundRemoval in Frameworks */ = {isa = PBXBuildFile; productRef = 0004A63B2D0CA45B00463E68 /* BackgroundRemoval */; };
 		00055CB82B6CA5E900844E3C /* BusinessTimingTVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00055CB62B6CA5E900844E3C /* BusinessTimingTVC.swift */; };
 		00055CB92B6CA5E900844E3C /* BusinessTimingTVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = 00055CB72B6CA5E900844E3C /* BusinessTimingTVC.xib */; };
 		00055CBB2B6CB52E00844E3C /* BusinessTimingModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00055CBA2B6CB52E00844E3C /* BusinessTimingModel.swift */; };
@@ -203,6 +204,7 @@
 		00672D5D2BC679DA009CEC93 /* PopUpVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00672D5C2BC679DA009CEC93 /* PopUpVM.swift */; };
 		00672D602BC6A33B009CEC93 /* TempraryStoresCVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00672D5E2BC6A33B009CEC93 /* TempraryStoresCVC.swift */; };
 		00672D612BC6A33B009CEC93 /* TempraryStoresCVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = 00672D5F2BC6A33B009CEC93 /* TempraryStoresCVC.xib */; };
+		006AFD572D0D9AAB003F5B78 /* BackgroundRemoval in Frameworks */ = {isa = PBXBuildFile; productRef = 006AFD562D0D9AAB003F5B78 /* BackgroundRemoval */; };
 		007D7E4D2D0AD101006BAD74 /* PopupTypeVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 007D7E4C2D0AD101006BAD74 /* PopupTypeVC.swift */; };
 		007D7E502D0B0FE5006BAD74 /* BackgroundRemoval in Frameworks */ = {isa = PBXBuildFile; productRef = 007D7E4F2D0B0FE5006BAD74 /* BackgroundRemoval */; };
 		007EF3962B458978002730B5 /* GigNearByTVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 007EF3942B458978002730B5 /* GigNearByTVC.swift */; };
@@ -244,6 +246,8 @@
 		00A2F6B02B96F8130073ECA3 /* GetUserServiceDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00A2F6AF2B96F8130073ECA3 /* GetUserServiceDetail.swift */; };
 		00A2F6B22B9743D20073ECA3 /* GetReviewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00A2F6B12B9743D20073ECA3 /* GetReviewModel.swift */; };
 		00A66B102D086E6D00D67F22 /* BackgroundRemoval in Frameworks */ = {isa = PBXBuildFile; productRef = 00A66B0F2D086E6D00D67F22 /* BackgroundRemoval */; };
+		00A964952D108CE400FBA9C5 /* HomeFilterTVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00A964942D108CE400FBA9C5 /* HomeFilterTVC.swift */; };
+		00A964962D108CE400FBA9C5 /* HomeFilterVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00A964932D108CE400FBA9C5 /* HomeFilterVC.swift */; };
 		00A9A1592B7A6EA600B7885B /* BusinessProfileVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00A9A1582B7A6EA600B7885B /* BusinessProfileVM.swift */; };
 		00A9A15B2B7A6F6800B7885B /* GetBusinessUserModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00A9A15A2B7A6F6800B7885B /* GetBusinessUserModel.swift */; };
 		00AC164E2B46F5BD00C7485E /* VerifyPromoVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00AC164D2B46F5BD00C7485E /* VerifyPromoVC.swift */; };
@@ -320,6 +324,8 @@
 		00FACDD92BDA138E0052AFA0 /* CompleteGigRequestModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00FACDD82BDA138E0052AFA0 /* CompleteGigRequestModel.swift */; };
 		00FB0EC62CAD1B8C0047C829 /* CustomAnnotationView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 00FB0EC52CAD1B8C0047C829 /* CustomAnnotationView.xib */; };
 		00FB0EC82CAD1CD10047C829 /* CustomAnnotationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00FB0EC72CAD1CD10047C829 /* CustomAnnotationView.swift */; };
+		00FB350B2D0FE40000EE4582 /* BackgroundRemoval in Frameworks */ = {isa = PBXBuildFile; productRef = 00FB350A2D0FE40000EE4582 /* BackgroundRemoval */; };
+		00FB350D2D10518800EE4582 /* ProductImagesCVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00FB350C2D10518800EE4582 /* ProductImagesCVC.swift */; };
 		00FE50A72BAD526800FD6A7D /* getAppliedGigModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00FE50A62BAD526800FD6A7D /* getAppliedGigModel.swift */; };
 		00FE50A92BAD5FFF00FD6A7D /* GetServiceDetailUserModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00FE50A82BAD5FFF00FD6A7D /* GetServiceDetailUserModel.swift */; };
 		00FE91DF2B340CA800D8AB20 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00FE91DE2B340CA800D8AB20 /* AppDelegate.swift */; };
@@ -651,6 +657,8 @@
 		00A0ACF62B3460DB006367DD /* SignupVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignupVC.swift; sourceTree = "<group>"; };
 		00A2F6AF2B96F8130073ECA3 /* GetUserServiceDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetUserServiceDetail.swift; sourceTree = "<group>"; };
 		00A2F6B12B9743D20073ECA3 /* GetReviewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetReviewModel.swift; sourceTree = "<group>"; };
+		00A964932D108CE400FBA9C5 /* HomeFilterVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeFilterVC.swift; sourceTree = "<group>"; };
+		00A964942D108CE400FBA9C5 /* HomeFilterTVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeFilterTVC.swift; sourceTree = "<group>"; };
 		00A9A1582B7A6EA600B7885B /* BusinessProfileVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BusinessProfileVM.swift; sourceTree = "<group>"; };
 		00A9A15A2B7A6F6800B7885B /* GetBusinessUserModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetBusinessUserModel.swift; sourceTree = "<group>"; };
 		00AC164D2B46F5BD00C7485E /* VerifyPromoVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerifyPromoVC.swift; sourceTree = "<group>"; };
@@ -726,6 +734,7 @@
 		00FACDD82BDA138E0052AFA0 /* CompleteGigRequestModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CompleteGigRequestModel.swift; sourceTree = "<group>"; };
 		00FB0EC52CAD1B8C0047C829 /* CustomAnnotationView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = CustomAnnotationView.xib; sourceTree = "<group>"; };
 		00FB0EC72CAD1CD10047C829 /* CustomAnnotationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomAnnotationView.swift; sourceTree = "<group>"; };
+		00FB350C2D10518800EE4582 /* ProductImagesCVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductImagesCVC.swift; sourceTree = "<group>"; };
 		00FE50A62BAD526800FD6A7D /* getAppliedGigModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = getAppliedGigModel.swift; sourceTree = "<group>"; };
 		00FE50A82BAD5FFF00FD6A7D /* GetServiceDetailUserModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetServiceDetailUserModel.swift; sourceTree = "<group>"; };
 		00FE91DB2B340CA800D8AB20 /* SecretWorld.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SecretWorld.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -791,14 +800,17 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				00FB350B2D0FE40000EE4582 /* BackgroundRemoval in Frameworks */,
 				52A74361E6001EE18797CE89 /* Pods_SecretWorld.framework in Frameworks */,
 				00BCA7AC2D01CDFC001617C1 /* BackgroundRemoval in Frameworks */,
 				0010EA122D02C1D300DBA44B /* BackgroundRemoval in Frameworks */,
+				006AFD572D0D9AAB003F5B78 /* BackgroundRemoval in Frameworks */,
 				001762AE2D032D7F003ECF4B /* BackgroundRemoval in Frameworks */,
 				001762AB2D0325F8003ECF4B /* BackgroundRemoval in Frameworks */,
 				0009DB622D06A56F00E27A94 /* BackgroundRemoval in Frameworks */,
 				00A66B102D086E6D00D67F22 /* BackgroundRemoval in Frameworks */,
 				007D7E502D0B0FE5006BAD74 /* BackgroundRemoval in Frameworks */,
+				0004A63C2D0CA45B00463E68 /* BackgroundRemoval in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1227,6 +1239,7 @@
 				000A79CF2B62311D0001C677 /* MessagePopupVC.swift */,
 				00571CD62B6244D4007685FC /* ViewPopUpVC.swift */,
 				007D7E4C2D0AD101006BAD74 /* PopupTypeVC.swift */,
+				00FB350C2D10518800EE4582 /* ProductImagesCVC.swift */,
 			);
 			path = AddPopups;
 			sourceTree = "<group>";
@@ -1355,6 +1368,15 @@
 				00BF5F702B75DFF100C7C445 /* ChangePhotoVC.swift */,
 			);
 			path = Signup;
+			sourceTree = "<group>";
+		};
+		00A964922D108CCB00FBA9C5 /* HomeFilter */ = {
+			isa = PBXGroup;
+			children = (
+				00A964932D108CE400FBA9C5 /* HomeFilterVC.swift */,
+				00A964942D108CE400FBA9C5 /* HomeFilterTVC.swift */,
+			);
+			path = HomeFilter;
 			sourceTree = "<group>";
 		};
 		00CE61182B3ACCAA00F3A7B4 /* Notifications */ = {
@@ -1545,6 +1567,7 @@
 		00FE92112B340D4C00D8AB20 /* Controller */ = {
 			isa = PBXGroup;
 			children = (
+				00A964922D108CCB00FBA9C5 /* HomeFilter */,
 				000435D02CEDE32C00D991F0 /* SideMenu */,
 				0010B9202CA3C145007C1591 /* GigChat */,
 				0010B9232CA3C145007C1591 /* GigSetting */,
@@ -1747,7 +1770,7 @@
 			);
 			mainGroup = 00FE91D22B340CA800D8AB20;
 			packageReferences = (
-				007D7E4E2D0B0FE5006BAD74 /* XCRemoteSwiftPackageReference "BackgroundRemoval" */,
+				00FB35092D0FE40000EE4582 /* XCRemoteSwiftPackageReference "BackgroundRemoval" */,
 			);
 			productRefGroup = 00FE91DC2B340CA800D8AB20 /* Products */;
 			projectDirPath = "";
@@ -2013,7 +2036,10 @@
 				000FB0382B36BBA600F20497 /* AboutServicesVC.swift in Sources */,
 				00FE91E32B340CA800D8AB20 /* ViewController.swift in Sources */,
 				00DC22212C86CB0F005085DB /* AddBankVC.swift in Sources */,
+				00A964952D108CE400FBA9C5 /* HomeFilterTVC.swift in Sources */,
+				00A964962D108CE400FBA9C5 /* HomeFilterVC.swift in Sources */,
 				BE2F47812BD93C8C006D8AC7 /* ReportReasonModel.swift in Sources */,
+				00FB350D2D10518800EE4582 /* ProductImagesCVC.swift in Sources */,
 				000D80272BA18EA100DE3543 /* GetAllGigsListModel.swift in Sources */,
 				00A9A1592B7A6EA600B7885B /* BusinessProfileVM.swift in Sources */,
 				BED315C52BFC8701003BAC6D /* WebViewVC.swift in Sources */,
@@ -2386,7 +2412,7 @@
 				CODE_SIGN_ENTITLEMENTS = SecretWorld/SecretWorld.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 9;
+				CURRENT_PROJECT_VERSION = 10;
 				DEVELOPMENT_TEAM = 8HA3G56RBP;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -2426,7 +2452,7 @@
 				CODE_SIGN_ENTITLEMENTS = SecretWorld/SecretWorld.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 9;
+				CURRENT_PROJECT_VERSION = 10;
 				DEVELOPMENT_TEAM = 8HA3G56RBP;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -2571,6 +2597,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		0004A63A2D0CA45B00463E68 /* XCRemoteSwiftPackageReference "BackgroundRemoval" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Ezaldeen99/BackgroundRemoval.git";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 		0009DB602D06A56F00E27A94 /* XCRemoteSwiftPackageReference "BackgroundRemoval" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Ezaldeen99/BackgroundRemoval.git";
@@ -2603,6 +2637,14 @@
 				kind = branch;
 			};
 		};
+		006AFD552D0D9AAB003F5B78 /* XCRemoteSwiftPackageReference "BackgroundRemoval" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Ezaldeen99/BackgroundRemoval.git";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 		007D7E4E2D0B0FE5006BAD74 /* XCRemoteSwiftPackageReference "BackgroundRemoval" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Ezaldeen99/BackgroundRemoval.git";
@@ -2627,9 +2669,22 @@
 				kind = branch;
 			};
 		};
+		00FB35092D0FE40000EE4582 /* XCRemoteSwiftPackageReference "BackgroundRemoval" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Ezaldeen99/BackgroundRemoval.git";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		0004A63B2D0CA45B00463E68 /* BackgroundRemoval */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0004A63A2D0CA45B00463E68 /* XCRemoteSwiftPackageReference "BackgroundRemoval" */;
+			productName = BackgroundRemoval;
+		};
 		0009DB612D06A56F00E27A94 /* BackgroundRemoval */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 0009DB602D06A56F00E27A94 /* XCRemoteSwiftPackageReference "BackgroundRemoval" */;
@@ -2650,6 +2705,11 @@
 			package = 001762AC2D032D7F003ECF4B /* XCRemoteSwiftPackageReference "BackgroundRemoval" */;
 			productName = BackgroundRemoval;
 		};
+		006AFD562D0D9AAB003F5B78 /* BackgroundRemoval */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 006AFD552D0D9AAB003F5B78 /* XCRemoteSwiftPackageReference "BackgroundRemoval" */;
+			productName = BackgroundRemoval;
+		};
 		007D7E4F2D0B0FE5006BAD74 /* BackgroundRemoval */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 007D7E4E2D0B0FE5006BAD74 /* XCRemoteSwiftPackageReference "BackgroundRemoval" */;
@@ -2663,6 +2723,11 @@
 		00BCA7AB2D01CDFC001617C1 /* BackgroundRemoval */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 00BCA7AA2D01CDFC001617C1 /* XCRemoteSwiftPackageReference "BackgroundRemoval" */;
+			productName = BackgroundRemoval;
+		};
+		00FB350A2D0FE40000EE4582 /* BackgroundRemoval */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 00FB35092D0FE40000EE4582 /* XCRemoteSwiftPackageReference "BackgroundRemoval" */;
 			productName = BackgroundRemoval;
 		};
 /* End XCSwiftPackageProductDependency section */

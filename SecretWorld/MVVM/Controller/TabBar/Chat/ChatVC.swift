@@ -9,7 +9,11 @@ import UIKit
 class ChatVC: UIViewController {
     
     //MARK: - OUTLETS
-    
+    //leftSidebtn
+    @IBOutlet var leftSideViewDot: UIView!
+    @IBOutlet var btnLeftSideNotification: UIButton!
+    //rightSidebtn
+    @IBOutlet var btnRightSideNotification: UIButton!
     @IBOutlet var viewDot: UIView!
     @IBOutlet var lblNoData: UILabel!
     @IBOutlet var imgVwBackDesign: UIImageView!
@@ -53,9 +57,13 @@ class ChatVC: UIViewController {
     
     func getMessage(){
         if Store.userNotificationCount ?? 0 > 0{
-            self.viewDot.isHidden = false
+            btnRightSideNotification.isHidden = false
+            leftSideViewDot.isHidden = false
+            viewDot.isHidden = false
         }else{
-            self.viewDot.isHidden = true
+            btnRightSideNotification.isHidden = true
+            leftSideViewDot.isHidden = true
+            viewDot.isHidden = true
         }
         let param = ["senderId": Store.userId ?? ""]
         SocketIOManager.sharedInstance.getUserMessage(dict: param)
@@ -98,12 +106,25 @@ class ChatVC: UIViewController {
             }
         }
     }
-    
+    //leftSidebtn
+    @IBAction func actionLeftSideNotification(_ sender: UIButton) {
+        let vc = self.storyboard?.instantiateViewController(withIdentifier: "NotificationsVC") as! NotificationsVC
+        vc.callBack = {[weak self] in
+            guard let self = self else { return }
+            self.btnRightSideNotification.isHidden = true
+            self.viewDot.isHidden = true
+            self.leftSideViewDot.isHidden = true
+        }
+        self.navigationController?.pushViewController(vc, animated: true)
+    }
+    //rightSidebtn
     @IBAction func actionNotification(_ sender: UIButton) {
         let vc = self.storyboard?.instantiateViewController(withIdentifier: "NotificationsVC") as! NotificationsVC
         vc.callBack = {[weak self] in
             guard let self = self else { return }
+            self.btnRightSideNotification.isHidden = true
             self.viewDot.isHidden = true
+            self.leftSideViewDot.isHidden = true
         }
         self.navigationController?.pushViewController(vc, animated: true)
     }

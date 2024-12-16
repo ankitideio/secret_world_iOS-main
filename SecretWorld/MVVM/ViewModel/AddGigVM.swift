@@ -135,11 +135,19 @@ class AddGigVM{
             onSccess(model.data)
         }
     }
+    func GetPopUpGigDetailApi(gigId:String,onSccess:@escaping((GetUserGigData?)->())){
+        let param: parameters = ["gigId": gigId]
+        print(param)
+        WebService.service(API.UserGigDetails,param: param,service: .get,showHud: false,is_raw_form: true) { (model:GetUserGigDetailModel,jsonData,jsonSer) in
+            
+            onSccess(model.data)
+        }
+    }
     func ApplyGigApi(gigId:String,message:String,onSccess:@escaping((_ message:String?)->())){
         let param: parameters = ["gigId": gigId,
                                  "message": message]
         print(param)
-        WebService.service(API.applyGig,param: param,service: .post,showHud: false,is_raw_form: true) { (model:CommonModel,jsonData,jsonSer) in
+        WebService.service(API.applyGig,param: param,service: .post,showHud: true,is_raw_form: true) { (model:CommonModel,jsonData,jsonSer) in
             onSccess(model.message)
         }
     }

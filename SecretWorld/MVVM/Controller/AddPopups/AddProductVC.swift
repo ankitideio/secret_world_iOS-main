@@ -9,6 +9,8 @@ import UIKit
 
 class AddProductVC: UIViewController {
     //MARK: - OUTLETS
+    @IBOutlet var collVwProductImgs: UICollectionView!
+    @IBOutlet var viewUploadPhoto: UIView!
     @IBOutlet var btnDismiss: UIButton!
     @IBOutlet var lblScreenTitle: UILabel!
     @IBOutlet var btnCancel: UIButton!
@@ -17,13 +19,21 @@ class AddProductVC: UIViewController {
     @IBOutlet var txtFldPrice: UITextField!
     @IBOutlet weak var btnAdd: UIButton!
     
-    var callBack:((_ productName:String,_ price:Int,_ isDelete:Bool,_ isEdit:Bool)->())?
+    //MARK: - variables
+    var callBack:((_ productName:String,_ price:Int,_ isDelete:Bool,_ isEdit:Bool,_ images:[String])->())?
     var isComing = false
     var arrProducts = [Products]()
     var selectedIndex = 0
     var arrEditProducts = [AddProducts]()
+    var viewModel = UploadImageVM()
+    var arrProductsImages = [UIImage]()
+    var isupload = false
+    var arrImgsUrls:[String]?
     override func viewDidLoad() {
         super.viewDidLoad()
+        uiSet()
+    }
+    func uiSet(){
         txtFldProductName.delegate = self
         txtFldPrice.delegate = self
         viewBack.layer.cornerRadius = 35
@@ -49,20 +59,28 @@ class AddProductVC: UIViewController {
                 let price = arrProducts[selectedIndex].price ?? 0
                 txtFldPrice.text = "\(price)"
             }
-            
+        }
+    }
+    //MARK: - BUTTON ACTIONS
+    @IBAction func actionUploadImage(_ sender: UIButton) {
+        ImagePicker().pickImage(self) { image in
+            self.arrProductsImages.append(image)
+            self.viewModel.uploadImageApi(image: [image]) { data in
+                self.arrImgsUrls?.append(contentsOf: data?.imageUrls ?? [])
+                    self.collVwProductImgs.reloadData()
+            }
+          
             
         }
-        
+
     }
-    
-    //MARK: - BUTTON ACTIONS
     @IBAction func actionCancel(_ sender: UIButton) {
         if isComing == true{
             self.dismiss(animated: true)
          
         }else{
             self.dismiss(animated: true)
-            self.callBack?("", 0, true, false)
+            self.callBack?("", 0, true, false, arrImgsUrls ?? [])
             
         }
     }
@@ -86,11 +104,16 @@ class AddProductVC: UIViewController {
             
         }else{
             if isComing == true{
-                self.dismiss(animated: true)
-                callBack?(txtFldProductName.text ?? "", Int(txtFldPrice.text ?? "") ?? 0, false, false)
+                    self.dismiss(animated: true)
+                    self.callBack?(self.txtFldProductName.text ?? "",
+                                   Int(self.txtFldPrice.text ?? "") ?? 0,
+                                   false, false, arrImgsUrls ?? [])
+                
             }else{
                 self.dismiss(animated: true)
-                callBack?(txtFldProductName.text ?? "", Int(txtFldPrice.text ?? "") ?? 0, false, true)
+                callBack?(txtFldProductName.text ?? "",
+                          Int(txtFldPrice.text ?? "") ?? 0,
+                          false, true, arrImgsUrls ?? [])
             }
             
             
@@ -98,6 +121,7 @@ class AddProductVC: UIViewController {
         
     }
 }
+//MARK: - UITextFieldDelegate
 extension AddProductVC:UITextFieldDelegate{
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         if textField == txtFldProductName{
@@ -121,3 +145,31 @@ extension AddProductVC:UITextFieldDelegate{
         return true
     }
 }
+//MARK: - UICollectionViewDataSource,UICollectionViewDelegate
+extension AddProductVC: UICollectionViewDataSource,UICollectionViewDelegate,UICollectionViewDelegateFlowLayout,UIScrollViewDelegate{
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        if arrProductsImages.count > 0{
+            return arrProductsImages.count
+        }else{
+            return 0
+        }
+    }
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ProductImagesCVC", for: indexPath) as! ProductImagesCVC
+        if arrProductsImages.count > 0{
+            cell.contentView.layer.cornerRadius = 10
+//            if let imageUrl = arrProductsImages[indexPath.row] as? String {
+            cell.imgVwUpload.image = arrProductsImages[indexPath.row]
+            //}
+    }
+        return cell
+    }
+
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        return CGSize(width: collVwProductImgs.frame.size.width / 3, height: 100)
+    }
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+            print("Click on item at index: \(indexPath.item)")
+        }
+}
+

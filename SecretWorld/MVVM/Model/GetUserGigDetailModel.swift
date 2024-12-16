@@ -6,9 +6,11 @@
 //
 
 import Foundation
+
 // MARK: - GetUserGigDetailModel
 struct GetUserGigDetailModel: Codable {
-    let status, message: String?
+    let status: String?
+    let message: String?
     let statusCode: Int?
     let data: GetUserGigData?
 }
@@ -23,30 +25,48 @@ struct GetUserGigData: Codable {
     let appliedParticipants: Int?
     let reviews: [Reviews]?
     let isReview: Bool?
-    let rating:Double?
-
+    let rating: Double?
+    let participantsList: [Participantzz]? // Added participants list
+    
     enum CodingKeys: String, CodingKey {
         case id, status
         case applyuserID = "applyuserId"
-        case promoCodes, gig, appliedParticipants, rating, reviews, isReview
+        case promoCodes, gig, appliedParticipants, rating, reviews, isReview, participantsList
     }
 }
 
 // MARK: - Gig
 struct Giges: Codable {
-    let usertype, name, title, place: String?
-    let lat, long: Double?
+    let usertype: String?
+    let name: String?
+    let title: String?
+    let place: String?
+    let serviceDuration: String?
+    let serviceName: String?
+    let startDate: String?
+    let lat: Double?
+    let long: Double?
     let type: String?
     let image: String?
-    let participants, totalParticipants: String?
+    let participants: String?
+    let totalParticipants: String?
     let price: Int?
-    let about, createdAt, updatedAt: String?
+    let about: String?
+    let createdAt: String?
+    let updatedAt: String?
     let user: UserDetailses?
+    
+    enum CodingKeys: String, CodingKey {
+        case usertype, name, title, place, serviceDuration, serviceName, startDate
+        case lat, long, type, image, participants, totalParticipants, price, about, createdAt, updatedAt, user
+    }
 }
 
 // MARK: - User
 struct UserDetailses: Codable {
-    let id, name, gender: String?
+    let id: String?
+    let name: String?
+    let gender: String?
     let profilePhoto: String?
 
     enum CodingKeys: String, CodingKey {
@@ -57,10 +77,17 @@ struct UserDetailses: Codable {
 
 // MARK: - PromoCodes
 struct PromoCodes: Codable {
-    let id, gigID, applyuserID: String?
-    let status, discount: Int?
-    let isViewed, isUsed: Bool?
-    let promoCode, expiryTime, createdAt, updatedAt: String?
+    let id: String?
+    let gigID: String?
+    let applyuserID: String?
+    let status: Int?
+    let discount: Int?
+    let isViewed: Bool?
+    let isUsed: Bool?
+    let promoCode: String?
+    let expiryTime: String?
+    let createdAt: String?
+    let updatedAt: String?
     let v: Int?
 
     enum CodingKeys: String, CodingKey {
@@ -74,9 +101,24 @@ struct PromoCodes: Codable {
 
 // MARK: - Review
 struct Reviews: Codable {
-    let id, comment: String?
+    let id: String?
+    let comment: String?
     let starCount: Double?
     let media: String?
-    let createdAt, updatedAt: String?
+    let createdAt: String?
+    let updatedAt: String?
     let user: UserDetailses?
+}
+
+// MARK: - Participant
+struct Participantzz: Codable {
+    let gender: String?
+    let id: String?
+    let name: String?
+    let profilePhoto: String?
+
+    enum CodingKeys: String, CodingKey {
+        case gender, id, name
+        case profilePhoto = "profile_photo"
+    }
 }

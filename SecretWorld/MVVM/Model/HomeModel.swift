@@ -103,7 +103,7 @@ struct AddProductHome: Codable ,Equatable{
 }
 // MARK: - User
 struct UserDetailz: Codable,Equatable {
-    let name: String
+    let name: String?
 }
 // MARK: - OpeningHour
 struct OpeningHourHome: Codable ,Equatable{
