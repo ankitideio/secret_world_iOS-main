@@ -55,13 +55,15 @@ class TabBarVC: UIViewController{
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        uiSet()
     }
     override func viewWillAppear(_ animated: Bool) {
         viewModel.verificationStatus { data in
             self.isStatus = data?.verificationStatus ?? 0
-            self.uiSet()
+            
             NotificationCenter.default.addObserver(self, selector: #selector(self.touchMap(notification:)), name: Notification.Name("touchMap"), object: nil)
         }
+        
     }
     func uiSet(){
         let deviceHasNotch = UIApplication.shared.hasNotch
@@ -87,6 +89,7 @@ class TabBarVC: UIViewController{
         }
         switch selectedButtonTag {
         case 1:
+            homeSetup()
             DispatchQueue.main.asyncAfter(deadline: .now()) {
                 self.homeSetup()
             }
@@ -161,6 +164,7 @@ class TabBarVC: UIViewController{
         }
     }
     @IBAction func actionAdd(_ sender: UIButton) {
+        
         if Store.role == "user"{
             let vc = self.storyboard?.instantiateViewController(withIdentifier: "SelectServiceTypeVC") as! SelectServiceTypeVC
             vc.modalPresentationStyle = .overFullScreen
@@ -206,6 +210,9 @@ class TabBarVC: UIViewController{
                         }else{
                             let vc = self.storyboard?.instantiateViewController(withIdentifier: "AddGigVC") as! AddGigVC
                             vc.isComing = true
+                            vc.callBack = {
+                                self.uiSet()
+                            }
                             self.navigationController?.pushViewController(vc, animated: true)
                         }
                     }
@@ -314,6 +321,7 @@ class TabBarVC: UIViewController{
 //        }
     }
     @IBAction func actionGig(_ sender: UIButton) {
+            Store.isSelectTab = false
             btnHome.isSelected = false
             isGigType = false
 //            isBusinessType = true
@@ -366,21 +374,27 @@ class TabBarVC: UIViewController{
 
     @IBAction func actionHome(_ sender: UIButton) {
         sender.isSelected = !sender.isSelected
+        let deviceHasNotch = UIApplication.shared.hasNotch
+        if deviceHasNotch {
+            heightBottomVw.constant = 104
+            topShadowView.constant = -60
+        } else {
+            heightBottomVw.constant = 80
+            topShadowView.constant = -85
+        }
         if sender.isSelected {
             // Home button is selected
-            let deviceHasNotch = UIApplication.shared.hasNotch
-            if deviceHasNotch {
-                heightBottomVw.constant = 104
-                topShadowView.constant = -60
-            } else {
-                heightBottomVw.constant = 80
-                topShadowView.constant = -85
+            Store.isSelectTab = true
+            DispatchQueue.main.async {
+                NotificationCenter.default.post(name: Notification.Name("TabBar"), object: nil)
+                self.homeSetup()
+                NotificationCenter.default.post(name: Notification.Name("selectHomeBtn"), object: nil)
             }
-            NotificationCenter.default.post(name: Notification.Name("TabBar"), object: nil)
-            homeSetup()
-            NotificationCenter.default.post(name: Notification.Name("selectHomeBtn"), object: nil)
+          
+            
         } else {
             // Home button is deselected
+            Store.isSelectTab = false
             NotificationCenter.default.post(name: Notification.Name("deSelectHomeBtn"), object: nil)
         }
         
@@ -412,20 +426,22 @@ class TabBarVC: UIViewController{
         }
     }
     func zoomHomeIcon(isZoomedIn: Bool) {
-        if isZoomedIn {
-            // Zoom in with upward animation
-            UIView.animate(withDuration: 0.2, animations: {
-                self.bottomImmgVwImgAppIcon.constant = -35 // Move upward
-                self.imgVwAppIcon.transform = CGAffineTransform(scaleX: 2.4, y: 2.4)
-                self.view.layoutIfNeeded() // Apply the constraint changes
-            })
-        } else {
-            // Unzoom and reset position
-            UIView.animate(withDuration: 0.2, animations: {
-                self.bottomImmgVwImgAppIcon.constant = -20 // Reset position
-                self.imgVwAppIcon.transform = .identity
-                self.view.layoutIfNeeded() // Apply the constraint changes
-            })
+        if Store.role == "user"{
+            if isZoomedIn {
+                // Zoom in with upward animation
+                UIView.animate(withDuration: 0.2, animations: {
+                    self.bottomImmgVwImgAppIcon.constant = -35 // Move upward
+                    self.imgVwAppIcon.transform = CGAffineTransform(scaleX: 2.4, y: 2.4)
+                    self.view.layoutIfNeeded() // Apply the constraint changes
+                })
+            } else {
+                // Unzoom and reset position
+                UIView.animate(withDuration: 0.2, animations: {
+                    self.bottomImmgVwImgAppIcon.constant = -20 // Reset position
+                    self.imgVwAppIcon.transform = .identity
+                    self.view.layoutIfNeeded() // Apply the constraint changes
+                })
+            }
         }
     }
 
@@ -569,6 +585,7 @@ class TabBarVC: UIViewController{
         }
     }
     func profileSetup(){
+        
         btnAddService.isHidden = true
         lblProfile.textColor = .app
         lblMenu.textColor = UIColor(red: 137/255, green: 137/255, blue: 137/255, alpha: 1.0)

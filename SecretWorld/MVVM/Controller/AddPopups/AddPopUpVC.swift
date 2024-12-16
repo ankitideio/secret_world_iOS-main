@@ -233,7 +233,7 @@ class AddPopUpVC: UIViewController,UIImagePickerControllerDelegate, UINavigation
         let vc = self.storyboard?.instantiateViewController(withIdentifier: "AddProductVC") as! AddProductVC
         vc.modalPresentationStyle = .overFullScreen
         vc.isComing = true
-        vc.callBack = {[weak self] productName,price,isdelete,isEdit in
+        vc.callBack = {[weak self] productName,price,isdelete,isEdit,productImages in
             
             guard let self = self else { return }
             print(productName.count)
@@ -282,62 +282,6 @@ class AddPopUpVC: UIViewController,UIImagePickerControllerDelegate, UINavigation
             let endDateTimeUTC = convertToUTC(from: endDateTimeString, with: "dd-MM-yyyy h:mm a") ?? ""
             print("Start Time UTC:", startDateTimeUTC)
             print("End Time UTC:", endDateTimeUTC)
-//            if Store.role == "b_user"{
-//                if isComing == true{
-//                    //edit
-//                    
-//                    viewModel.UpdatePopUpApi(id: popupDetails?.id ?? "",
-//                                             name: txtFldName.text ?? "",
-//                                             usertype: "b_user",
-//                                             business_logo: imgVwPopupLogo,
-//                                             image: imgVwMarkerLogo,
-//                                             startDate: startDateTimeUTC,
-//                                             endDate: endDateTimeUTC,
-//                                             lat: lat ?? 0.0,
-//                                             long: long ?? 0.0,
-//                                             description: txtVwDescription.text ?? "",
-//                                             addProducts: arrEditProducts,
-//                                             place: txtFldLOcation.text ?? "", isMarker: true){ message in
-//                            let vc = self.storyboard?.instantiateViewController(withIdentifier: "CommonPopUpVC") as! CommonPopUpVC
-//                            vc.modalPresentationStyle = .overFullScreen
-//                            vc.isSelect = 10
-//                            vc.message = message
-//                            myPopUpLat = self.lat ?? 0
-//                            myPopUpLong = self.long ?? 0
-//                            addPopUp = true
-//                            vc.callBack = {[weak self] in
-//                                guard let self = self else { return }
-//                                SceneDelegate().PopupListVCRoot()
-//                            }
-//                            self.navigationController?.present(vc, animated: false)
-//                        }
-//                }else{
-//                    //add
-//                    viewModel.AddPopUpApi(usertype: "b_user", place: txtFldLOcation.text ?? "", name: txtFldName.text ?? "",
-//                                          business_logo: imgVwPopupLogo,
-//                                          image: imgVwMarkerLogo,
-//                                          startDate: startDateTimeUTC ,
-//                                          endDate: endDateTimeUTC,
-//                                          lat: lat ?? 0.0,
-//                                          long: long ?? 0.0,
-//                                          description: txtVwDescription.text ?? "",
-//                                          addProducts: arrProducts, isMarker: true) { message in
-//                        let vc = self.storyboard?.instantiateViewController(withIdentifier: "CommonPopUpVC") as! CommonPopUpVC
-//                        vc.modalPresentationStyle = .overFullScreen
-//                        vc.isSelect = 10
-//                        vc.message = message
-//                        loadHomeData = false
-//                        myPopUpLat = self.lat ?? 0
-//                        myPopUpLong = self.long ?? 0
-//                        addPopUp = true
-//                        vc.callBack = {[weak self] in
-//                            guard let self = self else { return }
-//                            SceneDelegate().tabBarHomeRoot()
-//                        }
-//                        self.navigationController?.present(vc, animated: false)
-//                    }
-//                }
-//            }else{
                 if isComing == true{
                     //edit
                     if self.imgVwMarkerLogo.image == UIImage(named: ""){
@@ -544,7 +488,7 @@ extension AddPopUpVC: UITableViewDelegate,UITableViewDataSource{
         }else{
             vc.arrProducts = arrProducts
         }
-        vc.callBack = { [weak self] productName, price,isDelete,isEdit in
+        vc.callBack = { [weak self] productName, price,isDelete,isEdit,productImages in
                         guard let self = self else { return }
             if self.isComing == true{
                 if isDelete == true{
@@ -794,3 +738,63 @@ extension AddPopUpVC{
   }
 
 }
+
+
+
+
+//            if Store.role == "b_user"{
+//                if isComing == true{
+//                    //edit
+//
+//                    viewModel.UpdatePopUpApi(id: popupDetails?.id ?? "",
+//                                             name: txtFldName.text ?? "",
+//                                             usertype: "b_user",
+//                                             business_logo: imgVwPopupLogo,
+//                                             image: imgVwMarkerLogo,
+//                                             startDate: startDateTimeUTC,
+//                                             endDate: endDateTimeUTC,
+//                                             lat: lat ?? 0.0,
+//                                             long: long ?? 0.0,
+//                                             description: txtVwDescription.text ?? "",
+//                                             addProducts: arrEditProducts,
+//                                             place: txtFldLOcation.text ?? "", isMarker: true){ message in
+//                            let vc = self.storyboard?.instantiateViewController(withIdentifier: "CommonPopUpVC") as! CommonPopUpVC
+//                            vc.modalPresentationStyle = .overFullScreen
+//                            vc.isSelect = 10
+//                            vc.message = message
+//                            myPopUpLat = self.lat ?? 0
+//                            myPopUpLong = self.long ?? 0
+//                            addPopUp = true
+//                            vc.callBack = {[weak self] in
+//                                guard let self = self else { return }
+//                                SceneDelegate().PopupListVCRoot()
+//                            }
+//                            self.navigationController?.present(vc, animated: false)
+//                        }
+//                }else{
+//                    //add
+//                    viewModel.AddPopUpApi(usertype: "b_user", place: txtFldLOcation.text ?? "", name: txtFldName.text ?? "",
+//                                          business_logo: imgVwPopupLogo,
+//                                          image: imgVwMarkerLogo,
+//                                          startDate: startDateTimeUTC ,
+//                                          endDate: endDateTimeUTC,
+//                                          lat: lat ?? 0.0,
+//                                          long: long ?? 0.0,
+//                                          description: txtVwDescription.text ?? "",
+//                                          addProducts: arrProducts, isMarker: true) { message in
+//                        let vc = self.storyboard?.instantiateViewController(withIdentifier: "CommonPopUpVC") as! CommonPopUpVC
+//                        vc.modalPresentationStyle = .overFullScreen
+//                        vc.isSelect = 10
+//                        vc.message = message
+//                        loadHomeData = false
+//                        myPopUpLat = self.lat ?? 0
+//                        myPopUpLong = self.long ?? 0
+//                        addPopUp = true
+//                        vc.callBack = {[weak self] in
+//                            guard let self = self else { return }
+//                            SceneDelegate().tabBarHomeRoot()
+//                        }
+//                        self.navigationController?.present(vc, animated: false)
+//                    }
+//                }
+//            }else{

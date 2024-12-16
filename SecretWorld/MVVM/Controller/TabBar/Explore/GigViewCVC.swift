@@ -9,8 +9,13 @@ import UIKit
 
 class GigViewCVC: UICollectionViewCell {
     //MARK: - IBOutlet
-    @IBOutlet var viewShare: UIView!
-   // @IBOutlet var viewMore: UIView!
+    @IBOutlet weak var lblParticipants: UILabel!
+    @IBOutlet weak var lblServiceName: UILabel!
+    @IBOutlet weak var lblTaskDuration: UILabel!
+    @IBOutlet weak var lblDate: UILabel!
+    @IBOutlet weak var lblTime: UILabel!
+    // @IBOutlet var viewMore: UIView!
+    @IBOutlet weak var btnChat: UIButton!
     @IBOutlet var widthCollVwParticipanst: NSLayoutConstraint!
     @IBOutlet var collVwParticipants: UICollectionView!
     @IBOutlet var lblLocation: UILabel!
@@ -23,18 +28,19 @@ class GigViewCVC: UICollectionViewCell {
     @IBOutlet var btnApply: UIButton!
     @IBOutlet var btnViewMore: UIButton!
     //MARK: - Variables
-    var arrUser = ["near","dp","cutting"]
+   
+    var arrParticipanstList = [Participantzz]()
     override func awakeFromNib() {
         super.awakeFromNib()
-       
         let nib = UINib(nibName: "GigParticipanstsCVC", bundle: nil)
         collVwParticipants.register(nib, forCellWithReuseIdentifier: "GigParticipanstsCVC")
         collVwParticipants.delegate = self
         collVwParticipants.dataSource = self
-        widthCollVwParticipanst.constant = CGFloat(arrUser.count * 20)
+
         
     }
-    func uiSet(){
+    
+    func uiSet() {
         collVwParticipants.reloadData()
     }
 }
@@ -42,8 +48,8 @@ class GigViewCVC: UICollectionViewCell {
 
 extension GigViewCVC:UICollectionViewDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout{
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if arrUser.count > 0{
-            return arrUser.count
+        if arrParticipanstList.count > 0{
+            return min(arrParticipanstList.count, 3)
         }else{
             return 0
         }
@@ -52,17 +58,20 @@ extension GigViewCVC:UICollectionViewDelegate,UICollectionViewDataSource,UIColle
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "GigParticipanstsCVC", for: indexPath) as! GigParticipanstsCVC
-        if arrUser.count > 0{
-            cell.imgVwUser.image = UIImage(named: arrUser[indexPath.row])
+        if arrParticipanstList.count > 0{
+            cell.imgVwUser.imageLoad(imageUrl: arrParticipanstList[indexPath.row].profilePhoto ?? "")
             cell.imgVwUser.layer.cornerRadius = 10
         }
             return cell
     }
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        
         return CGSize(width: 20, height: 20)
     }
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
-        return -10
+    func collectionView(_ collectionView: UICollectionView,
+                         layout collectionViewLayout: UICollectionViewLayout,
+                         minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        return arrParticipanstList.count > 1 ? -10 : 0
     }
 
 }

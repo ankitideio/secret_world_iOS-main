@@ -21,14 +21,24 @@ class UserDetailVC: UIViewController {
     var viewModel = AddGigVM()
     var gigId = ""
     var userDetail:UserDetailses?
+    var isComing = false
+    var name:String?
+    var data:GetUserGigData?
     override func viewDidLoad() {
         super.viewDidLoad()
         uiSet()
     }
     func uiSet(){
-        lblName.text = userDetail?.name ?? ""
-        lblGender.text = userDetail?.gender ?? ""
-        imgVwUser.imageLoad(imageUrl: userDetail?.profilePhoto ?? "")
+        if isComing{
+            lblName.text = data?.gig?.user?.name ?? ""
+            lblGender.text = data?.gig?.user?.gender ?? ""
+            imgVwUser.imageLoad(imageUrl: data?.gig?.user?.profilePhoto ?? "")
+        }else{
+            lblName.text = userDetail?.name ?? ""
+            lblGender.text = userDetail?.gender ?? ""
+            imgVwUser.imageLoad(imageUrl: userDetail?.profilePhoto ?? "")
+        }
+       
         
         viewBack.layer.cornerRadius = 35
         viewBack.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
@@ -59,6 +69,7 @@ class UserDetailVC: UIViewController {
     }
     
     @IBAction func actionApply(_ sender: Any) {
+         
         let trimmedText = txtVwMs.text.trimmingCharacters(in: .whitespacesAndNewlines)
 
         if trimmedText.isEmpty {

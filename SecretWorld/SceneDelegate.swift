@@ -17,7 +17,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let _ = (scene as? UIWindowScene) else { return }
         print(Store.GigType ?? 0 )
         if Store.autoLogin == 1{
-            
             accountTypeVCRoot()
         }else if Store.autoLogin == 2{
             
@@ -45,28 +44,29 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // The scene may re-connect later, as its session was not necessarily discarded (see `application:didDiscardSceneSessions` instead).
     }
     func sceneDidBecomeActive(_ scene: UIScene) {
-        if !isCall{
-            UIApplication.shared.applicationIconBadgeNumber = 0
-            if Store.userId != "" {
-                let status = CLLocationManager.authorizationStatus()
-                switch status {
-                case .restricted, .denied:
-                    NotificationCenter.default.post(name: Notification.Name("locationDenied"), object: nil)
-                case .authorizedWhenInUse, .authorizedAlways:
-                    print("Location permission allowed")
-                    
-                    NotificationCenter.default.post(name: Notification.Name("locationAllow"), object: nil)
-                    
-                default:
-                    print("Location permission not determined")
-                }
-            }
-        }
+//        if !isCall{
+//            UIApplication.shared.applicationIconBadgeNumber = 0
+//            if Store.userId != "" {
+//                let status = CLLocationManager.authorizationStatus()
+//                switch status {
+//                case .restricted, .denied:
+//                    NotificationCenter.default.post(name: Notification.Name("locationDenied"), object: nil)
+//                case .authorizedWhenInUse, .authorizedAlways:
+//                    print("Location permission allowed")
+//                    
+//                    NotificationCenter.default.post(name: Notification.Name("locationAllow"), object: nil)
+//                    
+//                default:
+//                    print("Location permission not determined")
+//                }
+//            }
+//        }
         
     }
     func sceneWillResignActive(_ scene: UIScene) {
         // Called when the scene will move from an active state to an inactive state.
         // This may occur due to temporary interruptions (ex. an incoming phone call).
+        
     }
     func sceneWillEnterForeground(_ scene: UIScene) {
         // Called as the scene transitions from the background to the foreground.
@@ -153,7 +153,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let mainStoryBoard = UIStoryboard(name: "Main", bundle: nil)
         let nextVC = mainStoryBoard.instantiateViewController(withIdentifier: "TabBarVC") as! TabBarVC
        
-        nextVC.selectedButtonTag = 1
+        nextVC.selectedButtonTag = 4
         let nav = UINavigationController.init(rootViewController: nextVC)
         nav.isNavigationBarHidden = true
         UIApplication.shared.windows.first?.rootViewController = nav

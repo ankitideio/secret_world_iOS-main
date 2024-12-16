@@ -8,6 +8,15 @@
 import Foundation
 import UIKit
 class Store {
+    class var CurrentUserId: String? {
+        set {
+            Store.saveValue(newValue, .CurrentUserId)
+        }
+        get {
+            return (Store.getValue(.CurrentUserId) as? String) ?? ""
+        }
+    }
+
     class var ServiceImg: [Any]?{
         set{
             Store.saveValue(newValue, .ServiceImg)
@@ -252,6 +261,14 @@ class Store {
             return Store.getValue(.isUserParticipantsList) as? Bool
         }
     }
+    class var isSelectTab: Bool?{
+        set{
+            Store.saveValue(newValue, .isSelectTab)
+        }
+        get{
+            return Store.getValue(.isSelectTab) as? Bool ?? false
+        }
+    }
     class var getPopUp: Bool?{
         set{
             Store.saveValue(newValue, .getPopUp)
@@ -402,46 +419,61 @@ class Store {
         UserDefaults.standard.synchronize()
     }
     
-    private class func saveValue(_ value: Any? ,_ key:DefaultKeys){
+    private class func saveValue(_ value: Any?, _ key: DefaultKeys) {
+        guard let value = value else { return } // Return if value is nil
+        
         var data: Data?
-        if let value = value{
-//            data = NSKeyedArchiver.archivedData(withRootObject: value)
-            data = try? NSKeyedArchiver.archivedData(withRootObject: value, requiringSecureCoding: true)
+        do {
+            data = try NSKeyedArchiver.archivedData(withRootObject: value, requiringSecureCoding: true)
+        } catch {
+            print("Error archiving value for \(key): \(error)")
         }
+
         UserDefaults.standard.set(data, forKey: key.rawValue)
         UserDefaults.standard.synchronize()
     }
     
-    
  
     //For model
-    private class func saveUserDetails<T: Codable>(_ value: T?, _ key: DefaultKeys){
-        var data: Data?
-        if let value = value{
-            data = try? PropertyListEncoder().encode(value)
+    private class func saveUserDetails<T: Codable>(_ value: T?, _ key: DefaultKeys) {
+        guard let value = value else { return } // Return if value is nil
+        
+        do {
+            let data = try PropertyListEncoder().encode(value)
+            Store.saveValue(data, key)
+        } catch {
+            print("Error encoding object for \(key): \(error)")
         }
-        Store.saveValue(data, key)
     }
-    
-    private class func getUserDetails<T: Codable>(_ key: DefaultKeys) -> T?{
-        if let data = self.getValue(key) as? Data{
-            let loginModel = try? PropertyListDecoder().decode(T.self, from: data)
-            return loginModel
+
+    private class func getUserDetails<T: Codable>(_ key: DefaultKeys) -> T? {
+        if let data = self.getValue(key) as? Data {
+            do {
+                let model = try PropertyListDecoder().decode(T.self, from: data)
+                return model
+            } catch {
+                print("Error decoding object for \(key): \(error)")
+                return nil
+            }
         }
         return nil
     }
     
-    private class func getValue(_ key: DefaultKeys) -> Any{
-        if let data = UserDefaults.standard.value(forKey: key.rawValue) as? Data{
-            if let value = try? NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(data)
-            {
-                return value
+    private class func getValue(_ key: DefaultKeys) -> Any {
+        if let data = UserDefaults.standard.value(forKey: key.rawValue) as? Data {
+            do {
+                if let value = try NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(data) {
+                    return value
+                } else {
+                    return "" // Handle if value could not be unarchived
+                }
+            } catch {
+                print("Error unarchiving value for \(key): \(error)")
+                return "" // Handle error case
             }
-            else{
-                return ""
-            }
-        }else{
-            return ""
+        } else {
+            return "" // Return empty string if no data is found for the key
         }
     }
+    
 }

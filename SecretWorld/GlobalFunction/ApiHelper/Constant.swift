@@ -117,6 +117,9 @@ enum DefaultKeys: String{
     case BusinessAnnotation
     case ServiceImg
     case MapRadius
+    case isSelectTab
+    case ParticipantsImgs
+    case CurrentUserId
 }
 
 
