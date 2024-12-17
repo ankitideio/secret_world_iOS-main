@@ -10,13 +10,16 @@ import BackgroundRemoval
 struct Products {
     let name: String?
     let price: Int?
-    init(name: String?, price: Int?) {
+    let images:[String]?
+    init(name: String?, price: Int?, images: [String]?) {
         self.name = name
         self.price = price
+        self.images = images
     }
 }
 class AddPopUpVC: UIViewController,UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     //MARK: - OUTLETS
+    @IBOutlet var viewNoProduct: UIView!
     @IBOutlet var txtFldPopupType: UITextField!
     @IBOutlet var btnMarkerLogo: UIButton!
     @IBOutlet var imgVwMarkerLogo: UIImageView!
@@ -25,16 +28,15 @@ class AddPopUpVC: UIViewController,UIImagePickerControllerDelegate, UINavigation
     @IBOutlet var txtFldLOcation: UITextField!
     @IBOutlet var btnPopupLogo: UIButton!
     @IBOutlet var imgVwPopupLogo: UIImageView!
-    @IBOutlet var heightVwNoProductlsit: NSLayoutConstraint!
+   // @IBOutlet var heightVwNoProductlsit: NSLayoutConstraint!
     @IBOutlet var txtFldEndTime: UITextField!
     @IBOutlet var txtFldEndDate: UITextField!
     @IBOutlet var txtFldStartTime: UITextField!
     @IBOutlet var txtFldStartDate: UITextField!
     @IBOutlet var txtVwDescription: IQTextView!
     @IBOutlet var lblScreenTitle: UILabel!
-    @IBOutlet var heightTblVw: NSLayoutConstraint!
-    @IBOutlet var tblVwList: UITableView!
     @IBOutlet weak var lblDescriptionCount: UILabel!
+    @IBOutlet var colVwProducts: UICollectionView!
     //MARK: - VARIABLES
     var arrProducts = [Products]()
     var isUploadLogoImg = false
@@ -70,10 +72,10 @@ class AddPopUpVC: UIViewController,UIImagePickerControllerDelegate, UINavigation
         txtFldEndDate.tag = 2
         txtFldStartTime.tag = 3
         txtFldEndTime.tag = 4
-        let nibNearBy = UINib(nibName: "ProductListTVC", bundle: nil)
-        tblVwList.register(nibNearBy, forCellReuseIdentifier: "ProductListTVC")
-
+        let nibCollvw = UINib(nibName: "ProductsCVC", bundle: nil)
+        colVwProducts.register(nibCollvw, forCellWithReuseIdentifier: "ProductsCVC")
         txtVwDescription.delegate = self
+        
         if isComing == true{
             // Update promote business
             lblScreenTitle.text = "Edit Promote Business"
@@ -95,7 +97,6 @@ class AddPopUpVC: UIViewController,UIImagePickerControllerDelegate, UINavigation
                 btnMarkerLogo.setImage(UIImage(named: ""), for: .normal)
                 imgVwMarkerLogo.imageLoad(imageUrl: popupDetails?.image ?? "")
             }
-            
             txtFldName.text = popupDetails?.name ?? ""
             txtVwDescription.text = popupDetails?.description ?? ""
             txtFldLOcation.text = popupDetails?.place ?? ""
@@ -106,13 +107,22 @@ class AddPopUpVC: UIViewController,UIImagePickerControllerDelegate, UINavigation
             txtFldEndTime.text = convertTimeString(popupDetails?.endDate ?? "")
             lat = popupDetails?.lat ?? 0.0
             long = popupDetails?.long ?? 0.0
-            manageTableVIewHeight()
-            tblVwList.reloadData()
+            arrEditProducts = popupDetails?.addProducts  ?? []
+            if arrEditProducts.isEmpty {
+                viewNoProduct.isHidden = false
+                colVwProducts.isHidden = true
+            }else{
+                viewNoProduct.isHidden = true
+                colVwProducts.isHidden = false
+
+            }
+
+            colVwProducts.reloadData()
         }else{
             //add
             lblScreenTitle.text = "Promote Business"
             btnCreate.setTitle("Create", for: .normal)
-            manageTableVIewHeight()
+
         }
         setupDatePickers()
     }
@@ -233,17 +243,26 @@ class AddPopUpVC: UIViewController,UIImagePickerControllerDelegate, UINavigation
         let vc = self.storyboard?.instantiateViewController(withIdentifier: "AddProductVC") as! AddProductVC
         vc.modalPresentationStyle = .overFullScreen
         vc.isComing = true
-        vc.callBack = {[weak self] productName,price,isdelete,isEdit,productImages in
-            
-            guard let self = self else { return }
+        vc.callBack = { productName,price,isEdit,productImages in
             print(productName.count)
+            
             if self.isComing == true{
-                self.arrEditProducts.append(AddProducts(productName: productName, price: price, id: ""))
+                
+                self.uiSet()
+                self.arrEditProducts.append(AddProducts(productName: productName, price: price, id: "", image: productImages))
+                self.viewNoProduct.isHidden = true
+                self.colVwProducts.isHidden = false
+                self.colVwProducts.reloadData()
             }else{
-                self.arrProducts.append(Products(name: productName, price: price))
+                self.uiSet()
+                
+                self.arrProducts.append(Products(name: productName, price: price, images: productImages))
+                self.viewNoProduct.isHidden = true
+                self.colVwProducts.isHidden = false
+                self.colVwProducts.reloadData()
             }
-            self.tblVwList.reloadData()
-            self.manageTableVIewHeight()
+            
+            
         }
         self.navigationController?.present(vc, animated: true)
     }
@@ -444,79 +463,7 @@ class AddPopUpVC: UIViewController,UIImagePickerControllerDelegate, UINavigation
         self.navigationController?.popViewController(animated: true)
     }
     }
-//MARK: - UITableViewDelegate
-extension AddPopUpVC: UITableViewDelegate,UITableViewDataSource{
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if isComing == true{
-            if arrEditProducts.count > 0{
-                return  arrEditProducts.count
-            }else{
-                return 0
-            }
-        }else{
-            if arrProducts.count > 0{
-                return  arrProducts.count
-            }else{
-                return 0
-            }
-        }
-    }
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "ProductListTVC", for: indexPath) as! ProductListTVC
-        cell.btnEdit.tag = indexPath.row
-        cell.btnEdit.addTarget(self, action: #selector(ActionEditProduct), for: .touchUpInside)
-        if isComing == true{
-            if arrEditProducts.count > 0{
-                cell.lblProductName.text = "\(indexPath.row + 1). \(arrEditProducts[indexPath.row].productName ?? "")"
-                cell.lblPrice.text = "$\(arrEditProducts[indexPath.row].price ?? 0)"
-            }
-        }else{
-            if arrProducts.count > 0{
-                cell.lblProductName.text = "\(indexPath.row + 1). \(arrProducts[indexPath.row].name ?? "")"
-                cell.lblPrice.text = "$\(arrProducts[indexPath.row].price ?? 0)"
-            }
-        }
-        return cell
-    }
-    @objc func ActionEditProduct(sender: UIButton) {
-        let vc = self.storyboard?.instantiateViewController(withIdentifier: "AddProductVC") as! AddProductVC
-        vc.modalPresentationStyle = .overFullScreen
-        vc.isComing = false
-        vc.selectedIndex = sender.tag
-        if self.isComing == true{
-            vc.arrEditProducts = arrEditProducts
-        }else{
-            vc.arrProducts = arrProducts
-        }
-        vc.callBack = { [weak self] productName, price,isDelete,isEdit,productImages in
-                        guard let self = self else { return }
-            if self.isComing == true{
-                if isDelete == true{
-                    self.arrEditProducts.remove(at: sender.tag)
-                }else{
-                    self.arrEditProducts[sender.tag] = AddProducts(productName: productName, price: price, id: "")
-                }
-            }else{
-                if isDelete == true{
-                    self.arrProducts.remove(at: sender.tag)
-                }else{
-                    self.arrProducts[sender.tag] = Products(name: productName, price: price)
-                }
-            }
-            self.tblVwList.reloadData()
-            self.manageTableVIewHeight()
-        }
-        self.navigationController?.present(vc, animated: true)
-    }
-    func manageTableVIewHeight() {
-        let productsCount = isComing ? arrEditProducts.count : arrProducts.count
-        self.heightTblVw.constant = productsCount > 0 ? CGFloat(productsCount * 50) : 0
-        self.heightVwNoProductlsit.constant = productsCount == 0 ? 60 : 0
-    }
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return  50
-    }
-}
+
 //MARK: - uitextfielddelegates
 extension AddPopUpVC:UITextFieldDelegate{
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
@@ -738,6 +685,130 @@ extension AddPopUpVC{
   }
 
 }
+//MARK: - UICollectionViewDataSource,UICollectionViewDelegate
+extension AddPopUpVC: UICollectionViewDataSource,UICollectionViewDelegate,UICollectionViewDelegateFlowLayout,UIScrollViewDelegate{
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        if isComing == true{
+            if arrEditProducts.count > 0{
+                return  arrEditProducts.count
+            }else{
+                return 0
+            }
+        }else{
+            if arrProducts.count > 0{
+                return  arrProducts.count
+            }else{
+                return 0
+            }
+        }
+    }
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ProductsCVC", for: indexPath) as! ProductsCVC
+        cell.btnEdit.tag = indexPath.row
+        cell.btnEdit.addTarget(self, action: #selector(ActionEditProduct), for: .touchUpInside)
+        cell.btnDelete.tag = indexPath.row
+        cell.btnDelete.addTarget(self, action: #selector(ActionDeleteProduct), for: .touchUpInside)
+        if isComing == true{
+            cell.viewDetail.layer.cornerRadius = 5
+            cell.viewDetail.layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
+                let product = arrEditProducts[indexPath.row]
+                cell.lblProductName.text = arrEditProducts[indexPath.row].productName ?? ""
+                cell.lblPrice.text = "$\(arrEditProducts[indexPath.row].price ?? 0)"
+                    if let image = product.image as? UIImage {
+                        cell.imgVwProduct.contentMode = .scaleAspectFill
+                        cell.imgVwProduct.image = image
+                    } else if let imageUrls = product.image as? [String], let firstUrl = imageUrls.first {
+                        cell.imgVwProduct.contentMode = .scaleAspectFill
+                        cell.imgVwProduct.imageLoad(imageUrl: firstUrl)
+                    } else if let singleUrl = product.image as? String {
+                        cell.imgVwProduct.contentMode = .scaleAspectFill
+                        cell.imgVwProduct.imageLoad(imageUrl: singleUrl)
+                    }else{
+                        cell.imgVwProduct.contentMode = .scaleAspectFit
+                        cell.imgVwProduct.image = UIImage(named: "dummy2")
+                    }
+            
+        }else{
+                    let product = arrProducts[indexPath.row]
+                        cell.lblProductName.text = product.name ?? ""
+                        cell.lblPrice.text = "$\(product.price ?? 0)"
+                        if let image = product.images as? UIImage {
+                            cell.imgVwProduct.contentMode = .scaleAspectFill
+                            cell.imgVwProduct.image = image
+                        } else if let imageUrls = product.images as? [String], let firstUrl = imageUrls.first {
+                            cell.imgVwProduct.contentMode = .scaleAspectFill
+                            cell.imgVwProduct.imageLoad(imageUrl: firstUrl)
+                        } else if let singleUrl = product.images as? String {
+                            cell.imgVwProduct.contentMode = .scaleAspectFill
+                            cell.imgVwProduct.imageLoad(imageUrl: singleUrl)
+                        }else{
+                            cell.imgVwProduct.contentMode = .scaleAspectFit
+                            cell.imgVwProduct.image = UIImage(named: "dummy2")
+                        }
+                
+        }
+    
+        return cell
+    }
+    @objc func ActionDeleteProduct(sender: UIButton) {
+        let indexToDelete = sender.tag
+        if isComing == true{
+            arrEditProducts.remove(at: indexToDelete)
+            
+            if arrEditProducts.isEmpty {
+                
+                viewNoProduct.isHidden = false
+                colVwProducts.isHidden = true
+            }else{
+                viewNoProduct.isHidden = true
+                colVwProducts.isHidden = false
+
+            }
+            colVwProducts.reloadData()
+        }else{
+            arrProducts.remove(at: indexToDelete)
+           
+            if arrProducts.isEmpty {
+                viewNoProduct.isHidden = false
+                colVwProducts.isHidden = true
+            }else{
+                viewNoProduct.isHidden = true
+                colVwProducts.isHidden = false
+            }
+            colVwProducts.reloadData()
+        }
+
+    }
+@objc func ActionEditProduct(sender: UIButton) {
+    let vc = self.storyboard?.instantiateViewController(withIdentifier: "AddProductVC") as! AddProductVC
+    vc.modalPresentationStyle = .overFullScreen
+    vc.isComing = false
+    vc.selectedIndex = sender.tag
+    if self.isComing == true{
+        vc.arrEditProducts = arrEditProducts
+    }else{
+        vc.arrProducts = arrProducts
+    }
+    vc.callBack = { [weak self] productName, price,isEdit,productImages in
+                    guard let self = self else { return }
+        if self.isComing == true{
+                self.arrEditProducts[sender.tag] = AddProducts(productName: productName, price: price, id: "", image: productImages)
+            
+        }else{
+                self.arrProducts[sender.tag] = Products(name: productName, price: price, images: productImages)
+            }
+        
+        self.colVwProducts.reloadData()
+    }
+    self.navigationController?.present(vc, animated: true)
+}
+
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        return CGSize(width: colVwProducts.frame.size.width / 2 - 4, height: 160)
+    }
+}
+
+
 
 
 

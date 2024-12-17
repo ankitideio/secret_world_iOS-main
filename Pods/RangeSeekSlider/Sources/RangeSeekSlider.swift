@@ -81,7 +81,7 @@ import UIKit
         didSet {
             maxLabel.font = maxLabelFont as CFTypeRef
             maxLabel.fontSize = maxLabelFont.pointSize
-            maxLabel.backgroundColor = UIColor.gray.cgColor
+            maxLabel.backgroundColor = UIColor.clear.cgColor
         }
     }
 
@@ -158,22 +158,44 @@ import UIKit
     @IBInspectable open var step: CGFloat = 0.0
 
     /// Handle slider with custom image, you can set custom image for your handle
-    @IBInspectable open var handleImage: UIImage? {
+    ///
+    @IBInspectable open var leftHandleImage: UIImage? {
         didSet {
-            guard let image = handleImage else {
-                return
-            }
-            
-            var handleFrame = CGRect.zero
-            handleFrame.size = image.size
-            
-            leftHandle.frame = handleFrame
-            leftHandle.contents = image.cgImage
-
-            rightHandle.frame = handleFrame
-            rightHandle.contents = image.cgImage
+            updateHandleImage(for: leftHandle, with: leftHandleImage)
         }
     }
+
+    @IBInspectable open var rightHandleImage: UIImage? {
+        didSet {
+            updateHandleImage(for: rightHandle, with: rightHandleImage)
+        }
+    }
+
+    private func updateHandleImage(for handle: CALayer, with image: UIImage?) {
+        guard let image = image else { return }
+        
+        var handleFrame = CGRect.zero
+        handleFrame.size = image.size
+
+        handle.frame = handleFrame
+        handle.contents = image.cgImage
+    }
+//    @IBInspectable open var handleImage: UIImage? {
+//        didSet {
+//            guard let image = handleImage else {
+//                return
+//            }
+//            
+//            var handleFrame = CGRect.zero
+//            handleFrame.size = image.size
+//            
+//            leftHandle.frame = handleFrame
+//            leftHandle.contents = image.cgImage
+//
+//            rightHandle.frame = handleFrame
+//            rightHandle.contents = image.cgImage
+//        }
+//    }
 
     /// Handle diameter (default 16.0)
     @IBInspectable open var handleDiameter: CGFloat = 16.0 {
@@ -399,12 +421,12 @@ import UIKit
     // MARK: - private methods
 
     private func setup() {
-        minLabelBackgroundView.backgroundColor = UIColor.lightGray
+        minLabelBackgroundView.backgroundColor = UIColor.clear
                 minLabelBackgroundView.layer.cornerRadius = 2
                 minLabelBackgroundView.clipsToBounds = true
                 addSubview(minLabelBackgroundView)
         
-        maxLabelBackgroundView.backgroundColor = UIColor.lightGray
+        maxLabelBackgroundView.backgroundColor = UIColor.clear
         maxLabelBackgroundView.layer.cornerRadius = 2
         maxLabelBackgroundView.clipsToBounds = true
                 addSubview(maxLabelBackgroundView)
@@ -526,12 +548,12 @@ import UIKit
             maxLabel.foregroundColor = initialColor
             sliderLineBetweenHandles.backgroundColor = initialColor
             sliderLine.backgroundColor = initialColor
-
-            let color: CGColor = (handleImage == nil) ? initialColor : UIColor.clear.cgColor
-            leftHandle.backgroundColor = color
-            leftHandle.borderColor = color
-            rightHandle.backgroundColor = color
-            rightHandle.borderColor = color
+//
+//            let color: CGColor = (handleImage == nil) ? initialColor : UIColor.clear.cgColor
+//            leftHandle.backgroundColor = color
+//            leftHandle.borderColor = color
+//            rightHandle.backgroundColor = color
+//            rightHandle.borderColor = color
         } else {
             let tintCGColor: CGColor = tintColor.cgColor
             minLabel.foregroundColor = minLabelColor?.cgColor ?? tintCGColor
@@ -539,16 +561,16 @@ import UIKit
             sliderLineBetweenHandles.backgroundColor = colorBetweenHandles?.cgColor ?? tintCGColor
             sliderLine.backgroundColor = tintCGColor
 
-            let color: CGColor
-            if let _ = handleImage {
-                color = UIColor.clear.cgColor
-            } else {
-                color = handleColor?.cgColor ?? tintCGColor
-            }
-            leftHandle.backgroundColor = color
-            leftHandle.borderColor = handleBorderColor.map { $0.cgColor }
-            rightHandle.backgroundColor = color
-            rightHandle.borderColor = handleBorderColor.map { $0.cgColor }
+//            let color: CGColor
+//            if let _ = handleImage {
+//                color = UIColor.clear.cgColor
+//            } else {
+//                color = handleColor?.cgColor ?? tintCGColor
+//            }
+//            leftHandle.backgroundColor = color
+//            leftHandle.borderColor = handleBorderColor.map { $0.cgColor }
+//            rightHandle.backgroundColor = color
+//            rightHandle.borderColor = handleBorderColor.map { $0.cgColor }
         }
     }
 

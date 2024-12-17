@@ -37,7 +37,8 @@ class PopUpVM {
         for product in addProducts {
             let productInfo: [String: Any] = [
                 "productName": product.name ?? "",
-                "price": product.price ?? 0
+                "price": product.price ?? 0,
+                "image": product.images ?? []
             ]
             productDict.append(productInfo)
         }
@@ -136,7 +137,8 @@ class PopUpVM {
         for product in addProducts {
             let productInfo: [String: Any] = [
                 "productName": product.productName ?? "",
-                "price": product.price ?? 0
+                "price": product.price ?? 0,
+                "image": product.image ?? []
             ]
             productDict.append(productInfo)
         }

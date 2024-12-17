@@ -298,13 +298,15 @@ extension Data {
 }
 
 extension UIImage {
-    func toData() -> Data{
-        return self.jpegData(compressionQuality: 1.0)!
+    func toData() -> Data? {
+        return self.jpegData(compressionQuality: 0.5)
     }
-    func isEqualToImage(image: UIImage) -> Bool
-    {
-        let data1: Data = self.pngData()!
-        let data2: Data = image.pngData()!
+    
+    func isEqualToImage(image: UIImage) -> Bool {
+        guard let data1 = self.pngData(),
+              let data2 = image.pngData() else {
+            return false
+        }
         return data1 == data2
     }
 }

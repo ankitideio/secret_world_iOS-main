@@ -8,6 +8,14 @@
 import Foundation
 import UIKit
 class Store {
+    class var ProductsImages: [String]? {
+        set {
+            Store.saveValue(newValue, .ProductsImages)
+        }
+        get {
+            return (Store.getValue(.ProductsImages) as? [String]) ?? []
+        }
+    }
     class var CurrentUserId: String? {
         set {
             Store.saveValue(newValue, .CurrentUserId)
@@ -140,6 +148,29 @@ class Store {
         }
     }
   
+    class var filterData: [String:Any]?{
+        set{
+            Store.saveValue(newValue, .filterData)
+        }get{
+            return Store.getValue(.filterData) as? [String:Any] ?? [:]
+        }
+    }
+    
+    class var filterDataPopUp: [String:Any]?{
+        set{
+            Store.saveValue(newValue, .filterDataPopUp)
+        }get{
+            return Store.getValue(.filterDataPopUp) as? [String:Any] ?? [:]
+        }
+    }
+    
+    class var filterDataBusiness: [String:Any]?{
+        set{
+            Store.saveValue(newValue, .filterDataBusiness)
+        }get{
+            return Store.getValue(.filterDataBusiness) as? [String:Any] ?? [:]
+        }
+    }
     class var businessLatLong: [String:Any]?{
         set{
             Store.saveValue(newValue, .businessLatLong)

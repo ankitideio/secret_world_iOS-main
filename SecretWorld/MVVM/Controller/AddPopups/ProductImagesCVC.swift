@@ -9,5 +9,6 @@ import UIKit
 
 class ProductImagesCVC: UICollectionViewCell {
     
+    @IBOutlet var btnDelete: UIButton!
     @IBOutlet var imgVwUpload: UIImageView!
 }

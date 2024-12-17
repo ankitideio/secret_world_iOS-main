@@ -182,6 +182,8 @@
 		0043D2032B39B2DA00D42E4F /* CurrentLocationVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0043D2022B39B2DA00D42E4F /* CurrentLocationVC.swift */; };
 		0044F73A2BC52AC500E4135A /* PromoCodePopUpVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0044F7392BC52AC500E4135A /* PromoCodePopUpVC.swift */; };
 		004A21272BC95A47007C503C /* GetPopupsListModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 004A21262BC95A47007C503C /* GetPopupsListModel.swift */; };
+		004E8FCD2D112E8F00B9C201 /* ProductsCVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 004E8FCB2D112E8F00B9C201 /* ProductsCVC.swift */; };
+		004E8FCE2D112E8F00B9C201 /* ProductsCVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = 004E8FCC2D112E8F00B9C201 /* ProductsCVC.xib */; };
 		0050F8F82B7634CE00D5F32D /* UserProfileVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0050F8F72B7634CE00D5F32D /* UserProfileVM.swift */; };
 		0050F8FA2B7636DE00D5F32D /* GetUserProfileModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0050F8F92B7636DE00D5F32D /* GetUserProfileModel.swift */; };
 		0051E6E52B393632001499FB /* ReviewTVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0051E6E32B393632001499FB /* ReviewTVC.swift */; };
@@ -596,6 +598,8 @@
 		0043D2022B39B2DA00D42E4F /* CurrentLocationVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrentLocationVC.swift; sourceTree = "<group>"; };
 		0044F7392BC52AC500E4135A /* PromoCodePopUpVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromoCodePopUpVC.swift; sourceTree = "<group>"; };
 		004A21262BC95A47007C503C /* GetPopupsListModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetPopupsListModel.swift; sourceTree = "<group>"; };
+		004E8FCB2D112E8F00B9C201 /* ProductsCVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductsCVC.swift; sourceTree = "<group>"; };
+		004E8FCC2D112E8F00B9C201 /* ProductsCVC.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ProductsCVC.xib; sourceTree = "<group>"; };
 		0050F8F72B7634CE00D5F32D /* UserProfileVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileVM.swift; sourceTree = "<group>"; };
 		0050F8F92B7636DE00D5F32D /* GetUserProfileModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetUserProfileModel.swift; sourceTree = "<group>"; };
 		0051E6E32B393632001499FB /* ReviewTVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewTVC.swift; sourceTree = "<group>"; };
@@ -1240,6 +1244,8 @@
 				00571CD62B6244D4007685FC /* ViewPopUpVC.swift */,
 				007D7E4C2D0AD101006BAD74 /* PopupTypeVC.swift */,
 				00FB350C2D10518800EE4582 /* ProductImagesCVC.swift */,
+				004E8FCB2D112E8F00B9C201 /* ProductsCVC.swift */,
+				004E8FCC2D112E8F00B9C201 /* ProductsCVC.xib */,
 			);
 			path = AddPopups;
 			sourceTree = "<group>";
@@ -1770,7 +1776,7 @@
 			);
 			mainGroup = 00FE91D22B340CA800D8AB20;
 			packageReferences = (
-				00FB35092D0FE40000EE4582 /* XCRemoteSwiftPackageReference "BackgroundRemoval" */,
+				0002879C2D11DF7A00ED906D /* XCRemoteSwiftPackageReference "BackgroundRemoval" */,
 			);
 			productRefGroup = 00FE91DC2B340CA800D8AB20 /* Products */;
 			projectDirPath = "";
@@ -1794,6 +1800,7 @@
 				000ACCE92B57E50B0053D701 /* Nunito-ExtraBold.ttf in Resources */,
 				00ECEBBC2D09BC2700AEA72C /* upload.gif in Resources */,
 				0051E6E62B393632001499FB /* ReviewTVC.xib in Resources */,
+				004E8FCE2D112E8F00B9C201 /* ProductsCVC.xib in Resources */,
 				0033DC552B614855000F49D4 /* PopUpListTVC.xib in Resources */,
 				00CD24292C871643008FF60F /* BankDetailTVC.xib in Resources */,
 				00F588072B56AE55002CBA23 /* TempraryStoreTVC.xib in Resources */,
@@ -2107,6 +2114,7 @@
 				BEB356A52BD8CB5D00A34537 /* SocketConstant.swift in Sources */,
 				0031F71E2B36D7BD00C50044 /* GallaryVC.swift in Sources */,
 				000B9A2A2BC512B100BF6EDD /* PromoCodeModel.swift in Sources */,
+				004E8FCD2D112E8F00B9C201 /* ProductsCVC.swift in Sources */,
 				00F9BDB22CA6F7FA004BDD05 /* GigUsersVC.swift in Sources */,
 				000FB3B82B6B937600CC9F4A /* SignupModel.swift in Sources */,
 				00A9A15B2B7A6F6800B7885B /* GetBusinessUserModel.swift in Sources */,
@@ -2412,7 +2420,7 @@
 				CODE_SIGN_ENTITLEMENTS = SecretWorld/SecretWorld.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 10;
+				CURRENT_PROJECT_VERSION = 11;
 				DEVELOPMENT_TEAM = 8HA3G56RBP;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -2452,7 +2460,7 @@
 				CODE_SIGN_ENTITLEMENTS = SecretWorld/SecretWorld.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 10;
+				CURRENT_PROJECT_VERSION = 11;
 				DEVELOPMENT_TEAM = 8HA3G56RBP;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -2597,6 +2605,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		0002879C2D11DF7A00ED906D /* XCRemoteSwiftPackageReference "BackgroundRemoval" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Ezaldeen99/BackgroundRemoval.git";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 		0004A63A2D0CA45B00463E68 /* XCRemoteSwiftPackageReference "BackgroundRemoval" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Ezaldeen99/BackgroundRemoval.git";

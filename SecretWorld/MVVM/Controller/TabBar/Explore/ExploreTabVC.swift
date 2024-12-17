@@ -49,6 +49,11 @@ struct ClusterPoint: Hashable {
 
 class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureManagerDelegate {
     //MARK: - OUTLETS
+    
+    @IBOutlet weak var lblBusinessCount: UILabel!
+    @IBOutlet weak var heightBusinessList: NSLayoutConstraint!
+    @IBOutlet weak var lblPopUpCount: UILabel!
+    @IBOutlet weak var heightPopUpList: NSLayoutConstraint!
     @IBOutlet weak var btnFilter: UIButton!
     @IBOutlet var bottomStackVwRefreshAndRecenter: NSLayoutConstraint!
     @IBOutlet var btnInMyLocation: UIButton!
@@ -609,6 +614,10 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
         }else{
             let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture(_:)))
             viewGigList.addGestureRecognizer(panGesture)
+            let panGesturePopUp = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesturePopUp(_:)))
+            viewStoreList.addGestureRecognizer(panGesturePopUp)
+            let panGestureBusiness = UIPanGestureRecognizer(target: self, action: #selector(handlePanGestureBusiness(_:)))
+            viewBusinessList.addGestureRecognizer(panGestureBusiness)
         }
         let nibNearBy = UINib(nibName: "GigNearByTVC", bundle: nil)
         tblVwList.register(nibNearBy, forCellReuseIdentifier: "GigNearByTVC")
@@ -649,7 +658,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                         self.mapView.viewAnnotations.removeAll()
                         self.viewThreeDot.isHidden = true
                         self.actionButton.isHidden = true
-                        self.heightTblVwGigList.constant = CGFloat(15 * 130)
+                        self.heightTblVwGigList.constant = CGFloat(self.view.frame.height - 120)
                         self.btnUpArrow.setImage(UIImage(named:"bottomarrow"), for: .normal)
                         self.tblVwList.isScrollEnabled = true
                         self.btnUpArrow.isSelected = true
@@ -671,6 +680,92 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                         self.btnUpArrow.isSelected = false
                         self.view.layoutIfNeeded()
                         self.heightTblVwGigList.constant = 0
+                        DispatchQueue.main.asyncAfter(deadline: .now()+0.5){
+                            self.actionButton.isHidden = false
+                        }
+                    }
+                }
+            default:
+                break
+        }
+    }
+    @objc func handlePanGesturePopUp(_ gesture: UIPanGestureRecognizer) {
+            let translation = gesture.translation(in: self.view)
+            switch gesture.state {
+            case .changed:
+                let velocity = gesture.velocity(in: self.view).y
+                if velocity < 0 {
+                    UIView.animate(withDuration: 0.5) {
+                        self.viewRefresh.isHidden = true
+                        self.viewRecenter.isHidden = true
+                        self.mapView.viewAnnotations.removeAll()
+                        self.viewThreeDot.isHidden = true
+                        self.actionButton.isHidden = true
+                        self.heightPopUpList.constant = CGFloat(self.view.frame.height - 120)
+                        self.btnUpArrow.setImage(UIImage(named:"bottomarrow"), for: .normal)
+                        self.collVwStore.isScrollEnabled = true
+                        self.btnUpArrow.isSelected = true
+                        if self.viewGigType.isHidden == false{
+                        self.viewGigType.isHidden = true
+                        self.viewRefresh.isHidden = true
+                        self.viewRecenter.isHidden = true
+                        }
+                        self.view.layoutIfNeeded()
+                    }
+                } else {
+                    UIView.animate(withDuration: 0.5) {
+                        self.viewRefresh.isHidden = false
+                        self.viewRecenter.isHidden = false
+                        self.viewThreeDot.isHidden = true
+                       
+                        self.btnUpArrow.setImage(UIImage(named:"uparrow"), for: .normal)
+                        self.collVwStore.isScrollEnabled = false
+                        self.btnUpArrow.isSelected = false
+                        self.view.layoutIfNeeded()
+                        self.heightPopUpList.constant = 160
+                        DispatchQueue.main.asyncAfter(deadline: .now()+0.5){
+                            self.actionButton.isHidden = false
+                        }
+                    }
+                }
+            default:
+                break
+        }
+    }
+    @objc func handlePanGestureBusiness(_ gesture: UIPanGestureRecognizer) {
+            let translation = gesture.translation(in: self.view)
+            switch gesture.state {
+            case .changed:
+                let velocity = gesture.velocity(in: self.view).y
+                if velocity < 0 {
+                    UIView.animate(withDuration: 0.5) {
+                        self.viewRefresh.isHidden = true
+                        self.viewRecenter.isHidden = true
+                        self.mapView.viewAnnotations.removeAll()
+                        self.viewThreeDot.isHidden = true
+                        self.actionButton.isHidden = true
+                        self.heightBusinessList.constant = CGFloat(self.view.frame.height - 120)
+                        self.btnUpArrow.setImage(UIImage(named:"bottomarrow"), for: .normal)
+                        self.collVwBusiness.isScrollEnabled = true
+                        self.btnUpArrow.isSelected = true
+                        if self.viewGigType.isHidden == false{
+                        self.viewGigType.isHidden = true
+                        self.viewRefresh.isHidden = true
+                        self.viewRecenter.isHidden = true
+                        }
+                        self.view.layoutIfNeeded()
+                    }
+                } else {
+                    UIView.animate(withDuration: 0.5) {
+                        self.viewRefresh.isHidden = false
+                        self.viewRecenter.isHidden = false
+                        self.viewThreeDot.isHidden = true
+                       
+                        self.btnUpArrow.setImage(UIImage(named:"uparrow"), for: .normal)
+                        self.collVwBusiness.isScrollEnabled = false
+                        self.btnUpArrow.isSelected = false
+                        self.view.layoutIfNeeded()
+                        self.heightBusinessList.constant = 260
                         DispatchQueue.main.asyncAfter(deadline: .now()+0.5){
                             self.actionButton.isHidden = false
                         }
@@ -714,29 +809,19 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
     }
     func mapData(radius:Double,type:Int,gigType:Int,lat:Double,long:Double) {
         arrSinglePopUpAnnotation.removeAll()
-            if Store.role == "user"{
-                if type == 1{
-                    //gig
-                    if Store.GigType == 0 || Store.GigType == 1{
-                        let param = ["userId": Store.userId ?? "",
-                                     "lat": lat,
-                                     "long": long,
-                                     "radius": mapRadius,
-                                     "type":type,
-                                     "gigType":gigType] as [String: Any]
-                        print("Param----", param)
-                        SocketIOManager.sharedInstance.home(dict: param)
-                    }else{
-                        let param = ["userId": Store.userId ?? "",
-                                     "lat": lat,
-                                     "long": long,
-                                     "radius": mapRadius,
-                                     "type":type] as [String: Any]
-                        print("Param----", param)
-                        SocketIOManager.sharedInstance.home(dict: param)
-                    }
+        if Store.role == "user"{
+            if type == 1{
+                //gig
+                if Store.GigType == 0 || Store.GigType == 1{
+                    let param = ["userId": Store.userId ?? "",
+                                 "lat": lat,
+                                 "long": long,
+                                 "radius": mapRadius,
+                                 "type":type,
+                                 "gigType":gigType] as [String: Any]
+                    print("Param----", param)
+                    SocketIOManager.sharedInstance.home(dict: param)
                 }else{
-                    //store
                     let param = ["userId": Store.userId ?? "",
                                  "lat": lat,
                                  "long": long,
@@ -746,6 +831,16 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                     SocketIOManager.sharedInstance.home(dict: param)
                 }
             }else{
+                //store
+                let param = ["userId": Store.userId ?? "",
+                             "lat": lat,
+                             "long": long,
+                             "radius": mapRadius,
+                             "type":type] as [String: Any]
+                print("Param----", param)
+                SocketIOManager.sharedInstance.home(dict: param)
+            }
+        }else{
                 let param = ["userId": Store.userId ?? "",
                              "lat": lat,
                              "long": long,
@@ -755,6 +850,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
             }
             SocketIOManager.sharedInstance.homeData = { data in
                 print("Received data from socket: \(String(describing: data))")
+                
                 if self.homeListenerCall == false {
                     guard let data = data, data.count > 0 else { return }
                     if let notificationCount = data[0].data?.notificationsCount {
@@ -797,21 +893,39 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                                 }
                             }
                             if self.arrData.count == 1{
-                                self.lblGigCount.text = "\(self.arrData.count) Result"
+                                self.lblGigCount.text = "\(self.arrData.count) Gig"
                             }else{
-                                self.lblGigCount.text = "\(self.arrData.count) Results"
+                                self.lblGigCount.text = "\(self.arrData.count) Gigs"
                             }
                             self.tblVwList.reloadData()
                         }else if type == 2{
                             self.heightTblVwGigList.constant = 0
                             self.viewNoMatch.isHidden = true
                             self.viewGigList.isHidden = true
+                            if self.arrData.count == 1{
+                                self.lblPopUpCount.text = "\(self.arrData.count) PopUp"
+                            }else{
+                                self.lblPopUpCount.text = "\(self.arrData.count) PopUps"
+                            }
+                            if self.arrData.count > 0{
+                                self.heightPopUpList.constant = 160
+                            }else{
+                                self.heightPopUpList.constant = 0
+                            }
                             self.collVwStore.reloadData()
                         }else{
+                            if self.arrData.count > 0{
+                                self.heightBusinessList.constant = 260
+                            }else{
+                                self.heightBusinessList.constant = 0
+                            }
                             self.heightTblVwGigList.constant = 0
                             self.viewNoMatch.isHidden = true
                             self.viewGigList.isHidden = true
                             self.collVwBusiness.reloadData()
+                            self.lblBusinessCount.text = "\(self.arrData.count) Business"
+                          
+
                         }
                     }else{
                         self.viewThreeDot.isHidden = true
@@ -2210,8 +2324,82 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
         vc.type = self.type
         vc.lat = self.currentLat
         vc.long = self.currentLong
+        vc.gigCount = self.arrData.count
+        vc.callBack = { (radius) in
+            self.homeListenerCall = false
+            let mapWidth = self.mapView.bounds.width
+            self.mapRadius = Double(radius)
+                  // Calculate the zoom level
+            
+            let zoom = self.zoomLevel(from: Double(radius), mapViewWidth: mapWidth)
+                  print("Zoom Level: \(zoom), Radius: \(radius) km")
+            let cameraOptions = CameraOptions(
+                center: CLLocationCoordinate2D(latitude: self.currentLat, longitude: self.currentLong),
+                zoom: zoom,
+                  pitch: 0.0
+              )
+
+            self.mapView.camera.ease(to: cameraOptions, duration: 0.3, curve: .easeInOut)
+            if self.type == 1{
+                //gig
+                if Store.GigType == 0 || Store.GigType == 1{
+                    let param = ["userId": Store.userId ?? "",
+                                 "lat": self.currentLat,
+                                 "long": self.currentLong,
+                                 "type":self.type,
+                                 "gigType":Store.GigType ?? 0,
+                                 "radius": Store.filterData?["radius"] as? Int ?? 50,
+                                 "minHours":Store.filterData?["minTime"] as? Int ?? 1,
+                                 "maxHours":Store.filterData?["maxTime"] as? Int ?? 24,"price_min":Store.filterData?["minPrice"] as? Int ?? 1,"price_max":Store.filterData?["maxPrice"] as? Int ?? 10000] as [String: Any]
+                    print("Param----", param)
+                    SocketIOManager.sharedInstance.home(dict: param)
+                }else{
+                    let param = ["userId": Store.userId ?? "",
+                                 "lat": self.currentLat,
+                                 "long": self.currentLong,
+                                 "type":self.type,
+                                 "radius": Store.filterData?["radius"] as? Int ?? 50,
+                                 "minHours":Store.filterData?["minTime"] as? Int ?? 1,
+                                 "maxHours":Store.filterData?["maxTime"] as? Int ?? 24,"price_min":Store.filterData?["minPrice"] as? Int ?? 1,"price_max":Store.filterData?["maxPrice"] as? Int ?? 10000] as [String: Any]
+                    print("Param----", param)
+                    SocketIOManager.sharedInstance.home(dict: param)
+                }
+            }else if self.type == 2{
+                let param = ["userId": Store.userId ?? "",
+                             "lat": self.currentLat,
+                             "long": self.currentLong,
+                             "type":self.type,
+                             "radius": Store.filterDataPopUp?["radius"] as? Int ?? 50,
+                             "popularity":Store.filterDataPopUp?["popularity"] as? Int ?? 1,
+                             "endingSoon":Store.filterDataPopUp?["endingSoon"] as? Int ?? 100] as [String: Any]
+                print("Param----", param)
+                SocketIOManager.sharedInstance.home(dict: param)
+            }else{
+                //store
+                let param = ["userId": Store.userId ?? "",
+                             "lat": self.currentLat,
+                             "long": self.currentLong,
+                             "type":self.type,
+                             "radius": Store.filterDataBusiness?["radius"] as? Int ?? 50,
+                             "minDeal":Store.filterDataBusiness?["minDeal"] as? Int ?? 1,
+                             "maxDeal":Store.filterDataBusiness?["maxDeal"] as? Int ?? 100,"rating":Store.filterDataBusiness?["rating"] as? Int ?? 100] as [String: Any]
+                print("Param----", param)
+                SocketIOManager.sharedInstance.home(dict: param)
+            }
+        }
         self.navigationController?.present(vc, animated:false)
     }
+    
+    func zoomLevel(from radius: Double, mapViewWidth: CGFloat) -> Double {
+        let earthCircumference: Double = 40075016.686 // Earth's circumference in meters
+        let radiusInMeters = radius * 1000 // Convert kilometers to meters
+        let mapWidth = Double(mapViewWidth) // Map's pixel width
+        
+        // Calculate zoom level
+        let zoom = log2((mapWidth * earthCircumference) / (radiusInMeters * 2)) - 8
+        return zoom
+    }
+    
     @IBAction func actionStickers(_ sender: UIButton) {
         // Make sure the device supports stickers
             
