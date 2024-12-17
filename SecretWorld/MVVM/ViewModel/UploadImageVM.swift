@@ -18,7 +18,7 @@ class UploadImageVM{
                 let imgStruct = ImageStructInfo(
                     fileName: "\(index).png",
                     type: "image/png",
-                    data: image.toData() ,
+                    data: image.toData() ?? Data() ,
                     key: "media"
                 )
                 imageStructArr.append(imgStruct)
@@ -47,6 +47,36 @@ class UploadImageVM{
             onSuccess(model.data)
         }
     }
+    
+    func uploadProductImagesApi(Images:[Any],onSuccess:@escaping((ImageData?)->())){
+        
+        let formatter = DateFormatter()
+        formatter.dateFormat = dateFormat.fullDate.rawValue
+        let date = formatter.string(from: Date())
+        
+        var imageStructArr = [ImageStructInfo]()
+        for (index, mediaItem) in Images.enumerated() {
+            if let image = mediaItem as? UIImage {
+                let imgStruct = ImageStructInfo(
+                    fileName: "\(index).png",
+                    type: "image/png",
+                    data: image.toData() ?? Data() ,
+                    key: "Images"
+                )
+                imageStructArr.append(imgStruct)
+                
+            }
+        }
+        let param: parameters = ["Images": imageStructArr]
+        
+        print(param)
+        
+        WebService.service(API.uploadImage, param: param, service: .post, is_raw_form: false) { (model:UploadImageModel, jsonData, jsonSer) in
+            
+            onSuccess(model.data)
+        }
+    }
+
     
     func addReport(reson:String,reportUserId:String,reasonId:String,onSuccess:@escaping((_ message:String?)->())){
         let param:parameters = ["reason":reson,"reportUserId":reportUserId,"reasonId":reasonId]

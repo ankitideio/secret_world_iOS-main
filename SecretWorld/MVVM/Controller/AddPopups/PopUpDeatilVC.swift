@@ -7,6 +7,7 @@
 import UIKit
 class PopUpDeatilVC: UIViewController {
     //MARK: - OUTLETS
+    @IBOutlet var collVwProducts: UICollectionView!
     @IBOutlet var lblProductCount: UILabel!
     @IBOutlet var btnRequests: UIButton!
     @IBOutlet var lblRequests: UILabel!
@@ -21,8 +22,6 @@ class PopUpDeatilVC: UIViewController {
     @IBOutlet var btnMessage: UIButton!
     @IBOutlet var lblPlace: UILabel!
     @IBOutlet var lblPopupName: UILabel!
-    @IBOutlet var heightTblview: NSLayoutConstraint!
-    @IBOutlet var tblVwList: UITableView!
     @IBOutlet var lblEndDate: UILabel!
     @IBOutlet var lblStartDate: UILabel!
     @IBOutlet var lblAbout: UILabel!
@@ -59,8 +58,10 @@ class PopUpDeatilVC: UIViewController {
         getPopupsApi()
     }
     func uiSet(){
-        let nibNearBy = UINib(nibName: "ProductListTVC", bundle: nil)
-        tblVwList.register(nibNearBy, forCellReuseIdentifier: "ProductListTVC")
+        let nibCollvw = UINib(nibName: "ProductsCVC", bundle: nil)
+        collVwProducts.register(nibCollvw, forCellWithReuseIdentifier: "ProductsCVC")
+        collVwProducts.delegate = self
+        collVwProducts.dataSource = self
         imgVwBack.layer.cornerRadius = 15
         imgVwBack.layer.maskedCorners = [.layerMaxXMaxYCorner, .layerMinXMaxYCorner]
         if isComing{
@@ -137,6 +138,7 @@ class PopUpDeatilVC: UIViewController {
             self.lblAbout.sizeToFit()
             self.lblPlace.text = data?.place ?? ""
             self.arrProductList = data?.addProducts ?? []
+            
             self.status = data?.status?.status
             if data?.status?.status == 0{
                 self.btnMessage.setImage(UIImage(named: ""), for: .normal)
@@ -161,8 +163,7 @@ class PopUpDeatilVC: UIViewController {
                 self.btnMessage.isUserInteractionEnabled = true
                 self.widthBtnMessage.constant = 40
             }
-            self.heightTblview.constant = CGFloat(self.arrProductList.count*50)
-            self.tblVwList.reloadData()
+            self.collVwProducts.reloadData()
         }
     }
     func addTapGestureToLabel() {
@@ -286,25 +287,50 @@ class PopUpDeatilVC: UIViewController {
         return nil
     }
 }
-//MARK: - UITableViewDelegate
-extension PopUpDeatilVC: UITableViewDelegate,UITableViewDataSource{
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if arrProductList.count > 0{
-            return arrProductList.count
-        }else{
-            return 0
-        }
+//MARK: - UICollectionViewDataSource,UICollectionViewDelegate
+extension PopUpDeatilVC: UICollectionViewDataSource,UICollectionViewDelegate,UICollectionViewDelegateFlowLayout,UIScrollViewDelegate{
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+            if arrProductList.count > 0{
+                return  arrProductList.count
+            }else{
+                return 0
+            }
     }
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "ProductListTVC", for: indexPath) as! ProductListTVC
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ProductsCVC", for: indexPath) as! ProductsCVC
         if arrProductList.count > 0{
+            cell.viewDetail.layer.cornerRadius = 5
+            cell.viewDetail.layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
+            cell.imgVwEdit.isHidden = true
+            cell.imgVwDelete.isHidden = true
             cell.widthEditBtn.constant = 0
-            cell.lblProductName.text = "\(indexPath.row + 1). \(arrProductList[indexPath.row].productName ?? "")"
-            cell.lblPrice.text = "$\(arrProductList[indexPath.row].price ?? 0)"
+            cell.widthDeleteBtn.constant = 0
+            if arrProductList[indexPath.row].image == [""] || arrProductList[indexPath.row].image == nil{
+                cell.imgVwProduct.image = UIImage(named: "dummy2")
+            }else{
+                let product = arrProductList[indexPath.row]
+                cell.lblProductName.text = arrProductList[indexPath.row].productName ?? ""
+                cell.lblPrice.text = "$\(arrProductList[indexPath.row].price ?? 0)"
+                if let image = product.image as? UIImage {
+                    cell.imgVwProduct.contentMode = .scaleAspectFill
+                    cell.imgVwProduct.image = image
+                } else if let imageUrls = product.image as? [String], let firstUrl = imageUrls.first {
+                    cell.imgVwProduct.contentMode = .scaleAspectFill
+                    cell.imgVwProduct.imageLoad(imageUrl: firstUrl)
+                } else if let singleUrl = product.image as? String {
+                    cell.imgVwProduct.contentMode = .scaleAspectFill
+                    cell.imgVwProduct.imageLoad(imageUrl: singleUrl)
+                } else {
+                    cell.imgVwProduct.contentMode = .redraw
+                    cell.imgVwProduct.image = UIImage(named: "dummy2")
+                }
+                
+            }
         }
+    
         return cell
     }
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return  50
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        return CGSize(width: collVwProducts.frame.size.width / 2-2, height: 160)
     }
 }

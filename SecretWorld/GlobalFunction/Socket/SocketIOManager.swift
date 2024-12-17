@@ -226,7 +226,18 @@ class SocketIOManager: NSObject {
                 let messages = try JSONDecoder().decode([HomeModel].self, from: jsonData)
                 
                 self.homeData?(messages)
-                
+                guard let firstItem = messages.first,
+                         let filteredItems = firstItem.data?.filteredItems else {
+                       print("Error: Data structure is not in the expected format")
+                       return
+                   }
+                   
+                   // Post Notification with userInfo
+                   NotificationCenter.default.post(
+                       name: Notification.Name("homeFilter"),
+                       object: nil,
+                       userInfo: ["filteredItems": filteredItems]
+                   )
                 print("Received Messages: \(data.count)")
             } catch {
                 print("Error decoding message: \(error)")

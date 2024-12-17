@@ -107,7 +107,7 @@ class AddServiceVM{
                 let imgStruct = ImageStructInfo(
                     fileName: "\(index).png",
                     type: "image/png",
-                    data: image.toData() ,
+                    data: image.toData() ?? Data() ,
                     key: "media"
                 )
                 imageStructArr.append(imgStruct)
@@ -172,7 +172,7 @@ class AddServiceVM{
                 let imgStruct = ImageStructInfo(
                     fileName: "\(index).png",
                     type: "image/png",
-                    data: image.toData() ,
+                    data: image.toData() ?? Data() ,
                     key: "serviceImage"
                 )
                 imageStructArr.append(imgStruct)

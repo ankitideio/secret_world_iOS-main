@@ -49,9 +49,9 @@ struct AddProducts: Codable {
     let productName: String?
     let price: Int?
     let id: String?
-
+    let image: [String]?
     enum CodingKeys: String, CodingKey {
-        case productName, price
+        case productName, price,image
         case id = "_id"
     }
 }

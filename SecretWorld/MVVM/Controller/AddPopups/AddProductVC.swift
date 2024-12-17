@@ -11,7 +11,6 @@ class AddProductVC: UIViewController {
     //MARK: - OUTLETS
     @IBOutlet var collVwProductImgs: UICollectionView!
     @IBOutlet var viewUploadPhoto: UIView!
-    @IBOutlet var btnDismiss: UIButton!
     @IBOutlet var lblScreenTitle: UILabel!
     @IBOutlet var btnCancel: UIButton!
     @IBOutlet var viewBack: UIView!
@@ -20,15 +19,16 @@ class AddProductVC: UIViewController {
     @IBOutlet weak var btnAdd: UIButton!
     
     //MARK: - variables
-    var callBack:((_ productName:String,_ price:Int,_ isDelete:Bool,_ isEdit:Bool,_ images:[String])->())?
+    var callBack:((_ productName:String,_ price:Int,_ isEdit:Bool,_ images:[String])->())?
     var isComing = false
     var arrProducts = [Products]()
     var selectedIndex = 0
     var arrEditProducts = [AddProducts]()
     var viewModel = UploadImageVM()
-    var arrProductsImages = [UIImage]()
-    var isupload = false
-    var arrImgsUrls:[String]?
+    var arrProductsImages = [Any]()
+    var arrEditProductsImages = [Any]()
+    var isUploaded = false
+    var callBackDidSelect:((_ arrProductImg:[Any])->())?
     override func viewDidLoad() {
         super.viewDidLoad()
         uiSet()
@@ -37,40 +37,45 @@ class AddProductVC: UIViewController {
         txtFldProductName.delegate = self
         txtFldPrice.delegate = self
         viewBack.layer.cornerRadius = 35
+        
         viewBack.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
         if isComing == true{
             lblScreenTitle.text = "Add Product"
-            btnCancel.setTitle("Cancel", for: .normal)
             btnAdd.setTitle("Add", for: .normal)
-            btnDismiss.isHidden = true
         }else{
             print(selectedIndex)
+            
             lblScreenTitle.text = "Edit Product"
-            btnCancel.setTitle("Delete", for: .normal)
-            btnAdd.setTitle("Edit", for: .normal)
-            btnDismiss.isHidden = false
             if arrEditProducts.count > 0{
+                
                 txtFldProductName.text = arrEditProducts[selectedIndex].productName ?? ""
                 let price = arrEditProducts[selectedIndex].price ?? 0
                 txtFldPrice.text = "\(price)"
+                arrProductsImages = arrEditProducts[selectedIndex].image ?? []
+                
             }
             if arrProducts.count > 0{
+                
                 txtFldProductName.text = arrProducts[selectedIndex].name ?? ""
                 let price = arrProducts[selectedIndex].price ?? 0
                 txtFldPrice.text = "\(price)"
+                arrProductsImages = arrProducts[selectedIndex].images ?? []
+                
             }
         }
+        collVwProductImgs.reloadData()
+        
     }
     //MARK: - BUTTON ACTIONS
     @IBAction func actionUploadImage(_ sender: UIButton) {
+        if arrProductsImages.count >= 5 {
+               showSwiftyAlert("", "You can upload a maximum of 5 images.", false)
+               return
+           }
         ImagePicker().pickImage(self) { image in
-            self.arrProductsImages.append(image)
-            self.viewModel.uploadImageApi(image: [image]) { data in
-                self.arrImgsUrls?.append(contentsOf: data?.imageUrls ?? [])
-                    self.collVwProductImgs.reloadData()
-            }
-          
-            
+            self.arrEditProductsImages.removeAll()
+            self.arrProductsImages.insert(image, at: 0)
+            self.collVwProductImgs.reloadData()
         }
 
     }
@@ -80,16 +85,13 @@ class AddProductVC: UIViewController {
          
         }else{
             self.dismiss(animated: true)
-            self.callBack?("", 0, true, false, arrImgsUrls ?? [])
+           // self.callBack?("", 0, true, false, arrImgsUrls ?? [])
             
         }
     }
-    @IBAction func actionDismiss(_ sender: UIButton) {
-        self.dismiss(animated: true)
-    }
     
     @IBAction func actionAdd(_ sender: UIButton) {
-        
+
         if txtFldProductName.text == "" {
             
             showSwiftyAlert("", "Please enter the product name", false)
@@ -104,16 +106,32 @@ class AddProductVC: UIViewController {
             
         }else{
             if isComing == true{
+                if arrProductsImages.isEmpty{
                     self.dismiss(animated: true)
                     self.callBack?(self.txtFldProductName.text ?? "",
-                                   Int(self.txtFldPrice.text ?? "") ?? 0,
-                                   false, false, arrImgsUrls ?? [])
-                
+                                   Int(self.txtFldPrice.text ?? "") ?? 0, false, [])
+                }else{
+                    self.viewModel.uploadProductImagesApi(Images:self.arrProductsImages){ data in
+                        self.dismiss(animated: true)
+                        self.callBack?(self.txtFldProductName.text ?? "",
+                                       Int(self.txtFldPrice.text ?? "") ?? 0, false, data?.imageUrls ?? [])
+                    }
+                }
             }else{
-                self.dismiss(animated: true)
-                callBack?(txtFldProductName.text ?? "",
-                          Int(txtFldPrice.text ?? "") ?? 0,
-                          false, true, arrImgsUrls ?? [])
+                
+                if arrEditProductsImages.isEmpty{
+                    self.dismiss(animated: true)
+                    self.callBack?(self.txtFldProductName.text ?? "",
+                                   Int(self.txtFldPrice.text ?? "") ?? 0, false, [])
+                }else{
+                    
+                    self.viewModel.uploadProductImagesApi(Images:self.arrEditProductsImages){ data in
+                        
+                        self.dismiss(animated: true)
+                        self.callBack?(self.txtFldProductName.text ?? "",
+                                       Int(self.txtFldPrice.text ?? "") ?? 0, true, data?.imageUrls ?? [])
+                    }
+                }
             }
             
             
@@ -157,19 +175,52 @@ extension AddProductVC: UICollectionViewDataSource,UICollectionViewDelegate,UICo
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ProductImagesCVC", for: indexPath) as! ProductImagesCVC
         if arrProductsImages.count > 0{
-            cell.contentView.layer.cornerRadius = 10
-//            if let imageUrl = arrProductsImages[indexPath.row] as? String {
-            cell.imgVwUpload.image = arrProductsImages[indexPath.row]
-            //}
+            
+            cell.btnDelete.tag = indexPath.row
+            cell.btnDelete.addTarget(self, action: #selector(ActionDeleteProduct), for: .touchUpInside)
+            if arrProductsImages.isEmpty{
+                cell.imgVwUpload.image = UIImage(named: "dummy2")
+            }else{
+                if let image = arrProductsImages[indexPath.row] as? UIImage {
+                    cell.imgVwUpload.image = arrProductsImages[indexPath.row] as? UIImage
+                    
+                }else{
+                    cell.imgVwUpload.imageLoad(imageUrl: arrProductsImages[indexPath.row] as? String ?? "")
+                }
+            }
+            arrEditProductsImages.append(cell.imgVwUpload.image ?? UIImage())
+            
     }
         return cell
     }
+    func collectionView(_ collectionView: UICollectionView,
+                        layout collectionViewLayout: UICollectionViewLayout,
+                        minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        return 0
+    }
 
+    func collectionView(_ collectionView: UICollectionView,
+                        layout collectionViewLayout: UICollectionViewLayout,
+                        minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
+        return 0
+    }
+
+    func collectionView(_ collectionView: UICollectionView,
+                        layout collectionViewLayout: UICollectionViewLayout,
+                        insetForSectionAt section: Int) -> UIEdgeInsets {
+        return UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+    }
+    @objc func ActionDeleteProduct(sender:UIButton){
+        let indexToDelete = sender.tag
+            arrProductsImages.remove(at: indexToDelete)
+            collVwProductImgs.reloadData()
+    }
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: collVwProductImgs.frame.size.width / 3, height: 100)
+        return CGSize(width: collVwProductImgs.frame.size.width / 3, height: 90)
     }
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-            print("Click on item at index: \(indexPath.item)")
-        }
+//        dismiss(animated: true)
+//        callBackDidSelect?(arrProductsImages)
+    }
 }
 
