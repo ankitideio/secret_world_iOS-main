@@ -33,7 +33,7 @@ class MyServicesVC: UIViewController {
     @objc func handleSwipe() {
         switch isSelect{
         case 0:
-            SceneDelegate().tabBarHomeRoot()
+            SceneDelegate().userRoot()
         case 1:
             self.navigationController?.popViewController(animated: true)
         default:
@@ -78,7 +78,7 @@ class MyServicesVC: UIViewController {
     @IBAction func actionBack(_ sender: UIButton) {
         switch isSelect{
         case 0:
-            SceneDelegate().tabBarHomeRoot()
+            SceneDelegate().userRoot()
         case 1:
             self.navigationController?.popViewController(animated: true)
         default:

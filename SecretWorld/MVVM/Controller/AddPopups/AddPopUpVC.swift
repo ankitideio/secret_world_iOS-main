@@ -385,7 +385,7 @@ class AddPopUpVC: UIViewController,UIImagePickerControllerDelegate, UINavigation
                             Store.tabBarNotificationPosted = false
                             vc.callBack = {[weak self] in
                                 guard let self = self else { return }
-                                SceneDelegate().tabBarHomeRoot()
+                                SceneDelegate().userRoot()
                             }
                             vc.modalPresentationStyle = .overFullScreen
                             self.navigationController?.present(vc, animated: true)
@@ -413,7 +413,7 @@ class AddPopUpVC: UIViewController,UIImagePickerControllerDelegate, UINavigation
                                 Store.tabBarNotificationPosted = false
                                 vc.callBack = {[weak self] in
                                     guard let self = self else { return }
-                                    SceneDelegate().tabBarHomeRoot()
+                                    SceneDelegate().userRoot()
                                 }
                                 vc.modalPresentationStyle = .overFullScreen
                                 self.navigationController?.present(vc, animated: true)
@@ -784,11 +784,8 @@ extension AddPopUpVC: UICollectionViewDataSource,UICollectionViewDelegate,UIColl
     vc.modalPresentationStyle = .overFullScreen
     vc.isComing = false
     vc.selectedIndex = sender.tag
-    if self.isComing == true{
-        vc.arrEditProducts = arrEditProducts
-    }else{
-        vc.arrProducts = arrProducts
-    }
+    vc.arrProducts = arrProducts
+    
     vc.callBack = { [weak self] productName, price,isEdit,productImages in
                     guard let self = self else { return }
         if self.isComing == true{

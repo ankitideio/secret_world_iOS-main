@@ -48,17 +48,17 @@ class UploadImageVM{
         }
     }
     
-    func uploadProductImagesApi(Images:[Any],onSuccess:@escaping((ImageData?)->())){
+    func uploadProductImagesApi(Images:Any,onSuccess:@escaping((ImageData?)->())){
         
         let formatter = DateFormatter()
         formatter.dateFormat = dateFormat.fullDate.rawValue
         let date = formatter.string(from: Date())
         
         var imageStructArr = [ImageStructInfo]()
-        for (index, mediaItem) in Images.enumerated() {
-            if let image = mediaItem as? UIImage {
+      
+        if let image = Images as? UIImage {
                 let imgStruct = ImageStructInfo(
-                    fileName: "\(index).png",
+                    fileName: "\(String(describing: index)).png",
                     type: "image/png",
                     data: image.toData() ?? Data() ,
                     key: "Images"
@@ -66,7 +66,7 @@ class UploadImageVM{
                 imageStructArr.append(imgStruct)
                 
             }
-        }
+        
         let param: parameters = ["Images": imageStructArr]
         
         print(param)

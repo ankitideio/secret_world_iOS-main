@@ -124,6 +124,9 @@ enum DefaultKeys: String{
     case filterData
     case filterDataPopUp
     case filterDataBusiness
+    case isSelectGigFilter
+    case isSelectPopUpFilter
+    case isSelectBusinessFilter
 }
 
 

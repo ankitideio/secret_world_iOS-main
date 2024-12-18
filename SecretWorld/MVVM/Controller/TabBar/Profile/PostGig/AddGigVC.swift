@@ -238,7 +238,7 @@ class AddGigVC: UIViewController {
         Store.AddGigImage = nil
         Store.AddGigDetail = nil
         if isComing{
-            SceneDelegate().tabBarHomeRoot()
+            SceneDelegate().userRoot()
             callBack?()
         }else{
             self.navigationController?.popViewController(animated: true)
@@ -327,7 +327,7 @@ class AddGigVC: UIViewController {
         Store.AddGigImage = nil
         Store.AddGigDetail = nil
         if isComing{
-            SceneDelegate().tabBarHomeRoot()
+            SceneDelegate().userRoot()
             callBack?()
         }else{
             self.navigationController?.popViewController(animated: true)

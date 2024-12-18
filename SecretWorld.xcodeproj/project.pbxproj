@@ -1776,7 +1776,7 @@
 			);
 			mainGroup = 00FE91D22B340CA800D8AB20;
 			packageReferences = (
-				0002879C2D11DF7A00ED906D /* XCRemoteSwiftPackageReference "BackgroundRemoval" */,
+				004325772D132D910054CDB9 /* XCRemoteSwiftPackageReference "BackgroundRemoval" */,
 			);
 			productRefGroup = 00FE91DC2B340CA800D8AB20 /* Products */;
 			projectDirPath = "";
@@ -2605,14 +2605,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		0002879C2D11DF7A00ED906D /* XCRemoteSwiftPackageReference "BackgroundRemoval" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/Ezaldeen99/BackgroundRemoval.git";
-			requirement = {
-				branch = main;
-				kind = branch;
-			};
-		};
 		0004A63A2D0CA45B00463E68 /* XCRemoteSwiftPackageReference "BackgroundRemoval" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Ezaldeen99/BackgroundRemoval.git";
@@ -2646,6 +2638,14 @@
 			};
 		};
 		001762AC2D032D7F003ECF4B /* XCRemoteSwiftPackageReference "BackgroundRemoval" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Ezaldeen99/BackgroundRemoval.git";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+		004325772D132D910054CDB9 /* XCRemoteSwiftPackageReference "BackgroundRemoval" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Ezaldeen99/BackgroundRemoval.git";
 			requirement = {
