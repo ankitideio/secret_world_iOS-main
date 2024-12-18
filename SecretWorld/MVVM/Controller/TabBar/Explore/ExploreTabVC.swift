@@ -50,11 +50,13 @@ struct ClusterPoint: Hashable {
 class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureManagerDelegate {
     //MARK: - OUTLETS
     
+    @IBOutlet weak var btnGigFilter: UIButton!
+    @IBOutlet weak var btnStoreFilter: UIButton!
+    @IBOutlet weak var btnBusinessFilter: UIButton!
     @IBOutlet weak var lblBusinessCount: UILabel!
     @IBOutlet weak var heightBusinessList: NSLayoutConstraint!
     @IBOutlet weak var lblPopUpCount: UILabel!
     @IBOutlet weak var heightPopUpList: NSLayoutConstraint!
-    @IBOutlet weak var btnFilter: UIButton!
     @IBOutlet var bottomStackVwRefreshAndRecenter: NSLayoutConstraint!
     @IBOutlet var btnInMyLocation: UIButton!
     @IBOutlet var imgVwInMyLocation: UIImageView!
@@ -160,6 +162,8 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
     var mapView:MapView!
     var visibleIndex = 0
     let deviceHasNotch = UIApplication.shared.hasNotch
+    var isSelectGigList = false
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -175,6 +179,38 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
         
     }
     override func viewWillAppear(_ animated: Bool){
+        if Store.role == "user"{
+            if self.deviceHasNotch{
+             
+                if UIDevice.current.hasDynamicIsland {
+                    self.topMapVw.constant = -69
+                    self.bottomCollVw.constant = 83
+                    }else{
+                    self.topMapVw.constant = -59
+                    self.bottomCollVw.constant = 63
+                }
+            }else{
+                self.topMapVw.constant = 0
+                self.bottomCollVw.constant = 88
+                
+            }
+            
+        }else{
+            if self.deviceHasNotch{
+                if UIDevice.current.hasDynamicIsland {
+                    self.topMapVw.constant = -69
+                    self.bottomCollVw.constant = 73
+                    }else{
+                    self.topMapVw.constant = -59
+                    self.bottomCollVw.constant = 63
+                }
+            }else{
+                self.topMapVw.constant = 0
+                self.bottomCollVw.constant = 88
+            }
+            
+        }
+
         Store.isSelectTab = false
         willAppear()
     }
@@ -347,7 +383,11 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
         self.viewBusinessList.isHidden = false
             getBusinessData(visibleIndex: 0)
         if deviceHasNotch{
+            if UIDevice.current.hasDynamicIsland {
+            bottomCollVw.constant = 68
+            }else{
             bottomCollVw.constant = 58
+            }
         }else{
             bottomCollVw.constant = 80
         }
@@ -388,12 +428,16 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                     self.viewNoMatch.isHidden = false
                 }
             }
+
             if deviceHasNotch{
+                if UIDevice.current.hasDynamicIsland {
+                bottomCollVw.constant = 58
+                }else{
                 bottomCollVw.constant = 48
+                }
             }else{
                 bottomCollVw.constant = 70
             }
-           
         }
      
     }
@@ -406,8 +450,13 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
             }else{
                 bottomStackVwRefreshAndRecenter.constant = 10
             }
+
         if deviceHasNotch{
+            if UIDevice.current.hasDynamicIsland {
+            bottomCollVw.constant = 58
+            }else{
             bottomCollVw.constant = 48
+            }
         }else{
             bottomCollVw.constant = 70
         }
@@ -418,8 +467,13 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
         
         self.viewStoreList.isHidden = false
         self.getStoreData(visibleIndex: 0)
+
         if deviceHasNotch{
+            if UIDevice.current.hasDynamicIsland {
             bottomCollVw.constant = 58
+            }else{
+            bottomCollVw.constant = 58
+            }
         }else{
             bottomCollVw.constant = 80
         }
@@ -518,8 +572,8 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                 print(isDaytime ? "It's day time!" : "It's night time!")
                 if isDaytime{
                     if let styleURL = URL(string: "mapbox://styles/kevinzhang23a/cm2bod8mi00qg01pgepsohjq0") {
-                        self.mapView.mapboxMap.styleURI = .dark
-                        //self.mapView.mapboxMap.loadStyle(StyleURI(url: styleURL) ?? .light)
+//                        self.mapView.mapboxMap.styleURI = .dark
+                        self.mapView.mapboxMap.loadStyle(StyleURI(url: styleURL) ?? .light)
                     }
                     
                 }else{
@@ -534,27 +588,6 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
             let tapGesture = UITapGestureRecognizer(target: self, action: #selector(self.overlayTapped))
             self.mapView.addGestureRecognizer(tapGesture)
         
-            if Store.role == "user"{
-                if self.deviceHasNotch{
-                    self.topMapVw.constant = -59
-                    self.bottomCollVw.constant = 63
-                    
-                }else{
-                    self.topMapVw.constant = 0
-                    self.bottomCollVw.constant = 88
-                    
-                }
-                
-            }else{
-                if self.deviceHasNotch{
-                    self.topMapVw.constant = -59
-                    self.bottomCollVw.constant = 65
-                }else{
-                    self.topMapVw.constant = 0
-                    self.bottomCollVw.constant = 88
-                }
-                
-            }
             
             
         }
@@ -658,7 +691,8 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                         self.mapView.viewAnnotations.removeAll()
                         self.viewThreeDot.isHidden = true
                         self.actionButton.isHidden = true
-                        self.heightTblVwGigList.constant = CGFloat(self.view.frame.height - 120)
+                        self.btnGigFilter.isHidden = false
+                        self.heightTblVwGigList.constant = CGFloat(self.view.frame.height - 180)
                         self.btnUpArrow.setImage(UIImage(named:"bottomarrow"), for: .normal)
                         self.tblVwList.isScrollEnabled = true
                         self.btnUpArrow.isSelected = true
@@ -666,6 +700,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                         self.viewGigType.isHidden = true
                         self.viewRefresh.isHidden = true
                         self.viewRecenter.isHidden = true
+                        self.isSelectGigList = true
                         }
                         self.view.layoutIfNeeded()
                     }
@@ -674,10 +709,11 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                         self.viewRefresh.isHidden = false
                         self.viewRecenter.isHidden = false
                         self.viewThreeDot.isHidden = true
-                       
+                        self.btnGigFilter.isHidden = true
                         self.btnUpArrow.setImage(UIImage(named:"uparrow"), for: .normal)
                         self.tblVwList.isScrollEnabled = false
                         self.btnUpArrow.isSelected = false
+                        self.isSelectGigList = false
                         self.view.layoutIfNeeded()
                         self.heightTblVwGigList.constant = 0
                         DispatchQueue.main.asyncAfter(deadline: .now()+0.5){
@@ -701,7 +737,8 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                         self.mapView.viewAnnotations.removeAll()
                         self.viewThreeDot.isHidden = true
                         self.actionButton.isHidden = true
-                        self.heightPopUpList.constant = CGFloat(self.view.frame.height - 120)
+                        self.btnStoreFilter.isHidden = false
+                        self.heightPopUpList.constant = CGFloat(self.view.frame.height - 180)
                         self.btnUpArrow.setImage(UIImage(named:"bottomarrow"), for: .normal)
                         self.collVwStore.isScrollEnabled = true
                         self.btnUpArrow.isSelected = true
@@ -714,6 +751,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                     }
                 } else {
                     UIView.animate(withDuration: 0.5) {
+                        self.btnStoreFilter.isHidden = true
                         self.viewRefresh.isHidden = false
                         self.viewRecenter.isHidden = false
                         self.viewThreeDot.isHidden = true
@@ -722,7 +760,12 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                         self.collVwStore.isScrollEnabled = false
                         self.btnUpArrow.isSelected = false
                         self.view.layoutIfNeeded()
-                        self.heightPopUpList.constant = 160
+                        if self.arrData.count > 0{
+                            self.heightPopUpList.constant = 160
+                        }else{
+                            self.heightPopUpList.constant = 60
+                        }
+                        
                         DispatchQueue.main.asyncAfter(deadline: .now()+0.5){
                             self.actionButton.isHidden = false
                         }
@@ -743,8 +786,9 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                         self.viewRecenter.isHidden = true
                         self.mapView.viewAnnotations.removeAll()
                         self.viewThreeDot.isHidden = true
+                        self.btnBusinessFilter.isHidden = false
                         self.actionButton.isHidden = true
-                        self.heightBusinessList.constant = CGFloat(self.view.frame.height - 120)
+                        self.heightBusinessList.constant = CGFloat(self.view.frame.height - 180)
                         self.btnUpArrow.setImage(UIImage(named:"bottomarrow"), for: .normal)
                         self.collVwBusiness.isScrollEnabled = true
                         self.btnUpArrow.isSelected = true
@@ -760,12 +804,17 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                         self.viewRefresh.isHidden = false
                         self.viewRecenter.isHidden = false
                         self.viewThreeDot.isHidden = true
-                       
+                        self.btnBusinessFilter.isHidden = true
                         self.btnUpArrow.setImage(UIImage(named:"uparrow"), for: .normal)
                         self.collVwBusiness.isScrollEnabled = false
                         self.btnUpArrow.isSelected = false
                         self.view.layoutIfNeeded()
-                        self.heightBusinessList.constant = 260
+                        if self.arrData.count > 0{
+                            self.heightBusinessList.constant = 260
+                        }else{
+                            self.heightBusinessList.constant = 60
+                        }
+                       
                         DispatchQueue.main.asyncAfter(deadline: .now()+0.5){
                             self.actionButton.isHidden = false
                         }
@@ -812,16 +861,55 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
         if Store.role == "user"{
             if type == 1{
                 //gig
-                if Store.GigType == 0 || Store.GigType == 1{
-                    let param = ["userId": Store.userId ?? "",
-                                 "lat": lat,
-                                 "long": long,
-                                 "radius": mapRadius,
-                                 "type":type,
-                                 "gigType":gigType] as [String: Any]
-                    print("Param----", param)
-                    SocketIOManager.sharedInstance.home(dict: param)
+                if !(Store.isSelectGigFilter ?? false) {
+                    if Store.GigType == 0 || Store.GigType == 1{
+                        let param = ["userId": Store.userId ?? "",
+                                     "lat": lat,
+                                     "long": long,
+                                     "radius": mapRadius,
+                                     "type":type,
+                                     "gigType":gigType] as [String: Any]
+                        print("Param----", param)
+                        SocketIOManager.sharedInstance.home(dict: param)
+                    }else{
+                        let param = ["userId": Store.userId ?? "",
+                                     "lat": lat,
+                                     "long": long,
+                                     "radius": mapRadius,
+                                     "type":type] as [String: Any]
+                        print("Param----", param)
+                        SocketIOManager.sharedInstance.home(dict: param)
+                    }
                 }else{
+                    if Store.GigType == 0 || Store.GigType == 1{
+                        var param = ["userId": Store.userId ?? "",
+                                     "lat": lat,
+                                     "long": long,
+                                     "type":type,
+                                     "gigType":gigType] as [String: Any]
+                        param.merge(Store.filterData ?? [:]) { (_, new) in new }
+
+                        // Print the combined dictionary
+                        print("Combined filterParam------", param)
+                        SocketIOManager.sharedInstance.home(dict: param)
+                    }else{
+                        var param = ["userId": Store.userId ?? "",
+                                     "lat": lat,
+                                     "long": long,
+                                     "type":type] as [String: Any]
+                        param.merge(Store.filterData ?? [:]) { (_, new) in new }
+
+                        // Print the combined dictionary
+                        print("Combined filterParam------", param)
+                        SocketIOManager.sharedInstance.home(dict: param)
+                    }
+                   
+                       
+                    }
+                
+            }else if type == 2{
+                //store
+                if !(Store.isSelectPopUpFilter ?? false){
                     let param = ["userId": Store.userId ?? "",
                                  "lat": lat,
                                  "long": long,
@@ -829,16 +917,40 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                                  "type":type] as [String: Any]
                     print("Param----", param)
                     SocketIOManager.sharedInstance.home(dict: param)
+                }else{
+                  
+                    var param = ["userId": Store.userId ?? "",
+                                 "lat": lat,
+                                 "long": long,
+                                 "type":type] as [String: Any]
+                    param.merge(Store.filterDataPopUp ?? [:]) { (_, new) in new }
+
+                    // Print the combined dictionary
+                    print("Combined filterParam------", param)
+                    SocketIOManager.sharedInstance.home(dict: param)
                 }
+               
             }else{
-                //store
-                let param = ["userId": Store.userId ?? "",
-                             "lat": lat,
-                             "long": long,
-                             "radius": mapRadius,
-                             "type":type] as [String: Any]
-                print("Param----", param)
-                SocketIOManager.sharedInstance.home(dict: param)
+                if !(Store.isSelectBusinessFilter ?? false){
+                    let param = ["userId": Store.userId ?? "",
+                                 "lat": lat,
+                                 "long": long,
+                                 "radius": mapRadius,
+                                 "type":type] as [String: Any]
+                    print("Param----", param)
+                    SocketIOManager.sharedInstance.home(dict: param)
+                }else{
+                  
+                    var param = ["userId": Store.userId ?? "",
+                                 "lat": lat,
+                                 "long": long,
+                                 "type":type] as [String: Any]
+                    param.merge(Store.filterDataBusiness ?? [:]) { (_, new) in new }
+
+                    // Print the combined dictionary
+                    print("Combined filterParam------", param)
+                    SocketIOManager.sharedInstance.home(dict: param)
+                }
             }
         }else{
                 let param = ["userId": Store.userId ?? "",
@@ -875,6 +987,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                             if self.arrData.count > 0{
                                 self.lblEarning.text = "$\(totalPrice)"
                             }else{
+                                self.removePointClusters()
                                 self.lblEarning.text = "$\(0)"
                             }
                           
@@ -882,10 +995,47 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                               
                                 if !(Store.isSelectTab ?? false){
                                     self.viewGigList.isHidden = false
+                                    if self.isSelectGigList{
+                                     
+                                        self.viewRefresh.isHidden = true
+                                        self.viewRecenter.isHidden = true
+                                        self.mapView.viewAnnotations.removeAll()
+                                        self.viewThreeDot.isHidden = true
+                                        self.actionButton.isHidden = true
+                                        self.btnGigFilter.isHidden = false
+                                        self.heightTblVwGigList.constant = CGFloat(self.view.frame.height - 180)
+                                        self.btnUpArrow.setImage(UIImage(named:"bottomarrow"), for: .normal)
+                                        self.tblVwList.isScrollEnabled = true
+                                        self.btnUpArrow.isSelected = true
+                                        if self.viewGigType.isHidden == false{
+                                            self.viewGigType.isHidden = true
+                                            self.viewRefresh.isHidden = true
+                                            self.viewRecenter.isHidden = true
+                                           
+                                        }
+                                    }else{
+                                        self.viewRefresh.isHidden = false
+                                        self.viewRecenter.isHidden = false
+                                        self.viewThreeDot.isHidden = true
+                                        self.btnGigFilter.isHidden = true
+                                        self.btnUpArrow.setImage(UIImage(named:"uparrow"), for: .normal)
+                                        self.tblVwList.isScrollEnabled = false
+                                        self.btnUpArrow.isSelected = false
+                                   
+                                        self.view.layoutIfNeeded()
+                                        self.heightTblVwGigList.constant = 0
+                                        DispatchQueue.main.asyncAfter(deadline: .now()+0.5){
+                                            self.actionButton.isHidden = false
+                                        }
+                                    }
+                                   
                                     self.viewNoMatch.isHidden = true
-                                    self.heightTblVwGigList.constant = 0
+                                    
                                 }
                             } else {
+                                self.arrGigPointAnnotations.removeAll()
+                                
+                                self.removePointClusters()
                                 if !(Store.isSelectTab ?? false){
                                     self.heightTblVwGigList.constant = 0
                                     self.viewGigList.isHidden = true
@@ -893,9 +1043,9 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                                 }
                             }
                             if self.arrData.count == 1{
-                                self.lblGigCount.text = "\(self.arrData.count) Gig"
+                                self.lblGigCount.text = "Task"
                             }else{
-                                self.lblGigCount.text = "\(self.arrData.count) Gigs"
+                                self.lblGigCount.text = "Tasks"
                             }
                             self.tblVwList.reloadData()
                         }else if type == 2{
@@ -903,13 +1053,16 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                             self.viewNoMatch.isHidden = true
                             self.viewGigList.isHidden = true
                             if self.arrData.count == 1{
-                                self.lblPopUpCount.text = "\(self.arrData.count) PopUp"
+                                self.lblPopUpCount.text = "PopUp"
                             }else{
-                                self.lblPopUpCount.text = "\(self.arrData.count) PopUps"
+                                self.lblPopUpCount.text = "PopUps"
                             }
                             if self.arrData.count > 0{
                                 self.heightPopUpList.constant = 160
                             }else{
+                                self.arrPopUpPointAnnotations.removeAll()
+                                self.arrSinglePopUpAnnotation.removeAll()
+                            
                                 self.heightPopUpList.constant = 0
                             }
                             self.collVwStore.reloadData()
@@ -918,12 +1071,15 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                                 self.heightBusinessList.constant = 260
                             }else{
                                 self.heightBusinessList.constant = 0
+                                self.arrBusinessPointAnnotations.removeAll()
+                                self.arrSingleBuisnessAnnotation.removeAll()
+                               
                             }
                             self.heightTblVwGigList.constant = 0
                             self.viewNoMatch.isHidden = true
                             self.viewGigList.isHidden = true
                             self.collVwBusiness.reloadData()
-                            self.lblBusinessCount.text = "\(self.arrData.count) Business"
+                            self.lblBusinessCount.text = "Business"
                           
 
                         }
@@ -1938,46 +2094,71 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
             
             var heatmapLayer = HeatmapLayer(id: heatmapLayerId, source: earthquakeSourceId)
             heatmapLayer.heatmapColor = .expression(
-                Exp(.interpolate) {
-                    Exp(.linear)
-                    Exp(.heatmapDensity)
-                    0
-                    UIColor.clear
-                    0.3 // Adjusted density for #2F8E82
-                    UIColor(hex: "#2F8E82") // Increase the density threshold for this color
-                    0.5
-                    UIColor(hex: "#86AD40")
-                    0.6
-                    UIColor(hex: "#BF9013")
-                    0.8
-                    UIColor(hex: "#D05D10")
-                    1.0
-                    UIColor(hex: "#DA0509")
-                }
-            )
+                   Exp(.interpolate) {
+                       Exp(.linear)
+                       Exp(.heatmapDensity)
+                       0.0
+                       UIColor(white: 1.0, alpha: 0.0) // Fully transparent for density 0
+                       0.05
+                       UIColor(red: 240/255, green: 248/255, blue: 255/255, alpha: 1.0) // Alice blue
+                       0.1
+                       UIColor(red: 173/255, green: 216/255, blue: 230/255, alpha: 1.0) // Light blue
+                       0.2
+                       UIColor(red: 135/255, green: 206.25/255, blue: 250/255, alpha: 1.0) // Sky blue
+                       0.3
+                       UIColor(red: 60/255, green: 179/255, blue: 113/255, alpha: 1.0) // Medium sea green
+                       0.4
+                       UIColor.green // Green
+                       0.5
+                       UIColor.yellow // Yellow
+                       0.6
+                       UIColor.orange // Orange
+                       0.7
+                       UIColor(red: 255/255, green: 69/255, blue: 0, alpha: 1.0) // Red-orange
+                       0.8
+                       UIColor.red // Red
+                       0.85
+                       UIColor(red: 255/255, green: 20/255, blue: 147/255, alpha: 1.0) // Deep pink
+                       0.9
+                       UIColor.magenta // Magenta
+                       0.95
+                       UIColor(red: 138/255, green: 43/255, blue: 226/255, alpha: 1.0) // Blue-violet
+                       1.0
+                       UIColor(red: 75/255, green: 0, blue: 130/255, alpha: 1.0) // Indigo
+                   }
+               )
             // Set heatmap intensity and radius
             heatmapLayer.heatmapIntensity = .constant(0.7)
-            heatmapLayer.heatmapRadius = .expression(Exp(.interpolate) {
-                Exp(.linear)
-                Exp(.zoom)
-                0
-                40 // Larger radius at low zoom levels
-                9
-                50 // Increase radius as zoom level increases
-                15
-                70 // Maximum radius at highest zoom level
-            })
+            // Radius settings based on zoom level
+            heatmapLayer.heatmapRadius = .expression(
+                   Exp(.interpolate) {
+                       Exp(.linear)
+                       Exp(.zoom)
+                       0
+                       15 // Larger radius at low zoom levels
+                       5
+                       25 // Moderate radius
+                       7
+                       40 // Significant increase
+                       9
+                       60 // Maximum radius
+                   }
+               )
             // Set heatmap opacity based on zoom level
-            heatmapLayer.heatmapOpacity = .expression(Exp(.interpolate) {
-                Exp(.linear)
-                Exp(.zoom)
-                0
-                1 // Full opacity at zoom level 0
-                9
-                0.5 // Reduced opacity at zoom level 9
-                12
-                0 // Hide heatmap at zoom level 12 and above
-            })
+            heatmapLayer.heatmapOpacity = .expression(
+                Exp(.interpolate) {
+                    Exp(.linear)
+                    Exp(.zoom)
+                    0
+                    1.0 // Fully opaque at zoom level 0
+                    5
+                    0.7 // Semi-transparent
+                    7
+                    0.4 // More transparent
+                    9
+                    0.0 // Fully transparent at high zoom levels
+                }
+            )
             // Add the heatmap layer above other layers
             do {
                 try mapView.mapboxMap.addLayer(heatmapLayer)
@@ -2005,7 +2186,8 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
         }else{
             self.viewInMyLocation.isHidden = true
             self.viewWorldwide.isHidden = true
-            self.viewGigList.isHidden = true
+            self.isSelectGigList = false
+//            self.viewGigList.isHidden = true
             if viewNoMatch.isHidden{
                 bottomStackVwRefreshAndRecenter.constant = 10
             }else{
@@ -2326,66 +2508,23 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
         vc.long = self.currentLong
         vc.gigCount = self.arrData.count
         vc.callBack = { (radius) in
+           
+            self.isSelectGigList = true
             self.homeListenerCall = false
-            let mapWidth = self.mapView.bounds.width
-            self.mapRadius = Double(radius)
-                  // Calculate the zoom level
-            
-            let zoom = self.zoomLevel(from: Double(radius), mapViewWidth: mapWidth)
-                  print("Zoom Level: \(zoom), Radius: \(radius) km")
-            let cameraOptions = CameraOptions(
-                center: CLLocationCoordinate2D(latitude: self.currentLat, longitude: self.currentLong),
-                zoom: zoom,
-                  pitch: 0.0
-              )
-
-            self.mapView.camera.ease(to: cameraOptions, duration: 0.3, curve: .easeInOut)
-            if self.type == 1{
-                //gig
-                if Store.GigType == 0 || Store.GigType == 1{
-                    let param = ["userId": Store.userId ?? "",
-                                 "lat": self.currentLat,
-                                 "long": self.currentLong,
-                                 "type":self.type,
-                                 "gigType":Store.GigType ?? 0,
-                                 "radius": Store.filterData?["radius"] as? Int ?? 50,
-                                 "minHours":Store.filterData?["minTime"] as? Int ?? 1,
-                                 "maxHours":Store.filterData?["maxTime"] as? Int ?? 24,"price_min":Store.filterData?["minPrice"] as? Int ?? 1,"price_max":Store.filterData?["maxPrice"] as? Int ?? 10000] as [String: Any]
-                    print("Param----", param)
-                    SocketIOManager.sharedInstance.home(dict: param)
-                }else{
-                    let param = ["userId": Store.userId ?? "",
-                                 "lat": self.currentLat,
-                                 "long": self.currentLong,
-                                 "type":self.type,
-                                 "radius": Store.filterData?["radius"] as? Int ?? 50,
-                                 "minHours":Store.filterData?["minTime"] as? Int ?? 1,
-                                 "maxHours":Store.filterData?["maxTime"] as? Int ?? 24,"price_min":Store.filterData?["minPrice"] as? Int ?? 1,"price_max":Store.filterData?["maxPrice"] as? Int ?? 10000] as [String: Any]
-                    print("Param----", param)
-                    SocketIOManager.sharedInstance.home(dict: param)
-                }
-            }else if self.type == 2{
-                let param = ["userId": Store.userId ?? "",
-                             "lat": self.currentLat,
-                             "long": self.currentLong,
-                             "type":self.type,
-                             "radius": Store.filterDataPopUp?["radius"] as? Int ?? 50,
-                             "popularity":Store.filterDataPopUp?["popularity"] as? Int ?? 1,
-                             "endingSoon":Store.filterDataPopUp?["endingSoon"] as? Int ?? 100] as [String: Any]
-                print("Param----", param)
-                SocketIOManager.sharedInstance.home(dict: param)
-            }else{
-                //store
-                let param = ["userId": Store.userId ?? "",
-                             "lat": self.currentLat,
-                             "long": self.currentLong,
-                             "type":self.type,
-                             "radius": Store.filterDataBusiness?["radius"] as? Int ?? 50,
-                             "minDeal":Store.filterDataBusiness?["minDeal"] as? Int ?? 1,
-                             "maxDeal":Store.filterDataBusiness?["maxDeal"] as? Int ?? 100,"rating":Store.filterDataBusiness?["rating"] as? Int ?? 100] as [String: Any]
-                print("Param----", param)
-                SocketIOManager.sharedInstance.home(dict: param)
-            }
+//            let mapWidth = self.mapView.bounds.width
+//            self.mapRadius = Double(radius)
+//                  // Calculate the zoom level
+//            
+//            let zoom = self.zoomLevel(from: Double(radius), mapViewWidth: mapWidth)
+//                  print("Zoom Level: \(zoom), Radius: \(radius) km")
+//            let cameraOptions = CameraOptions(
+//                center: CLLocationCoordinate2D(latitude: self.currentLat, longitude: self.currentLong),
+//                zoom: zoom,
+//                  pitch: 0.0
+//              )
+//
+//            self.mapView.camera.ease(to: cameraOptions, duration: 0.3, curve: .easeInOut)
+           
         }
         self.navigationController?.present(vc, animated:false)
     }

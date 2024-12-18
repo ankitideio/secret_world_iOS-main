@@ -134,7 +134,7 @@ class VerifyPhoneNumberVC: UIViewController {
                         
                         
                     }else{
-                      SceneDelegate().tabBarHomeRoot()
+                        SceneDelegate().userRoot()
                         
                     }
                 }

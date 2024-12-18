@@ -114,7 +114,7 @@ extension OnboardingThirdVC: ASAuthorizationControllerDelegate,ASAuthorizationCo
                         
                     }else{
                         
-                        SceneDelegate().tabBarHomeRoot()
+                        SceneDelegate().userRoot()
                         
                     }
                 }
@@ -163,7 +163,7 @@ extension OnboardingThirdVC: GoogleSignInDelegate {
                             
                         }else{
                             
-                            SceneDelegate().tabBarHomeRoot()
+                            SceneDelegate().userRoot()
                             
                         }
                     }

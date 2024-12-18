@@ -300,6 +300,31 @@ class Store {
             return Store.getValue(.isSelectTab) as? Bool ?? false
         }
     }
+    
+    class var isSelectGigFilter: Bool?{
+        set{
+            Store.saveValue(newValue, .isSelectGigFilter)
+        }
+        get{
+            return Store.getValue(.isSelectGigFilter) as? Bool ?? false
+        }
+    }
+    class var isSelectPopUpFilter: Bool?{
+        set{
+            Store.saveValue(newValue, .isSelectPopUpFilter)
+        }
+        get{
+            return Store.getValue(.isSelectPopUpFilter) as? Bool ?? false
+        }
+    }
+    class var isSelectBusinessFilter: Bool?{
+        set{
+            Store.saveValue(newValue, .isSelectBusinessFilter)
+        }
+        get{
+            return Store.getValue(.isSelectBusinessFilter) as? Bool ?? false
+        }
+    }
     class var getPopUp: Bool?{
         set{
             Store.saveValue(newValue, .getPopUp)

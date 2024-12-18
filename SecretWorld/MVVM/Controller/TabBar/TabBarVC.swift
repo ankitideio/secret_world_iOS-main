@@ -55,9 +55,10 @@ class TabBarVC: UIViewController{
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        uiSet()
+       
     }
     override func viewWillAppear(_ animated: Bool) {
+        uiSet()
         viewModel.verificationStatus { data in
             self.isStatus = data?.verificationStatus ?? 0
             
@@ -68,8 +69,14 @@ class TabBarVC: UIViewController{
     func uiSet(){
         let deviceHasNotch = UIApplication.shared.hasNotch
             if deviceHasNotch{
-              heightBottomVw.constant = 104
-              topShadowView.constant = -60
+                if UIDevice.current.hasDynamicIsland {
+                    heightBottomVw.constant = 114
+                    topShadowView.constant = -68
+                    }else{
+                    heightBottomVw.constant = 104
+                    topShadowView.constant = -58
+                }
+            
             }else{
               heightBottomVw.constant = 80
               topShadowView.constant = -80
@@ -256,14 +263,15 @@ class TabBarVC: UIViewController{
         }
     }
     @IBAction func actionMenu(_ sender: UIButton) {
-        let deviceHasNotch = UIApplication.shared.hasNotch
-            if deviceHasNotch{
-              heightBottomVw.constant = 104
-              topShadowView.constant = 0
-            }else{
-              heightBottomVw.constant = 80
-              topShadowView.constant = 0
-            }
+//        let deviceHasNotch = UIApplication.shared.hasNotch
+//            if deviceHasNotch{
+//              heightBottomVw.constant = 104
+//              topShadowView.constant = 0
+//            }else{
+//              heightBottomVw.constant = 80
+//              topShadowView.constant = 0
+//            }
+       
         print("\(selectedButtonTag)")
         sender.isSelected = !sender.isSelected
         if sender.isSelected == true{
@@ -375,13 +383,7 @@ class TabBarVC: UIViewController{
     @IBAction func actionHome(_ sender: UIButton) {
         sender.isSelected = !sender.isSelected
         let deviceHasNotch = UIApplication.shared.hasNotch
-        if deviceHasNotch {
-            heightBottomVw.constant = 104
-            topShadowView.constant = -60
-        } else {
-            heightBottomVw.constant = 80
-            topShadowView.constant = -85
-        }
+      
         if sender.isSelected {
             // Home button is selected
             Store.isSelectTab = true
@@ -390,10 +392,35 @@ class TabBarVC: UIViewController{
                 self.homeSetup()
                 NotificationCenter.default.post(name: Notification.Name("selectHomeBtn"), object: nil)
             }
-          
-            
+
+            let deviceHasNotch = UIApplication.shared.hasNotch
+                if deviceHasNotch{
+                    if UIDevice.current.hasDynamicIsland {
+                        heightBottomVw.constant = 114
+                        topShadowView.constant = -68
+                        }else{
+                        heightBottomVw.constant = 104
+                        topShadowView.constant = -58
+                    }
+                
+                }else{
+                  heightBottomVw.constant = 80
+                  topShadowView.constant = -80
+                }
         } else {
             // Home button is deselected
+            if deviceHasNotch {
+                if UIDevice.current.hasDynamicIsland {
+                    heightBottomVw.constant = 114
+                    topShadowView.constant = -68
+                    }else{
+                    heightBottomVw.constant = 104
+                    topShadowView.constant = -52
+                }
+            } else {
+                heightBottomVw.constant = 80
+                topShadowView.constant = -80
+            }
             Store.isSelectTab = false
             NotificationCenter.default.post(name: Notification.Name("deSelectHomeBtn"), object: nil)
         }
@@ -469,13 +496,19 @@ class TabBarVC: UIViewController{
         homeButtonsSetup(sender: false)
         self.zoomHomeIcon(isZoomedIn: false)
         let deviceHasNotch = UIApplication.shared.hasNotch
-            if deviceHasNotch{
-              heightBottomVw.constant = 104
-              topShadowView.constant = 0
-            }else{
-              heightBottomVw.constant = 80
-              topShadowView.constant = 0
+        if deviceHasNotch{
+            if UIDevice.current.hasDynamicIsland {
+                heightBottomVw.constant = 114
+                topShadowView.constant = 0
+                }else{
+                heightBottomVw.constant = 104
+                topShadowView.constant = 0
             }
+        
+        }else{
+          heightBottomVw.constant = 80
+          topShadowView.constant = 0
+        }
         NotificationCenter.default.post(name: Notification.Name("StopTimer"), object: nil)
         NotificationCenter.default.post(name: Notification.Name("ExploreApi"), object: nil)
         sender.isSelected = !sender.isSelected
@@ -527,14 +560,20 @@ class TabBarVC: UIViewController{
     @IBAction func actionChat(_ sender: UIButton) {
         homeButtonsSetup(sender: false)
         self.zoomHomeIcon(isZoomedIn: false)
-        let deviceHasNotch = UIApplication.shared.hasNotch
-            if deviceHasNotch{
-              heightBottomVw.constant = 104
-              topShadowView.constant = 0
-            }else{
-              heightBottomVw.constant = 80
-              topShadowView.constant = 0
+     let deviceHasNotch = UIApplication.shared.hasNotch
+        if deviceHasNotch{
+            if UIDevice.current.hasDynamicIsland {
+                heightBottomVw.constant = 114
+                topShadowView.constant = 0
+                }else{
+                heightBottomVw.constant = 104
+                topShadowView.constant = 0
             }
+        
+        }else{
+          heightBottomVw.constant = 80
+          topShadowView.constant = 0
+        }
     NotificationCenter.default.post(name: Notification.Name("StopTimer"), object: nil)
      NotificationCenter.default.post(name: Notification.Name("GetMessage"), object: nil)
         sender.isSelected = !sender.isSelected
@@ -566,10 +605,17 @@ class TabBarVC: UIViewController{
     @IBAction func actionProfile(_ sender: UIButton) {
         homeButtonsSetup(sender: false)
         self.zoomHomeIcon(isZoomedIn: false)
+
         let deviceHasNotch = UIApplication.shared.hasNotch
             if deviceHasNotch{
-              heightBottomVw.constant = 104
-              topShadowView.constant = 0
+                if UIDevice.current.hasDynamicIsland {
+                    heightBottomVw.constant = 114
+                    topShadowView.constant = 0
+                    }else{
+                    heightBottomVw.constant = 104
+                    topShadowView.constant = 0
+                }
+            
             }else{
               heightBottomVw.constant = 80
               topShadowView.constant = 0

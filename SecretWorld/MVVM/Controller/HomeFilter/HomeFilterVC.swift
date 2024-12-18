@@ -14,6 +14,7 @@
 import UIKit
 import RangeUISlider
 import RangeSeekSlider
+
 class HomeFilterVC: UIViewController {
     @IBOutlet weak var lblTemprary: UILabel!
     @IBOutlet weak var vwTemprary: UIView!
@@ -34,6 +35,14 @@ class HomeFilterVC: UIViewController {
     private var rating = 0
     private var minDeal = 1
     private var maxDeal = 100
+    private var isSelectGigPrice = false
+    private var isSelectGigTime = false
+    
+    private var isSelectPopularity = false
+    private var isSelectEndingSoon = false
+    
+    private var isSelectDealing = false
+    private var isSelectRating = false
     
     var callBack: ((_ radius: Int) -> ())?
     var type:Int = 0
@@ -70,85 +79,238 @@ class HomeFilterVC: UIViewController {
         tblVwFilter.dataSource = self
         tblVwFilter.estimatedRowHeight = 50
         tblVwFilter.rowHeight = UITableView.automaticDimension
-        NotificationCenter.default.addObserver(forName: Notification.Name("homeFilter"), object: nil, queue: .main) { notification in
-            if let filteredItems = notification.userInfo?["filteredItems"] as? [Any] {
-                if self.type == 1{
+     
+    }
+    
+    func setGigFilter() {
+   
+            switch (isSelectGigPrice, isSelectGigTime) {
+            case (false, false):
+                print("false", "false")
+                if Store.GigType == 0 || Store.GigType == 1{
                    
-                        if filteredItems.count > 1{
-                            self.lblResult.text = "Showing \(filteredItems.count) gigs"
-                        }else{
-                            self.lblResult.text = "Showing \(filteredItems.count) gig"
-                        }
-
-                   
-                }else if self.type == 2{
-                   
-                    self.lblResult.text = "Showing \(filteredItems.count) popUp"
+                    let param = ["userId": Store.userId ?? "",
+                                 "lat": lat,
+                                 "long": long,
+                                 "type":type,
+                                 "gigType":Store.GigType ?? 0,
+                                 "radius": radius] as [String: Any]
+                    print("Param----", param)
+                    SocketIOManager.sharedInstance.home(dict: param)
+                    Store.filterData = ["radius":radius]
                 }else{
-                    self.lblResult.text = "Showing \(filteredItems.count) business"
+                    let param = ["userId": Store.userId ?? "",
+                                 "lat": lat,
+                                 "long": long,
+                                 "type":type,
+                                 "radius": radius] as [String: Any]
+                    print("Param----", param)
+                    SocketIOManager.sharedInstance.home(dict: param)
+                    Store.filterData = ["radius":radius]
                 }
-                
-            } else {
-                print("No filtered items found in userInfo")
+            case (true, false):
+                print("true", "false")
+                if Store.GigType == 0 || Store.GigType == 1{
+                    let param = ["userId": Store.userId ?? "",
+                                 "lat": lat,
+                                 "long": long,
+                                 "type":type,
+                                 "gigType":Store.GigType ?? 0,
+                                 "radius": radius,
+                                 "price_min":minPrice,"price_max":maxPrice] as [String: Any]
+                    print("Param----", param)
+                    SocketIOManager.sharedInstance.home(dict: param)
+                    Store.filterData = ["price_min":minPrice,"price_max":maxPrice,"radius":radius]
+                }else{
+                    let param = ["userId": Store.userId ?? "",
+                                 "lat": lat,
+                                 "long": long,
+                                 "type":type,
+                                 "radius": radius,
+                                 "price_min":minPrice,"price_max":maxPrice] as [String: Any]
+                    print("Param----", param)
+                    SocketIOManager.sharedInstance.home(dict: param)
+                    Store.filterData = ["price_min":minPrice,"price_max":maxPrice,"radius":radius]
+                }
+            case (false, true):
+                print("false", "true")
+                if Store.GigType == 0 || Store.GigType == 1{
+                    
+                    let param = ["userId": Store.userId ?? "",
+                                 "lat": lat,
+                                 "long": long,
+                                 "type":type,
+                                 "gigType":Store.GigType ?? 0,
+                                 "radius": radius,
+                                 "minHours":minTime,
+                                 "maxHours":maxTime] as [String: Any]
+                    print("Param----", param)
+                    SocketIOManager.sharedInstance.home(dict: param)
+                    Store.filterData = ["minHours":minTime,"maxHours":maxTime,"radius":radius]
+                }else{
+                    let param = ["userId": Store.userId ?? "",
+                                 "lat": lat,
+                                 "long": long,
+                                 "type":type,
+                                 "radius": radius,
+                                 "minHours":minTime,
+                                 "maxHours":maxTime] as [String: Any]
+                    print("Param----", param)
+                    SocketIOManager.sharedInstance.home(dict: param)
+                    Store.filterData = ["minHours":minTime,"maxHours":maxTime,"radius":radius]
+                }
+            case (true, true):
+                print("true", "true")
+                if Store.GigType == 0 || Store.GigType == 1{
+                    let param = ["userId": Store.userId ?? "",
+                                 "lat": lat,
+                                 "long": long,
+                                 "type":type,
+                                 "gigType":Store.GigType ?? 0,
+                                 "radius": radius,
+                                 "minHours":minTime,
+                                 "maxHours":maxTime,"price_min":minPrice,"price_max":maxPrice] as [String: Any]
+                    print("Param----", param)
+                    SocketIOManager.sharedInstance.home(dict: param)
+                    Store.filterData = ["minHours":minTime,"maxHours":maxTime,"price_min":minPrice,"price_max":maxPrice,"radius":radius]
+                }else{
+                    let param = ["userId": Store.userId ?? "",
+                                 "lat": lat,
+                                 "long": long,
+                                 "type":type,
+                                 "radius": radius,
+                                 "minHours":minTime,
+                                 "maxHours":maxTime,"price_min":minPrice,"price_max":maxPrice] as [String: Any]
+                    print("Param----", param)
+                    SocketIOManager.sharedInstance.home(dict: param)
+                    Store.filterData = ["minHours":minTime,"maxHours":maxTime,"price_min":minPrice,"price_max":maxPrice,"radius":radius]
+                }
             }
-        }
     }
     
-    
-    
-    func applyFilter(){
-        if type == 1{
-            //gig
-            if Store.GigType == 0 || Store.GigType == 1{
+    func setPopUpFilter() {
+   
+        switch (isSelectPopularity,isSelectEndingSoon) {
+            case (false, false):
+                print("false", "false")
+              
                 let param = ["userId": Store.userId ?? "",
                              "lat": lat,
                              "long": long,
                              "type":type,
-                             "gigType":Store.GigType ?? 0,
-                             "radius": Store.filterData?["radius"] as? Int ?? 50,
-                             "minHours":Store.filterData?["minTime"] as? Int ?? 1,
-                             "maxHours":Store.filterData?["maxTime"] as? Int ?? 24,"price_min":Store.filterData?["minPrice"] as? Int ?? 1,"price_max":Store.filterData?["maxPrice"] as? Int ?? 10000] as [String: Any]
+                             "radius": radius] as [String: Any]
                 print("Param----", param)
-                SocketIOManager.sharedInstance.home(dict: param)
-            }else{
-                let param = ["userId": Store.userId ?? "",
-                             "lat": lat,
-                             "long": long,
-                             "type":type,
-                             "radius": Store.filterData?["radius"] as? Int ?? 50,
-                             "minHours":Store.filterData?["minTime"] as? Int ?? 1,
-                             "maxHours":Store.filterData?["maxTime"] as? Int ?? 24,"price_min":Store.filterData?["minPrice"] as? Int ?? 1,"price_max":Store.filterData?["maxPrice"] as? Int ?? 10000] as [String: Any]
-                print("Param----", param)
-                SocketIOManager.sharedInstance.home(dict: param)
+            SocketIOManager.sharedInstance.home(dict: param)
+            Store.filterDataPopUp = ["radius":radius]
+            case (true, false):
+                print("true", "false")
+            let param = ["userId": Store.userId ?? "",
+                         "lat": lat,
+                         "long": long,
+                         "type":type,
+                         "radius": radius,
+                         "popularity":popularity] as [String: Any]
+            print("Param----", param)
+            SocketIOManager.sharedInstance.home(dict: param)
+            Store.filterDataPopUp = ["popularity":popularity,"radius":radius]
+            case (false, true):
+                print("false", "true")
+            let param = ["userId": Store.userId ?? "",
+                         "lat": lat,
+                         "long": long,
+                         "type":type,
+                         "radius": radius,
+                         "endingSoon":endingSoon] as [String: Any]
+            print("Param----", param)
+            SocketIOManager.sharedInstance.home(dict: param)
+            Store.filterDataPopUp = ["endingSoon":endingSoon,"radius":radius]
+            case (true, true):
+                print("true", "true")
+            let param = ["userId": Store.userId ?? "",
+                         "lat": lat,
+                         "long": long,
+                         "type":type,
+                         "radius": radius,
+                         "popularity":popularity,
+                         "endingSoon":endingSoon] as [String: Any]
+            print("Param----", param)
+            SocketIOManager.sharedInstance.home(dict: param)
+            Store.filterDataPopUp = ["popularity":popularity,"endingSoon":endingSoon,"radius":radius]
             }
-        }else if type == 2{
+    }
+    func setBusinessFilter(){
+        switch (isSelectDealing,isSelectRating) {
+            case (false, false):
+            print("false", "false")
             let param = ["userId": Store.userId ?? "",
                          "lat": lat,
                          "long": long,
                          "type":type,
-                         "radius": Store.filterDataPopUp?["radius"] as? Int ?? 50,
-                         "popularity":Store.filterDataPopUp?["popularity"] as? Int ?? 1,
-                         "endingSoon":Store.filterDataPopUp?["endingSoon"] as? Int ?? 100] as [String: Any]
+                         "radius": radius] as [String: Any]
             print("Param----", param)
             SocketIOManager.sharedInstance.home(dict: param)
-        }else{
-            //store
-            let param = ["userId": Store.userId ?? "",
-                         "lat": lat,
-                         "long": long,
-                         "type":type,
-                         "radius": Store.filterDataBusiness?["radius"] as? Int ?? 50,
-                         "minDeal":Store.filterDataBusiness?["minDeal"] as? Int ?? 1,
-                         "maxDeal":Store.filterDataBusiness?["maxDeal"] as? Int ?? 100,"rating":Store.filterDataBusiness?["rating"] as? Int ?? 100] as [String: Any]
-            print("Param----", param)
-            SocketIOManager.sharedInstance.home(dict: param)
+            Store.filterDataBusiness = ["radius":radius]
             
-        }
+            case (true, false):
+            print("true", "false")
+            let param = ["userId": Store.userId ?? "",
+                         "lat": lat,
+                         "long": long,
+                         "type":type,
+                         "radius": radius,
+                         "minDeal":minDeal,
+                         "maxDeal":maxDeal] as [String: Any]
+            print("Param----", param)
+            SocketIOManager.sharedInstance.home(dict: param)
+            Store.filterDataBusiness = ["minDeal":minDeal,"maxDeal":maxDeal,"radius":radius]
+            
+            case (false, true):
+                print("false", "true")
+            let param = ["userId": Store.userId ?? "",
+                         "lat": lat,
+                         "long": long,
+                         "type":type,
+                         "radius": radius,
+                         "rating":rating] as [String: Any]
+            print("Param----", param)
+            SocketIOManager.sharedInstance.home(dict: param)
+            Store.filterDataBusiness = ["rating":rating,"radius":radius]
+            
+            case (true, true):
+                print("true", "true")
+            let param = ["userId": Store.userId ?? "",
+                         "lat": lat,
+                         "long": long,
+                         "type":type,
+                         "radius": radius,
+                         "minDeal":minDeal,
+                         "maxDeal":maxDeal,"rating":rating] as [String: Any]
+            print("Param----", param)
+            SocketIOManager.sharedInstance.home(dict: param)
+            Store.filterDataBusiness = ["minDeal":minDeal,"maxDeal":maxDeal,"rating":rating,"radius":radius]
+            
+            }
     }
+   
     @IBAction func actionReset(_ sender: UIButton) {
-        Store.filterData = ["minTime":1,"maxTime":24,"minPrice":1,"maxPrice":10000,"radius":50]
-        Store.filterDataBusiness = ["minDeal":1,"maxDeal":100,"minPrice":1,"rating":0,"radius":50]
-        Store.filterDataPopUp = ["endingSoon":100,"popularity":1,"radius":50]
+        if type == 1{
+            isSelectGigTime = false
+            isSelectGigPrice = false
+            Store.filterData = nil
+            Store.isSelectGigFilter = false
+        }else if type == 2{
+            isSelectPopularity = false
+            isSelectEndingSoon = false
+            Store.filterDataPopUp = nil
+            Store.isSelectPopUpFilter = false
+        }else{
+            isSelectDealing = false
+            isSelectRating = false
+            Store.filterDataBusiness = nil
+            Store.isSelectBusinessFilter = false
+        }
+      
+        
         tblVwFilter.reloadData()
     }
     @IBAction func actionCross(_ sender: UIButton) {
@@ -157,15 +319,20 @@ class HomeFilterVC: UIViewController {
     }
     @IBAction func actionApply(_ sender: UIButton) {
         if type == 1{
-            Store.filterData = ["minTime":minTime,"maxTime":maxTime,"minPrice":minPrice,"maxPrice":maxPrice,"radius":radius]
-            
+            callBack?(radius)
+            setGigFilter()
+           
+            Store.isSelectGigFilter = true
         }else if type == 2{
-            Store.filterDataPopUp = ["popularity":popularity,"endingSoon":endingSoon,"radius":radius]
+            callBack?(radius)
+            setPopUpFilter()
+            Store.isSelectPopUpFilter = true
         }else{
-            Store.filterDataBusiness = ["minDeal":minTime,"maxDeal":maxTime,"rating":minPrice,"radius":radius]
+            callBack?(radius)
+            setBusinessFilter()
+            Store.isSelectBusinessFilter = true
         }
        
-        applyFilter()
     }
 }
 // MARK: - UITableViewDelegate & UITableViewDataSource
@@ -202,6 +369,7 @@ extension HomeFilterVC: UITableViewDelegate, UITableViewDataSource,RangeSeekSlid
                 cell.SliderVw.isHidden = !isCurrentRowSelected
                 cell.vwDistance.isHidden = true
                 cell.imgVwDropdown.image = UIImage(named: isCurrentRowSelected ? "up" : "down")
+                cell.rangeSlider.delegate = self
             } else if indexPath.row == 1 {
                 cell.rangeSlider.leftHandleImage = UIImage(named: "uncheckreview")
                 cell.rangeSlider.rightHandleImage = UIImage(named: "uncheckreview")
@@ -240,7 +408,7 @@ extension HomeFilterVC: UITableViewDelegate, UITableViewDataSource,RangeSeekSlid
                 cell.rangeSlider.rightHandleImage = UIImage(named: "seeGig")
                 cell.rangeSlider.tag = indexPath.row
                 cell.sliderDistance.value = 0
-                
+                cell.rangeSlider.delegate = self
                 // Add target to handle slider value change
                 cell.sliderDistance.addTarget(self, action: #selector(sliderValueChanged(_:)), for: .valueChanged)
                 let isCurrentRowSelected = (selectedIndex == indexPath.row && isDropdownVisible)
@@ -283,7 +451,7 @@ extension HomeFilterVC: UITableViewDelegate, UITableViewDataSource,RangeSeekSlid
                 cell.rangeSlider.rightHandleImage = UIImage(named: "seeGig")
                 cell.rangeSlider.tag = indexPath.row
                 cell.sliderDistance.value = 0
-                
+                cell.rangeSlider.delegate = self
                 // Add target to handle slider value change
                 cell.sliderDistance.addTarget(self, action: #selector(sliderValueChanged(_:)), for: .valueChanged)
                 let isCurrentRowSelected = (selectedIndex == indexPath.row && isDropdownVisible)
@@ -333,12 +501,15 @@ extension HomeFilterVC: UITableViewDelegate, UITableViewDataSource,RangeSeekSlid
                 switch slider.tag {
                 case 0:
                     radius = Int(minValue)
+                    
                 case 1: // Price Slider
                     minPrice = Int(minValue)
                     maxPrice = Int(maxValue)
+                    isSelectGigPrice = true
                 case 2: // Time Slider
                     minTime = Int(minValue)
                     maxTime = Int(maxValue)
+                    isSelectGigTime = true
                 default:
                     break
                 }
@@ -346,9 +517,10 @@ extension HomeFilterVC: UITableViewDelegate, UITableViewDataSource,RangeSeekSlid
                 switch slider.tag {
                 case 0:
                     popularity = Int(minValue)
+                    isSelectPopularity = true
                 case 1:
                     endingSoon = Int(minValue)
-                  
+                    isSelectEndingSoon = true
                 case 2:
                     radius = Int(minValue)
                  
@@ -362,9 +534,10 @@ extension HomeFilterVC: UITableViewDelegate, UITableViewDataSource,RangeSeekSlid
                 case 1: // Price Slider
                     minDeal = Int(minValue)
                     maxDeal = Int(maxValue)
+                    isSelectDealing = true
                 case 2: // Time Slider
                     rating = Int(minValue)
-                   
+                    isSelectRating = true
                 default:
                     break
                 }
