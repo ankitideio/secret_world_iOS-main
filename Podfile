@@ -43,4 +43,5 @@ target 'SecretWorld' do
   pod 'LGSideMenuController'
   pod "Pulsator"
   pod 'Hero'
+  pod 'MaterialComponents/Slider'
 end

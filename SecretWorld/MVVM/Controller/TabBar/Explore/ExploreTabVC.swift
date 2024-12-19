@@ -143,8 +143,6 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
     var arrGigPointAnnotations: [PointAnnotation] = []
     var arrPopUpPointAnnotations: [PointAnnotation] = []
     var arrBusinessPointAnnotations: [PointAnnotation] = []
-    var arrSingleBuisnessAnnotation: [PointAnnotation] = []
-    var arrSinglePopUpAnnotation: [PointAnnotation] = []
     var arrPoint = [Point]()
     var arrOverlapAnnotation = [CLLocationCoordinate2D]()
     private var cancelables = Set<AnyCancelable>()
@@ -381,15 +379,15 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
     
     @objc func SelectBusiness(notification:Notification){
         self.viewBusinessList.isHidden = false
-            getBusinessData(visibleIndex: 0)
+            getBusinessData()
         if deviceHasNotch{
             if UIDevice.current.hasDynamicIsland {
-            bottomCollVw.constant = 68
+            bottomCollVw.constant = 58
             }else{
             bottomCollVw.constant = 58
             }
         }else{
-            bottomCollVw.constant = 80
+            bottomCollVw.constant = 70
         }
     }
     
@@ -466,7 +464,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
     @objc func selectStore(notification:Notification){
         
         self.viewStoreList.isHidden = false
-        self.getStoreData(visibleIndex: 0)
+        self.getStoreData()
 
         if deviceHasNotch{
             if UIDevice.current.hasDynamicIsland {
@@ -475,42 +473,11 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
             bottomCollVw.constant = 58
             }
         }else{
-            bottomCollVw.constant = 80
+            bottomCollVw.constant = 70
         }
     }
     
-    func centerCell() {
-        centerVisibleItem(in: collVwBusiness)
-        centerVisibleItem(in: collVwStore)
-    }
-    
-    private func centerVisibleItem(in collectionView: UICollectionView) {
-        let centerPoint = CGPoint(x: collectionView.contentOffset.x + collectionView.frame.midX,
-                                  y: collectionView.frame.midY)
-        if let indexPath = collectionView.indexPathForItem(at: centerPoint) {
-            collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
-            let visibleRect = CGRect(origin: collectionView.contentOffset, size: collectionView.bounds.size)
-            if let visibleIndexPath = collectionView.indexPathForItem(at: CGPoint(x: visibleRect.midX, y: visibleRect.midY)) {
-                print("Currently visible index: \(visibleIndexPath.row)")
-                let item = arrData[visibleIndexPath.row]
-                let uniqueID = "businessSingle_\(item.id ?? "")"
-                self.visibleIndex = visibleIndexPath.row
-                
-                self.arrSinglePopUpAnnotation.removeAll()
-                
-                self.downloadSingleBusinessImage(at: visibleIndexPath.row, isMove: true)
-                self.downloadBusinessImage(at: visibleIndexPath.row)
-                self.downloadPopUpImage(at: visibleIndexPath.row, isScroll: true)
-//                let centerCoordinate = CLLocationCoordinate2D(latitude: item.lat ?? 0, longitude: item.long ?? 0)
-//                mapView.mapboxMap.setCamera(to: CameraOptions(center: centerCoordinate, zoom: mapView.mapboxMap.cameraState.zoom))
-                
-//                self.downloadSinglePopUpImage(at: visibleIndexPath.row, isScroll: true)
-                
-            }
-        } else {
-            print("No item found at the center of \(collectionView)")
-        }
-    }
+   
     func animateZoomInOut() {
         UIView.animate(withDuration: 3, delay: 0.0, options: [.curveEaseInOut], animations: {
             self.imgVwEarnShadow.transform = CGAffineTransform(scaleX: 1.1, y: 1.1)
@@ -709,7 +676,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                         self.viewRefresh.isHidden = false
                         self.viewRecenter.isHidden = false
                         self.viewThreeDot.isHidden = true
-                        self.btnGigFilter.isHidden = true
+                        self.btnGigFilter.isHidden = false
                         self.btnUpArrow.setImage(UIImage(named:"uparrow"), for: .normal)
                         self.tblVwList.isScrollEnabled = false
                         self.btnUpArrow.isSelected = false
@@ -751,7 +718,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                     }
                 } else {
                     UIView.animate(withDuration: 0.5) {
-                        self.btnStoreFilter.isHidden = true
+                        self.btnStoreFilter.isHidden = false
                         self.viewRefresh.isHidden = false
                         self.viewRecenter.isHidden = false
                         self.viewThreeDot.isHidden = true
@@ -760,11 +727,8 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                         self.collVwStore.isScrollEnabled = false
                         self.btnUpArrow.isSelected = false
                         self.view.layoutIfNeeded()
-                        if self.arrData.count > 0{
-                            self.heightPopUpList.constant = 160
-                        }else{
-                            self.heightPopUpList.constant = 60
-                        }
+                        self.heightPopUpList.constant = 60
+                        
                         
                         DispatchQueue.main.asyncAfter(deadline: .now()+0.5){
                             self.actionButton.isHidden = false
@@ -804,16 +768,13 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                         self.viewRefresh.isHidden = false
                         self.viewRecenter.isHidden = false
                         self.viewThreeDot.isHidden = true
-                        self.btnBusinessFilter.isHidden = true
+                        self.btnBusinessFilter.isHidden = false
                         self.btnUpArrow.setImage(UIImage(named:"uparrow"), for: .normal)
                         self.collVwBusiness.isScrollEnabled = false
                         self.btnUpArrow.isSelected = false
                         self.view.layoutIfNeeded()
-                        if self.arrData.count > 0{
-                            self.heightBusinessList.constant = 260
-                        }else{
-                            self.heightBusinessList.constant = 60
-                        }
+                       self.heightBusinessList.constant = 60
+                        
                        
                         DispatchQueue.main.asyncAfter(deadline: .now()+0.5){
                             self.actionButton.isHidden = false
@@ -857,7 +818,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
         }
     }
     func mapData(radius:Double,type:Int,gigType:Int,lat:Double,long:Double) {
-        arrSinglePopUpAnnotation.removeAll()
+     
         if Store.role == "user"{
             if type == 1{
                 //gig
@@ -1017,7 +978,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                                         self.viewRefresh.isHidden = false
                                         self.viewRecenter.isHidden = false
                                         self.viewThreeDot.isHidden = true
-                                        self.btnGigFilter.isHidden = true
+                                        self.btnGigFilter.isHidden = false
                                         self.btnUpArrow.setImage(UIImage(named:"uparrow"), for: .normal)
                                         self.tblVwList.isScrollEnabled = false
                                         self.btnUpArrow.isSelected = false
@@ -1049,31 +1010,59 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                             }
                             self.tblVwList.reloadData()
                         }else if type == 2{
+                            if self.deviceHasNotch{
+                             
+                                if UIDevice.current.hasDynamicIsland {
+                                    self.topMapVw.constant = -69
+                                    self.bottomCollVw.constant = 68
+                                    }else{
+                                    self.topMapVw.constant = -59
+                                    self.bottomCollVw.constant = 58
+                                }
+                            }else{
+                                self.topMapVw.constant = 0
+                                self.bottomCollVw.constant = 70
+                                
+                            }
                             self.heightTblVwGigList.constant = 0
                             self.viewNoMatch.isHidden = true
                             self.viewGigList.isHidden = true
                             if self.arrData.count == 1{
-                                self.lblPopUpCount.text = "PopUp"
+                                self.lblPopUpCount.text = "Popup"
                             }else{
-                                self.lblPopUpCount.text = "PopUps"
+                                self.lblPopUpCount.text = "Popups"
                             }
                             if self.arrData.count > 0{
-                                self.heightPopUpList.constant = 160
+                                self.heightPopUpList.constant = 60
                             }else{
                                 self.arrPopUpPointAnnotations.removeAll()
-                                self.arrSinglePopUpAnnotation.removeAll()
-                            
+                         
                                 self.heightPopUpList.constant = 0
                             }
                             self.collVwStore.reloadData()
                         }else{
+                            if self.deviceHasNotch{
+                             
+                                if UIDevice.current.hasDynamicIsland {
+                                    self.topMapVw.constant = -69
+                                    self.bottomCollVw.constant = 68
+                                    }else{
+                                    self.topMapVw.constant = -59
+                                    self.bottomCollVw.constant = 58
+                                }
+                            }else{
+                                self.topMapVw.constant = 0
+                                self.bottomCollVw.constant = 70
+                                
+                            }
                             if self.arrData.count > 0{
-                                self.heightBusinessList.constant = 260
+                            
+                                self.heightBusinessList.constant = 60
+                                
                             }else{
                                 self.heightBusinessList.constant = 0
                                 self.arrBusinessPointAnnotations.removeAll()
-                                self.arrSingleBuisnessAnnotation.removeAll()
-                               
+                           
                             }
                             self.heightTblVwGigList.constant = 0
                             self.viewNoMatch.isHidden = true
@@ -1123,9 +1112,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                         
                             case 2: // Business
                             
-                                    if index == self.visibleIndex{
-                                        self.downloadSingleBusinessImage(at: index, isMove: false)
-                                    }
+                           
                                 
                                 self.downloadBusinessImage(at: index)
                             default: // Popup
@@ -1140,6 +1127,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                                 let difference = self.popUpTime(endTime: i.endDate ?? "")
                                     let imageName = (self.mapView.mapboxMap.styleURI == .dark) ? "newPopUp" : "newPopUp"
                                     if i.image == nil || i.image == ""{
+                                        
                                         let imageName = (self.mapView.mapboxMap.styleURI == .dark) ? "newPopUp" : "newPopUp"
                                         if let baseImage = UIImage(named: imageName),
                                            let resizedImage = self.resizeImagePopUp(baseImage, to: CGSize(width: 61, height: 83), withText: difference, at: CGPoint(x: 0, y: 10)) {
@@ -1154,12 +1142,23 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                                                 
                                             }
                                         }
-                                        
+                                        DispatchQueue.main.async {
+                                            if self.mapView.mapboxMap.cameraState.zoom > 7 {
+                                                if self.viewBusinessList.isHidden {
+                                                    let combinedAnnotations = self.arrPopUpPointAnnotations
+                                                    self.pointAnnotationManager?.annotations = combinedAnnotations
+                                                } else {
+                                                    let combinedAnnotations =  self.arrPopUpPointAnnotations
+                                                    self.pointAnnotationManager?.annotations = combinedAnnotations
+                                                }
+                                            } else {
+                                                self.pointAnnotationManager.annotations = []
+                                            }
+                                        }
                                         
                                     }else{
-                                        self.downloadPopUpImage(at: index, isScroll: false)
-                                        
-                           
+                                        self.downloadPopUpImage(at: index)
+                                
                                     }
                                 }
 
@@ -1170,9 +1169,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                                
                                 self.processGigImageAndAnnotation(for: i, at: index)
                             case "business": // Gig
-                                if index == self.visibleIndex{
-                                    self.downloadSingleBusinessImage(at: 0, isMove: false)
-                                }
+                               
                                 self.downloadBusinessImage(at: index)
                             default: // Popup
                                 
@@ -1197,7 +1194,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                                                 }
                                                 DispatchQueue.main.async {
                                                  if self.mapView.mapboxMap.cameraState.zoom > 7{
-                                                    self.pointAnnotationManager?.annotations = self.arrGigPointAnnotations
+                                                     self.pointAnnotationManager?.annotations = self.arrPopUpPointAnnotations
                                                   }else{
                                                     self.pointAnnotationManager.annotations = []
                                                   }
@@ -1551,56 +1548,8 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
         }
     }
 
-    func downloadSinglePopUpImage(at index: Int,isScroll:Bool) {
-        guard index < arrData.count, Store.role == "user", isSelectType == 3 else { return }
-
-        let item = arrData[index]
-        let uniqueID = "popupSingle_\(item.id ?? "")"
-        let centerCoordinate = CLLocationCoordinate2D(latitude: item.lat ?? 0, longitude: item.long ?? 0)
-        if isScroll{
-            mapView.mapboxMap.setCamera(to: CameraOptions(center: centerCoordinate, zoom: mapView.mapboxMap.cameraState.zoom))
-        }
-        // Remove annotations if the index is not equal to visibleIndex
-        if isScroll == true{
-            if index != self.visibleIndex {
-                self.arrSinglePopUpAnnotation.removeAll()
-                return
-            }
-        }
-        // Process the visibleIndex
-        let centerCoordinate1 = CLLocationCoordinate2D(latitude: arrData[index].lat ?? 0, longitude: arrData[index].long ?? 0)
-        let imageName = "newPopUp"
-        if let baseImage = UIImage(named: imageName),
-           let resizedImage = self.resizeImage(baseImage, to: CGSize(width: 61, height: 83)) {
-            var pointAnnotation = PointAnnotation(coordinate: centerCoordinate1)
-            pointAnnotation.image = .init(image: resizedImage, name: uniqueID)
-
-            // Update or add the annotation
-            if let existingIndex = self.arrSinglePopUpAnnotation.firstIndex(where: { $0.image?.name == uniqueID }) {
-                self.arrSinglePopUpAnnotation[existingIndex] = pointAnnotation
-                
-            } else {
-                self.arrSinglePopUpAnnotation.append(pointAnnotation)
-            }
-        }
-
-        DispatchQueue.main.async {
-            if self.mapView.mapboxMap.cameraState.zoom > 7 {
-//                let combinedAnnotations = self.arrSinglePopUpAnnotation + self.arrPopUpPointAnnotations
-//                self.pointAnnotationManager?.annotations = combinedAnnotations
-                if self.viewStoreList.isHidden{
-                    let combinedAnnotations = self.arrPopUpPointAnnotations
-                    self.pointAnnotationManager?.annotations = combinedAnnotations
-                }else{
-                    let combinedAnnotations = self.arrSinglePopUpAnnotation + self.arrPopUpPointAnnotations
-                    self.pointAnnotationManager?.annotations = combinedAnnotations
-                }
-            } else {
-                self.pointAnnotationManager?.annotations = []
-            }
-        }
-    }
-    func downloadPopUpImage(at index: Int,isScroll:Bool) {
+ 
+    func downloadPopUpImage(at index: Int) {
         
         if Store.role == "user"{
             
@@ -1609,14 +1558,11 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
           let uniqueID = "popup_\(item.id ?? "")"
           guard let baseImage = UIImage(named: "newPopUp"),
              let logoURL = URL(string: item.image ?? "") else {
-              downloadPopUpImage(at: index + 1, isScroll: isScroll)
+              downloadPopUpImage(at: index + 1)
             return
           }
           let centerCoordinate = CLLocationCoordinate2D(latitude: item.lat ?? 0, longitude: item.long ?? 0)
-            if isScroll{
-                mapView.mapboxMap.setCamera(to: CameraOptions(center: centerCoordinate, zoom: mapView.mapboxMap.cameraState.zoom))
-             
-            }
+          
           if !arrPoint.contains(where: { $0.coordinates == centerCoordinate }) {
             arrPoint.append(Point(centerCoordinate))
             self.isAppendHeatMap = true
@@ -1634,6 +1580,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                         if combinedImage == nil {
                           print("Failed to create combined image")
                         }
+                  
                         var pointAnnotation = PointAnnotation(coordinate: centerCoordinate)
                         pointAnnotation.image = .init(image: combinedImage ?? UIImage(), name: uniqueID)
                         // Check if annotation already exists for this unique ID
@@ -1642,18 +1589,13 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                           } else {
                             self.arrPopUpPointAnnotations.append(pointAnnotation)
                           }
-                          DispatchQueue.main.async {
+                  DispatchQueue.main.asyncAfter(deadline: .now()+0.2) {
+                              
                            if self.mapView.mapboxMap.cameraState.zoom > 7{
-                           
-          //                      self.pointAnnotationManager?.annotations = self.arrPopUpPointAnnotations
-                               if self.viewStoreList.isHidden{
+        
                                    let combinedAnnotations = self.arrPopUpPointAnnotations
                                    self.pointAnnotationManager?.annotations = combinedAnnotations
-                               }else{
-//                                   let combinedAnnotations = self.arrSinglePopUpAnnotation + self.arrPopUpPointAnnotations
-                                   let combinedAnnotations = self.arrPopUpPointAnnotations
-                                   self.pointAnnotationManager?.annotations = combinedAnnotations
-                               }
+                               
                             }else{
                               self.pointAnnotationManager.annotations = []
                             }
@@ -1668,7 +1610,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
           let uniqueID = "popup_\(item.id ?? "")"
           guard let baseImage = UIImage(named: "newPopUp"),
              let logoURL = URL(string: item.image ?? "") else {
-              downloadPopUpImage(at: index+1, isScroll: isScroll)
+              downloadPopUpImage(at: index+1)
             return
           }
           let centerCoordinate = CLLocationCoordinate2D(latitude: item.lat ?? 0, longitude: item.lat ?? 0)
@@ -1696,9 +1638,8 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                 }
                 DispatchQueue.main.async {
                  if self.mapView.mapboxMap.cameraState.zoom > 7{
-                     let combinedAnnotations = self.arrSinglePopUpAnnotation + self.arrPopUpPointAnnotations
-                          self.pointAnnotationManager?.annotations = combinedAnnotations
-//                    self.pointAnnotationManager?.annotations = self.arrPopUpPointAnnotations
+
+                    self.pointAnnotationManager?.annotations = self.arrPopUpPointAnnotations
                   }else{
                     self.pointAnnotationManager.annotations = []
                   }
@@ -1748,7 +1689,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                                 let combinedAnnotations = self.arrBusinessPointAnnotations
                                 self.pointAnnotationManager?.annotations = combinedAnnotations
                             } else {
-                                let combinedAnnotations = self.arrSingleBuisnessAnnotation + self.arrBusinessPointAnnotations
+                                let combinedAnnotations =  self.arrBusinessPointAnnotations
                                 self.pointAnnotationManager?.annotations = combinedAnnotations
                             }
                         } else {
@@ -1803,63 +1744,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
 
   
    
-    func downloadSingleBusinessImage(at index: Int,isMove:Bool) {
-       
-        if Store.role == "user"{
-            guard index < arrData.count, Store.role == "user", isSelectType == 2 else { return }
-            let item = arrData[index]
-            let uniqueID = "businessSingle_\(item.id ?? "")"
-            guard let baseImage = UIImage(named: "marker2"),
-                  let logoURL = URL(string: item.profilePhoto ?? "") else {
-                downloadSingleBusinessImage(at: index, isMove: isMove)
-                return
-            }
-            let centerCoordinate = CLLocationCoordinate2D(latitude: item.latitude ?? 0, longitude: item.longitude ?? 0)
-            if isMove{
-                mapView.mapboxMap.setCamera(to: CameraOptions(center: centerCoordinate, zoom: mapView.mapboxMap.cameraState.zoom))
-            }
-            if !arrPoint.contains(where: { $0.coordinates == centerCoordinate }) {
-                arrPoint.append(Point(centerCoordinate))
-                self.isAppendHeatMap = true
-            }
-            // Begin download with completion block
-            SDWebImageDownloader.shared.downloadImage(with: logoURL) { [weak self] overlayImage, _, _, error in
-                guard let self = self else { return }
-                
-                if let overlayImage = overlayImage {
-                    let combinedImage = self.combineImages(
-                        baseImage: baseImage,
-                        overlayImage: overlayImage,
-                        baseSize: CGSize(width: 42, height: 55),
-                        overlaySize: CGSize(width: 33, height: 33), type: "business"
-                    )
-                    var pointAnnotation = PointAnnotation(coordinate: centerCoordinate)
-                    pointAnnotation.image = .init(image: combinedImage ?? UIImage(), name: uniqueID)
-                    // Check if annotation already exists for this unique ID
-                    
-                    if let existingIndex = self.arrSingleBuisnessAnnotation.firstIndex(where: { $0.image?.name == uniqueID }) {
-                        self.arrSingleBuisnessAnnotation.removeAll()
-                        self.arrSingleBuisnessAnnotation.append(pointAnnotation)
-                        
-                    } else {
-                        self.arrSingleBuisnessAnnotation.removeAll()
-                        self.arrSingleBuisnessAnnotation.append(pointAnnotation)
-                        
-                    }
-                    DispatchQueue.main.async {
-                        if self.mapView.mapboxMap.cameraState.zoom > 7{
-                            self.pointAnnotationManager?.annotations = self.arrSingleBuisnessAnnotation
-                        }else{
-                            self.pointAnnotationManager.annotations = []
-                        }
-                        
-                    }
-                }
-                
-            }
-        }
-    
-    }
+  
     
     func resizeImage(_ image: UIImage, to size: CGSize) -> UIImage? {
       UIGraphicsBeginImageContextWithOptions(size, false, 0.0)
@@ -2088,88 +1973,78 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
         let status = CLLocationManager.authorizationStatus()
         switch status {
         case .restricted, .denied:
-            removeDataWhileLocationDenied()
-            //locationDeniedAlert()
+          removeDataWhileLocationDenied()
+          //locationDeniedAlert()
         case .authorizedWhenInUse, .authorizedAlways:
-            
-            var heatmapLayer = HeatmapLayer(id: heatmapLayerId, source: earthquakeSourceId)
-            heatmapLayer.heatmapColor = .expression(
-                   Exp(.interpolate) {
-                       Exp(.linear)
-                       Exp(.heatmapDensity)
-                       0.0
-                       UIColor(white: 1.0, alpha: 0.0) // Fully transparent for density 0
-                       0.05
-                       UIColor(red: 240/255, green: 248/255, blue: 255/255, alpha: 1.0) // Alice blue
-                       0.1
-                       UIColor(red: 173/255, green: 216/255, blue: 230/255, alpha: 1.0) // Light blue
-                       0.2
-                       UIColor(red: 135/255, green: 206.25/255, blue: 250/255, alpha: 1.0) // Sky blue
-                       0.3
-                       UIColor(red: 60/255, green: 179/255, blue: 113/255, alpha: 1.0) // Medium sea green
-                       0.4
-                       UIColor.green // Green
-                       0.5
-                       UIColor.yellow // Yellow
-                       0.6
-                       UIColor.orange // Orange
-                       0.7
-                       UIColor(red: 255/255, green: 69/255, blue: 0, alpha: 1.0) // Red-orange
-                       0.8
-                       UIColor.red // Red
-                       0.85
-                       UIColor(red: 255/255, green: 20/255, blue: 147/255, alpha: 1.0) // Deep pink
-                       0.9
-                       UIColor.magenta // Magenta
-                       0.95
-                       UIColor(red: 138/255, green: 43/255, blue: 226/255, alpha: 1.0) // Blue-violet
-                       1.0
-                       UIColor(red: 75/255, green: 0, blue: 130/255, alpha: 1.0) // Indigo
-                   }
-               )
-            // Set heatmap intensity and radius
-            heatmapLayer.heatmapIntensity = .constant(0.7)
-            // Radius settings based on zoom level
-            heatmapLayer.heatmapRadius = .expression(
-                   Exp(.interpolate) {
-                       Exp(.linear)
-                       Exp(.zoom)
-                       0
-                       15 // Larger radius at low zoom levels
-                       5
-                       25 // Moderate radius
-                       7
-                       40 // Significant increase
-                       9
-                       60 // Maximum radius
-                   }
-               )
-            // Set heatmap opacity based on zoom level
-            heatmapLayer.heatmapOpacity = .expression(
-                Exp(.interpolate) {
-                    Exp(.linear)
-                    Exp(.zoom)
-                    0
-                    1.0 // Fully opaque at zoom level 0
-                    5
-                    0.7 // Semi-transparent
-                    7
-                    0.4 // More transparent
-                    9
-                    0.0 // Fully transparent at high zoom levels
-                }
-            )
-            // Add the heatmap layer above other layers
-            do {
-                try mapView.mapboxMap.addLayer(heatmapLayer)
-                print("Heatmap layer added successfully")
-            } catch {
-                print("Error adding heatmap layer: \(error)")
+          var heatmapLayer = HeatmapLayer(id: heatmapLayerId, source: earthquakeSourceId)
+          heatmapLayer.heatmapColor = .expression(
+            Exp(.interpolate) {
+              Exp(.linear)
+              Exp(.heatmapDensity)
+              0
+              UIColor.clear // Fully transparent for density 0
+              0.05
+              UIColor(hex: "#F0F8FF") // Alice blue for very low density
+              0.1
+              UIColor(hex: "#ADD8E6") // Light blue for very low density
+              0.2
+              UIColor(hex: "#87CEFA") // Sky blue for low density
+              0.3
+              UIColor(hex: "#3CB371") // Medium sea green for moderate low density
+              0.4
+              UIColor(hex: "#00FF00") // Green for low-medium density
+              0.5
+              UIColor(hex: "#FFFF00") // Yellow for medium density
+              0.6
+              UIColor(hex: "#FFA500") // Orange for high-medium density
+              0.7
+              UIColor(hex: "#FF4500") // Red-Orange for high density
+              0.8
+              UIColor(hex: "#FF0000") // Red for very high density
+              0.85
+              UIColor(hex: "#FF1493") // Deep pink for very high density
+              0.9
+              UIColor(hex: "#FF00FF") // Magenta for near-maximum density
+              0.95
+              UIColor(hex: "#8A2BE2") // Blue-violet for near-maximum density
+              1.0
+              UIColor(hex: "#4B0082") // Indigo for maximum density
             }
+          )
+          // Set heatmap intensity and radius
+          heatmapLayer.heatmapIntensity = .constant(0.7)
+          heatmapLayer.heatmapRadius = .expression(Exp(.interpolate) {
+            Exp(.linear)
+            Exp(.zoom)
+            0
+            40 // Larger radius at low zoom levels
+            9
+            50 // Increase radius as zoom level increases
+            15
+            70 // Maximum radius at highest zoom level
+          })
+          // Set heatmap opacity based on zoom level
+          heatmapLayer.heatmapOpacity = .expression(Exp(.interpolate) {
+            Exp(.linear)
+            Exp(.zoom)
+            0
+            1 // Full opacity at zoom level 0
+            9
+            0.5 // Reduced opacity at zoom level 9
+            12
+            0 // Hide heatmap at zoom level 12 and above
+          })
+          // Add the heatmap layer above other layers
+          do {
+            try mapView.mapboxMap.addLayer(heatmapLayer)
+            print("Heatmap layer added successfully")
+          } catch {
+            print("Error adding heatmap layer: \(error)")
+          }
         default:
-            print("wdwedwd")
+          print("wdwedwd")
         }
-      }
+       }
 
    
     
@@ -2508,22 +2383,33 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
         vc.long = self.currentLong
         vc.gigCount = self.arrData.count
         vc.callBack = { (radius) in
-           
-            self.isSelectGigList = true
+          
             self.homeListenerCall = false
-//            let mapWidth = self.mapView.bounds.width
-//            self.mapRadius = Double(radius)
-//                  // Calculate the zoom level
-//            
-//            let zoom = self.zoomLevel(from: Double(radius), mapViewWidth: mapWidth)
-//                  print("Zoom Level: \(zoom), Radius: \(radius) km")
-//            let cameraOptions = CameraOptions(
-//                center: CLLocationCoordinate2D(latitude: self.currentLat, longitude: self.currentLong),
-//                zoom: zoom,
-//                  pitch: 0.0
-//              )
-//
-//            self.mapView.camera.ease(to: cameraOptions, duration: 0.3, curve: .easeInOut)
+            if self.type == 1{
+                self.getGigData()
+            }else if self.type == 2{
+                self.arrPopUpPointAnnotations.removeAll()
+                self.pointAnnotationManager.annotations = []
+                
+            }else{
+                self.arrBusinessPointAnnotations.removeAll()
+                self.pointAnnotationManager.annotations = []
+           
+            }
+         
+            let mapWidth = self.mapView.bounds.width
+            self.mapRadius = Double(radius)
+                  // Calculate the zoom level
+            
+            let zoom = self.zoomLevel(from: Double(radius), mapViewWidth: mapWidth)
+                  print("Zoom Level: \(zoom), Radius: \(radius) km")
+            let cameraOptions = CameraOptions(
+                center: CLLocationCoordinate2D(latitude: self.currentLat, longitude: self.currentLong),
+                zoom: zoom,
+                  pitch: 0.0
+              )
+
+            self.mapView.camera.ease(to: cameraOptions, duration: 0.3, curve: .easeInOut)
            
         }
         self.navigationController?.present(vc, animated:false)
@@ -2769,10 +2655,9 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
 
 
     }
-    func getStoreData(visibleIndex:Int){
+    func getStoreData(){
         viewWorldwide.isHidden = true
         viewInMyLocation.isHidden = true
-        self.visibleIndex = visibleIndex
         self.heightTblVwGigList.constant = 0
         viewGigList.isHidden = true
         viewBusinessList.isHidden = true
@@ -2846,10 +2731,9 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
     }
 
     }
-    func getBusinessData(visibleIndex:Int){
+    func getBusinessData(){
         viewWorldwide.isHidden = true
         viewInMyLocation.isHidden = true
-        self.visibleIndex = visibleIndex
         customAnnotations.removeAll()
         removePointClusters()
         viewBusinessList.isHidden = false
@@ -3170,179 +3054,7 @@ extension ExploreTabVC:AnnotationInteractionDelegate{
                             self?.navigationController?.pushViewController(vc, animated: true)
                         
                     }
-                    //                { [weak self] isSelect,isChat,data,userGigOrNot in
-                    //
-                    //
-                    //                    guard let self = self else { return }
-                    //                    if isChat{
-                    //                        let vc = self.storyboard?.instantiateViewController(withIdentifier: "ChatInboxVC") as! ChatInboxVC
-                    //                        vc.receiverId = Store.CurrentUserId ?? ""
-                    //                        self.navigationController?.pushViewController(vc, animated: true)
-                    ////                        if isReadyChat == 1{
-                    ////                         let vc = self.storyboard?.instantiateViewController(withIdentifier: "GigChatVC") as! GigChatVC
-                    ////                         vc.modalPresentationStyle = .overFullScreen
-                    ////                            vc.gigId = data?.id ?? ""
-                    ////                            vc.gigUserId = data?.gig?.user?.id ?? ""
-                    ////                         vc.callBack = { [weak self] isBack in
-                    ////                             guard let self = self else { return }
-                    ////                          self.getWillApearAllData()
-                    ////                          if !isBack{
-                    ////                           let vc = self.storyboard?.instantiateViewController(withIdentifier: "GigCompleteVC") as! GigCompleteVC
-                    ////                           vc.modalPresentationStyle = .overFullScreen
-                    ////                           vc.callBack = {[weak self] in
-                    ////
-                    ////                               guard let self = self else { return }
-                    ////                            self.socketData()
-                    ////                            self.mapView.viewAnnotations.removeAll()
-                    ////                           }
-                    ////                           self.navigationController?.present(vc, animated: true)
-                    ////                          }
-                    ////                         }
-                    ////                         self.present(vc, animated: true)
-                    ////                        }else{
-                    ////                         let vc = self.storyboard?.instantiateViewController(withIdentifier: "GigReadyVC") as! GigReadyVC
-                    ////                         vc.modalPresentationStyle = .overFullScreen
-                    ////                         vc.gigDetail2 = data
-                    ////                         vc.groupId = groupId
-                    ////                            vc.isComing = 1
-                    ////                            vc.callBack = { [weak self] in
-                    ////                            guard let self = self else { return }
-                    ////                          let param:parameters = ["userId":Store.userId ?? "",
-                    ////                                "deviceId":Store.deviceToken ?? "",
-                    ////                                "gigId":self.gigIdForGroup,
-                    ////                                "groupId":self.groupId]
-                    ////                          print("param--",param)
-                    ////                          SocketIOManager.sharedInstance.readyUser(dict: param)
-                    ////                          DispatchQueue.main.asyncAfter(deadline: .now()+0.5){
-                    ////                           if Store.role == "user"{
-                    ////                            let param2 = ["senderId":Store.userId ?? "","groupId":self.groupId,
-                    ////                                "message":"\(Store.UserDetail?["userName"] as? String ?? "") is ready",
-                    ////                                "deviceId":Store.deviceToken ?? "",
-                    ////                                "gigId":self.gigIdForGroup]
-                    ////                            print("param2--",param2)
-                    ////                            SocketIOManager.sharedInstance.sendMessage(dict: param2)
-                    ////                           }else{
-                    ////                            let param2 = ["senderId":Store.userId ?? "",
-                    ////                                "groupId":self.groupId,
-                    ////                                "message":"\(Store.BusinessUserDetail?["userName"] as? String ?? "") is ready",
-                    ////                                "deviceId":Store.deviceToken ?? "",
-                    ////                                "gigId":self.gigIdForGroup]
-                    ////                            SocketIOManager.sharedInstance.sendMessage(dict: param2)
-                    ////                           }
-                    ////                          }
-                    ////                          let vc = self.storyboard?.instantiateViewController(withIdentifier: "GigChatVC") as! GigChatVC
-                    ////                          vc.modalPresentationStyle = .overFullScreen
-                    ////                          vc.gigId = self.gigIdForGroup
-                    ////                          vc.gigUserId = self.gigUserId
-                    ////                          vc.callBack = { [weak self] isBack in
-                    ////
-                    ////                              guard let self = self else { return }
-                    ////
-                    ////                           self.getWillApearAllData()
-                    ////                           if !isBack{
-                    ////                            let vc = self.storyboard?.instantiateViewController(withIdentifier: "GigCompleteVC") as! GigCompleteVC
-                    ////                            vc.modalPresentationStyle = .overFullScreen
-                    ////                            vc.callBack = { [weak self] in
-                    ////                                guard let self = self else { return }
-                    ////                             self.socketData()
-                    ////                            }
-                    ////                            self.navigationController?.present(vc, animated: true)
-                    ////                           }
-                    ////                          }
-                    ////                          self.present(vc, animated: true)
-                    ////                         }
-                    ////                         self.present(vc, animated: true)
-                    ////                        }
-                    //
-                    //                    }else{
-                    //                        if isSelect == 0{
-                    //                            //apply gig
-                    //                            let vc = self.storyboard?.instantiateViewController(withIdentifier: "ApplyGigVC") as! ApplyGigVC
-                    //                            vc.gigId = selectedItem.id ?? ""
-                    //                            vc.callBack = { [weak self] in
-                    //                                guard let self = self else { return }
-                    //                                self.customAnnotations.removeAll()
-                    //                                self.removePointClusters()
-                    //                                let status = CLLocationManager.authorizationStatus()
-                    //                                switch status {
-                    //                                case .restricted, .denied:
-                    //                                    print("denied")
-                    //                                case .authorizedWhenInUse, .authorizedAlways:
-                    //                                    self.dismiss(animated: false)
-                    //                                    self.removeAllArray()
-                    //                                    self.tblVwList.reloadData()
-                    //                                    self.collVwStore.reloadData()
-                    //                                    self.collVwBusiness.reloadData()
-                    //                                    self.getWillApearAllData()
-                    //                                default:
-                    //                                    print("Location permission not determined")
-                    //                                }
-                    //                            }
-                    //                            self.navigationController?.pushViewController(vc, animated: true)
-                    //
-                    ////                            let vc = self.storyboard?.instantiateViewController(withIdentifier: "UserDetailVC") as! UserDetailVC
-                    ////                            vc.modalPresentationStyle = .overFullScreen
-                    ////                            vc.gigId = data?.id ?? ""
-                    ////                            vc.data = data
-                    ////
-                    ////                            vc.isComing = true
-                    ////                            vc.callBack = { [weak self] message in
-                    ////                                guard let self = self else { return }
-                    ////                                let vc = self.storyboard?.instantiateViewController(withIdentifier: "CommonPopUpVC") as! CommonPopUpVC
-                    ////                                vc.isSelect = 10
-                    ////                                vc.message = message
-                    ////                                vc.callBack = { [weak self] in
-                    ////                                    guard let self = self else { return }
-                    ////                                    self.customAnnotations.removeAll()
-                    ////                                    self.removePointClusters()
-                    ////                                    let status = CLLocationManager.authorizationStatus()
-                    ////                                    switch status {
-                    ////                                    case .restricted, .denied:
-                    ////                                        print("denied")
-                    ////                                    case .authorizedWhenInUse, .authorizedAlways:
-                    ////                                        self.dismiss(animated: false)
-                    ////                                        self.removeAllArray()
-                    ////                                        self.tblVwList.reloadData()
-                    ////                                        self.collVwStore.reloadData()
-                    ////                                        self.collVwBusiness.reloadData()
-                    ////                                        self.getWillApearAllData()
-                    ////                                    default:
-                    ////                                        print("Location permission not determined")
-                    ////                                    }
-                    ////                                }
-                    ////                                vc.modalPresentationStyle = .overFullScreen
-                    ////                                self.navigationController?.present(vc, animated: true)
-                    ////
-                    ////                            }
-                    ////                            self.navigationController?.present(vc, animated: true)
-                    //                        }else{
-                    //                            //view more gig
-                    //                            let vc = self.storyboard?.instantiateViewController(withIdentifier: "ApplyGigVC") as! ApplyGigVC
-                    //                            vc.gigId = selectedItem.id ?? ""
-                    //                            vc.callBack = { [weak self] in
-                    //                                guard let self = self else { return }
-                    //                                self.customAnnotations.removeAll()
-                    //                                self.removePointClusters()
-                    //                                let status = CLLocationManager.authorizationStatus()
-                    //                                switch status {
-                    //                                case .restricted, .denied:
-                    //                                    print("denied")
-                    //                                case .authorizedWhenInUse, .authorizedAlways:
-                    //                                    self.dismiss(animated: false)
-                    //                                    self.removeAllArray()
-                    //                                    self.tblVwList.reloadData()
-                    //                                    self.collVwStore.reloadData()
-                    //                                    self.collVwBusiness.reloadData()
-                    //                                    self.getWillApearAllData()
-                    //                                default:
-                    //                                    print("Location permission not determined")
-                    //                                }
-                    //                            }
-                    //                            self.navigationController?.pushViewController(vc, animated: true)
-                    //
-                    //                        }
-                    //                    }
-                    //                }
+             
                 }
                 self.present(vc, animated: true)
             }else{
@@ -3613,7 +3325,7 @@ extension ExploreTabVC:UICollectionViewDelegate,UICollectionViewDataSource,UICol
                         
                         guard let self = self else { return }
                         self.animateZoomInOut()
-                        self.getBusinessData(visibleIndex: index)
+                        self.getBusinessData()
                         
                     }
                     self.navigationController?.pushViewController(vc, animated: true)
@@ -3624,7 +3336,7 @@ extension ExploreTabVC:UICollectionViewDelegate,UICollectionViewDataSource,UICol
                     vc.callBack = { [weak self] index in
                         guard let self = self else { return }
                         self.animateZoomInOut()
-                        self.getStoreData(visibleIndex: index)
+                        self.getStoreData()
                     }
                     self.navigationController?.pushViewController(vc, animated: true)
                 }
@@ -3645,34 +3357,7 @@ extension ExploreTabVC:UICollectionViewDelegate,UICollectionViewDataSource,UICol
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
         return 0
     }
-    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        guard let collectionView = scrollView as? UICollectionView else { return }
-          
-          let visibleRect = CGRect(origin: collectionView.contentOffset, size: collectionView.bounds.size)
-//          if let visibleIndexPath = collectionView.indexPathForItem(at: CGPoint(x: visibleRect.midX, y: visibleRect.midY)) {
-//              print("Currently visible index: \(visibleIndexPath.row)")
-//              let item = arrData[visibleIndexPath.row]
-//              let uniqueID = "businessSingle_\(item.id ?? "")"
-//              self.visibleIndex = visibleIndexPath.row
-//              self.arrSinglePopUpAnnotation.removeAll()
-//              self.downloadSingleBusinessImage(at: visibleIndexPath.row)
-//
-//              self.downloadBusinessImage(at: visibleIndexPath.row)
-//              self.downloadSinglePopUpImage(at: visibleIndexPath.row, isScroll: true)
-//
-//          }
-       centerCell()
-    }
-    func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
-        centerCell()
-    }
-    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-        
-        if !decelerate {
-            centerCell()
-       
-        }
-    }
+
  
 }
 
@@ -3707,6 +3392,7 @@ extension ExploreTabVC: UITableViewDelegate,UITableViewDataSource{
             cell.lblName.text = arrData[indexPath.row].name
             cell.lblTitle.text = arrData[indexPath.row].title
             cell.lblPrice.text = "$\(arrData[indexPath.row].price ?? 0)"
+            cell.viewShadow.applyShadow()
             let rating = arrData[indexPath.row].UserRating ?? 0.0
             let formattedRating = String(format: "%.1f", rating)
             let reviewCount = arrData[indexPath.row].userRatingCount ?? 0
@@ -3738,7 +3424,7 @@ extension ExploreTabVC: UITableViewDelegate,UITableViewDataSource{
         return cell
     }
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 110
+        return 230
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if homeListenerCall{

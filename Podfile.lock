@@ -128,6 +128,58 @@ PODS:
     - MapboxCommon (= 24.7.1)
     - MapboxCoreMaps (= 11.7.1)
     - Turf (= 3.0.0)
+  - MaterialComponents/AnimationTiming (124.2.0)
+  - MaterialComponents/Availability (124.2.0)
+  - MaterialComponents/Elevation (124.2.0):
+    - MaterialComponents/Availability
+    - MaterialComponents/private/Color
+    - MaterialComponents/private/Math
+  - MaterialComponents/Ink (124.2.0):
+    - MaterialComponents/Availability
+    - MaterialComponents/private/Color
+    - MaterialComponents/private/Math
+  - MaterialComponents/Palettes (124.2.0)
+  - MaterialComponents/private/Application (124.2.0)
+  - MaterialComponents/private/Color (124.2.0):
+    - MaterialComponents/Availability
+  - MaterialComponents/private/Math (124.2.0)
+  - MaterialComponents/private/ThumbTrack (124.2.0):
+    - MaterialComponents/Availability
+    - MaterialComponents/Ink
+    - MaterialComponents/private/Math
+    - MaterialComponents/Ripple
+    - MaterialComponents/ShadowElevations
+    - MaterialComponents/ShadowLayer
+    - MaterialComponents/ShapeLibrary
+    - MaterialComponents/Typography
+    - MDFInternationalization
+  - MaterialComponents/Ripple (124.2.0):
+    - MaterialComponents/AnimationTiming
+    - MaterialComponents/Availability
+    - MaterialComponents/private/Color
+    - MaterialComponents/private/Math
+  - MaterialComponents/ShadowElevations (124.2.0)
+  - MaterialComponents/ShadowLayer (124.2.0):
+    - MaterialComponents/ShadowElevations
+  - MaterialComponents/ShapeLibrary (124.2.0):
+    - MaterialComponents/private/Math
+    - MaterialComponents/Shapes
+  - MaterialComponents/Shapes (124.2.0):
+    - MaterialComponents/private/Color
+    - MaterialComponents/private/Math
+    - MaterialComponents/ShadowLayer
+  - MaterialComponents/Slider (124.2.0):
+    - MaterialComponents/Elevation
+    - MaterialComponents/Palettes
+    - MaterialComponents/private/Math
+    - MaterialComponents/private/ThumbTrack
+    - MaterialComponents/ShadowElevations
+  - MaterialComponents/Typography (124.2.0):
+    - MaterialComponents/private/Application
+    - MaterialComponents/private/Math
+    - MDFTextAccessibility
+  - MDFInternationalization (3.0.0)
+  - MDFTextAccessibility (2.0.1)
   - nanopb (2.30910.0):
     - nanopb/decode (= 2.30910.0)
     - nanopb/encode (= 2.30910.0)
@@ -181,6 +233,7 @@ DEPENDENCIES:
   - Kingfisher
   - LGSideMenuController
   - MapboxMaps
+  - MaterialComponents/Slider
   - NMLocalizedPhoneCountryView
   - NVActivityIndicatorView
   - Pulsator
@@ -228,6 +281,9 @@ SPEC REPOS:
     - MapboxCommon
     - MapboxCoreMaps
     - MapboxMaps
+    - MaterialComponents
+    - MDFInternationalization
+    - MDFTextAccessibility
     - nanopb
     - NMLocalizedPhoneCountryView
     - NVActivityIndicatorView
@@ -278,6 +334,9 @@ SPEC CHECKSUMS:
   MapboxCommon: 0ba7bc2bbf20b6e7687747a9959ef5f82adffd85
   MapboxCoreMaps: 02656fd04e2e2ad8c7db39adba301cef55a4c2cf
   MapboxMaps: 3a77eda93f83ad27c178df86122dc3ad8645078d
+  MaterialComponents: 1a9b2d9d45b1601ae544de85089adc4c464306d4
+  MDFInternationalization: d697c55307816222a55685c4ccb1044ffb030c12
+  MDFTextAccessibility: f4bb4cc2194286651b59a215fdeaa0e05dc90ba5
   nanopb: 438bc412db1928dac798aa6fd75726007be04262
   NMLocalizedPhoneCountryView: 9042412c89dbdf8776c4d4d853af51f5adbaa37f
   NVActivityIndicatorView: 1f6c5687f1171810aa27a3296814dc2d7dec3667
@@ -299,6 +358,6 @@ SPEC CHECKSUMS:
   Turf: a1604e74adce15c58462c9ae2acdbf049d5be35e
   VerticalSlider: 655f2bc3ed062bac13e21c174f5ff93b8308571d
 
-PODFILE CHECKSUM: 2f84e2ab0323c2940cd55dca48457b4a9ec0c997
+PODFILE CHECKSUM: ad8af962f134497470c6b94c931564b0b995b129
 
 COCOAPODS: 1.16.2
