@@ -10,26 +10,67 @@ import RangeSeekSlider
 
 class HomeFilterTVC: UITableViewCell {
 
-    @IBOutlet weak var sliderDistance: UISlider!
-    @IBOutlet weak var vwDistance: UIView!
-    @IBOutlet weak var rangeSlider: RangeSeekSlider!
-    @IBOutlet weak var bottomLine: NSLayoutConstraint!
-    @IBOutlet weak var titleTop: NSLayoutConstraint!
-    @IBOutlet weak var btnDropDown: UIButton!
-    @IBOutlet weak var SliderVw: UIView!
-    @IBOutlet weak var DropDownVw: UIView!
+    @IBOutlet weak var singleSlider: CustomSlider!
+    @IBOutlet weak var doubleSlider: RangeSliderFilter!
+    @IBOutlet weak var collVwPopular: UICollectionView!
+    @IBOutlet weak var popularVw: UIView!
+    @IBOutlet weak var doubleThumbVw: UIView!
+    @IBOutlet weak var singleThumbVw: UIView!
     @IBOutlet weak var imgVwDropdown: UIImageView!
     @IBOutlet weak var lblTitle: UILabel!
+    
+    var isSelectIndex = 0
+    var arrTitle = ["Popular","Most Clicked"]
     
     override func awakeFromNib() {
         super.awakeFromNib()
      
     }
 
+    func uiSet(){
+        collVwPopular.delegate = self
+        collVwPopular.dataSource = self
+      
+    }
+    
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
 
        
     }
 
+}
+extension HomeFilterTVC:UICollectionViewDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout{
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return arrTitle.count
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PopularFilterCVC", for: indexPath) as! PopularFilterCVC
+        cell.lblTitle.text = arrTitle[indexPath.row]
+        if isSelectIndex == indexPath.row{
+            cell.vwBackground.backgroundColor = UIColor(hex: "#3E9C35")
+            cell.lblTitle.textColor = .white
+        }else{
+            cell.vwBackground.backgroundColor = UIColor(hex: "#E7F3E6")
+            cell.lblTitle.textColor = .black
+        }
+        return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        return CGSize(width: 100, height: 32)
+    }
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        return 15
+    }
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
+        return 0
+    }
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        isSelectIndex = indexPath.row
+        popularity = indexPath.row+1
+        isSelectPopularity = true
+        collVwPopular.reloadData()
+    }
 }

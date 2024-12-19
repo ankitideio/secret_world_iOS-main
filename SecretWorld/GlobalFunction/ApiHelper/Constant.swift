@@ -35,6 +35,27 @@ var isCall = false
 var myCurrentLat = 0.0
 var myCurrentLong = 0.0
 
+//MARK: - Filter Variables
+
+ var minPrice:Int = 1
+ var maxPrice:Int = 10000
+ var maxTime:Int = 24
+ var minTime:Int = 1
+ var radius:Int = 50
+ var popularity = 1
+ var endingSoon = 1
+ var rating = 0
+ var minDeal = 1
+ var maxDeal = 100
+ var isSelectGigPrice = false
+ var isSelectGigTime = false
+
+ var isSelectPopularity = false
+ var isSelectEndingSoon = false
+
+ var isSelectDealing = false
+ var isSelectRating = false
+
 //MARK: - StoryBoard
 enum AppStoryboard: String{
     case Main = "Main"

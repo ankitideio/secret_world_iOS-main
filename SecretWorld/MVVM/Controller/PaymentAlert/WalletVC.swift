@@ -141,9 +141,9 @@ class WalletVC: UIViewController {
 extension UIView {
     func applyShadow() {
         self.layer.shadowColor = UIColor.black.cgColor
-        self.layer.shadowOffset = CGSize(width: 0, height: 4)
-        self.layer.shadowOpacity = 0.1
-        self.layer.shadowRadius = 14 / 2.0
+        self.layer.shadowOffset = CGSize(width: 0, height: 2)
+        self.layer.shadowOpacity = 0.4
+        self.layer.shadowRadius = 4 / 2.0
         self.layer.masksToBounds = false
     }
 }
