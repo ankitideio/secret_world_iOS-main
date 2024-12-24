@@ -430,6 +430,7 @@
                 <outlet property="btnApply" destination="H9K-Ju-LmO" id="eq2-Y1-wV6"/>
                 <outlet property="btnChat" destination="0Xa-j2-Ucv" id="ORL-Da-Kub"/>
                 <outlet property="btnDismiss" destination="kl6-uT-dCw" id="YME-rt-l8N"/>
+                <outlet property="btnShare" destination="fA9-LN-L8G" id="JXo-DL-XIv"/>
                 <outlet property="btnViewMore" destination="rNE-DX-Tch" id="rd6-bQ-qHE"/>
                 <outlet property="collVwParticipants" destination="fkU-pG-gFr" id="02W-69-TBv"/>
                 <outlet property="imgVwServiceProvider" destination="szE-3h-byg" id="GUP-qx-2Nh"/>

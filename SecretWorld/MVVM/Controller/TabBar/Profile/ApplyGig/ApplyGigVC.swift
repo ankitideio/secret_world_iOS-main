@@ -13,12 +13,20 @@ import Solar
 
 class ApplyGigVC: UIViewController, UIGestureRecognizerDelegate, SideMenuNavigationControllerDelegate {
     //MARK: - OUTLEST
+    @IBOutlet weak var lblSafetyTips: UILabel!
+    @IBOutlet weak var lblInstruction: UILabel!
+    @IBOutlet weak var lblTaskDescription: UILabel!
+    @IBOutlet weak var lblGigExperience: UILabel!
+    @IBOutlet weak var lblGigCategory: UILabel!
+    @IBOutlet weak var lblGigDuration: UILabel!
+    @IBOutlet weak var lblGigDate: UILabel!
+    @IBOutlet weak var lblGigTime: UILabel!
     @IBOutlet weak var mapVw: MapView!
-    @IBOutlet var widthAddReview: NSLayoutConstraint!
-    @IBOutlet var btnParticipantsCounts: UIButton!
+    @IBOutlet weak var btnChat: UIButton!
     @IBOutlet var viewCompletegigMsg: UIView!
     @IBOutlet var viewSeprator: UIView!
     @IBOutlet var viewServiceProvider: UIView!
+    @IBOutlet var lblPrticipansCount: UILabel!
     @IBOutlet var lblPrice: UILabel!
     @IBOutlet var lblProviderName: UILabel!
     @IBOutlet var imgVwProvider: UIImageView!
@@ -27,21 +35,18 @@ class ApplyGigVC: UIViewController, UIGestureRecognizerDelegate, SideMenuNavigat
     @IBOutlet var lblTitle: UILabel!
     @IBOutlet weak var lblAbout: UILabel!
     @IBOutlet var imgVwTitle: UIImageView!
-    @IBOutlet var btnAddreview: UIButton!
-    @IBOutlet var heightBtnApply: NSLayoutConstraint!
     @IBOutlet var lblreview: UILabel!
     @IBOutlet var heightViewReviewTile: NSLayoutConstraint!
     @IBOutlet var heightTllvwHeight: NSLayoutConstraint!
     @IBOutlet var heightviewCompleteMsg: NSLayoutConstraint!
     @IBOutlet var btnApply: UIButton!
     @IBOutlet var btnParticipants: UIButton!
-    @IBOutlet var btnGigType: UIButton!
     @IBOutlet var btnMore: UIButton!
     @IBOutlet var tblVwReiew: UITableView!
-    @IBOutlet weak var reviewStackVw: UIStackView!
-    @IBOutlet weak var vwParitcipant: UIView!
-    @IBOutlet weak var btnChat: UIButton!
-    @IBOutlet weak var stackGigDetail: UIStackView!
+    @IBOutlet weak var collVwTools: UICollectionView!
+    @IBOutlet weak var collVwSkills: UICollectionView!
+    @IBOutlet weak var heightCollVwTools: NSLayoutConstraint!
+    @IBOutlet weak var heightCollVwSkill: NSLayoutConstraint!
     
     //MARK: - VARIABLES
     var arrCompleteParticipants = [GetRequestData]()
@@ -92,7 +97,7 @@ class ApplyGigVC: UIViewController, UIGestureRecognizerDelegate, SideMenuNavigat
         let nibNearBy = UINib(nibName: "ReviewTVC", bundle: nil)
         tblVwReiew.register(nibNearBy, forCellReuseIdentifier: "ReviewTVC")
         tblVwReiew.estimatedRowHeight = 80
-        reviewStackVw.translatesAutoresizingMaskIntoConstraints = false
+
     }
     @objc func handleSwipe() {
         self.navigationController?.popViewController(animated: true)
@@ -135,7 +140,7 @@ class ApplyGigVC: UIViewController, UIGestureRecognizerDelegate, SideMenuNavigat
         tblVwReiew.rowHeight = UITableView.automaticDimension
         if isComing == 1{
             //Business
-            btnAddreview.isHidden = true
+          
             heightTllvwHeight.constant = 0
             heightviewCompleteMsg.constant = 0
             viewServiceProvider.isHidden = true
@@ -147,7 +152,7 @@ class ApplyGigVC: UIViewController, UIGestureRecognizerDelegate, SideMenuNavigat
             getCompleteParticipants(loader: false)
         }else{
             //User
-            btnAddreview.isHidden = true
+          
             heightTllvwHeight.constant = 0
             heightviewCompleteMsg.constant = 0
             viewServiceProvider.isHidden = false
@@ -221,14 +226,14 @@ class ApplyGigVC: UIViewController, UIGestureRecognizerDelegate, SideMenuNavigat
             self.participantCount = data?.appliedParticipants ?? 0
             if data?.reviews?.count ?? 0 > 0{
                 self.lblreview.isHidden = false
-                self.btnAddreview.isHidden = false
-                self.heightBtnApply.constant = 0
+             
+             
                 
             }else{
                 
-                self.heightBtnApply.constant = 50
+              
                 self.lblreview.isHidden = true
-                self.btnAddreview.isHidden = true
+             
             }
             
             self.btnMore.isHidden = true
@@ -255,13 +260,13 @@ class ApplyGigVC: UIViewController, UIGestureRecognizerDelegate, SideMenuNavigat
             self.lblAbout.sizeToFit()
             self.lblPlace.text = data?.gig?.place ?? ""
             if data?.gig?.participants ?? "" > "1"{
-                self.btnParticipantsCounts.setTitle("\(data?.gig?.participants ?? "") Participants left", for: .normal)
+              
                 
             }else if data?.gig?.participants ?? "" == "1"{
-                self.btnParticipantsCounts.setTitle("\(data?.gig?.participants ?? "") Participant", for: .normal)
+              
                 
             }else{
-                self.btnParticipantsCounts.setTitle("No participant", for: .normal)
+              
                 
             }
             
@@ -280,11 +285,7 @@ class ApplyGigVC: UIViewController, UIGestureRecognizerDelegate, SideMenuNavigat
             let priceAttributeString = NSAttributedString(string: priceString, attributes: [.foregroundColor: UIColor.app])
             attributedString.append(priceAttributeString)
             self.lblPrice.attributedText = attributedString
-            if data?.gig?.type == "worldwide"{
-                self.btnGigType.setTitle("Worldwide", for: .normal)
-            }else{
-                self.btnGigType.setTitle("My location", for: .normal)
-            }
+           
             
             if data?.gig?.usertype == "user"{
                 if data?.status == 0{
@@ -320,27 +321,25 @@ class ApplyGigVC: UIViewController, UIGestureRecognizerDelegate, SideMenuNavigat
                         if data?.isReview == true{
                             
                             self.btnApply.isHidden = false
-                            self.heightBtnApply.constant = 0
+                         
                             self.heightviewCompleteMsg.constant = 0
-                            self.widthAddReview.constant = 125
-                            self.btnAddreview.setTitle("Update review", for: .normal)
+                       
                             self.btnApply.setTitle("Update review", for: .normal)
                         }else{
                             
                             self.btnApply.isHidden = false
-                            self.heightBtnApply.constant = 50
+                       
                             self.btnApply.backgroundColor =  UIColor.app
                             self.btnApply.setTitleColor(UIColor.white, for: .normal)
                             self.btnMore.isHidden = true
                             self.heightviewCompleteMsg.constant = 100
-                            self.widthAddReview.constant = 100
-                            self.btnAddreview.setTitle("Add review", for: .normal)
+                          
                             self.btnApply.setTitle("Add review", for: .normal)
 
 //                                if self.isReviewNil == true{
 //                                    self.btnApply.setTitle("Update review", for: .normal)
 //                                    self.btnAddreview.setTitle("Update review", for: .normal)
-//                                    
+//
 //                                }else{
 //                                    self.btnApply.setTitle("Add review", for: .normal)
 //                                    self.btnAddreview.setTitle("Add review", for: .normal)
@@ -398,28 +397,27 @@ class ApplyGigVC: UIViewController, UIGestureRecognizerDelegate, SideMenuNavigat
                         
                     }else{
                         if data?.isReview == true{
-                            self.heightBtnApply.constant = 0
+                        
                             self.btnApply.isHidden = true
                             self.btnMore.isHidden = true
                             self.heightviewCompleteMsg.constant = 0
-                            self.widthAddReview.constant = 125
+                        
                             self.btnApply.setTitle("Update review", for: .normal)
-                            self.btnAddreview.setTitle("Update review", for: .normal)
+                          
                         }else{
                             
                             self.btnApply.isHidden = false
-                            self.heightBtnApply.constant = 50
+                        
                             self.btnApply.backgroundColor =  UIColor.app
                             self.btnApply.setTitleColor(UIColor.white, for: .normal)
                             self.btnMore.isHidden = true
                             self.heightviewCompleteMsg.constant = 100
-                            self.widthAddReview.constant = 100
-                            self.btnAddreview.setTitle("Add review", for: .normal)
+                          
                             self.btnApply.setTitle("Add review", for: .normal)
 //                                if self.isReviewNil == true{
 //                                    self.btnApply.setTitle("Update review", for: .normal)
 //                                    self.btnAddreview.setTitle("Update review", for: .normal)
-//                                    
+//
 //                                }else{
 //                                    self.btnAddreview.setTitle("Add review", for: .normal)
 //                                    self.btnApply.setTitle("Add review", for: .normal)
@@ -486,22 +484,18 @@ class ApplyGigVC: UIViewController, UIGestureRecognizerDelegate, SideMenuNavigat
             
             if data?.reviews?.count ?? 0 > 0{
                 self.lblreview.isHidden = false
-                self.btnAddreview.isHidden = false
-                self.heightBtnApply.constant = 0
+              
                 
             }else{
                 
-                self.heightBtnApply.constant = 50
-                self.btnAddreview.isHidden = true
+             
                 self.lblreview.isHidden = true
-                NSLayoutConstraint.activate([
-                    self.reviewStackVw.topAnchor.constraint(greaterThanOrEqualTo: self.stackGigDetail.safeAreaLayoutGuide.topAnchor, constant: 20)
-                ])
+              
             }
             
             if data?.status == 0{
                 self.btnMore.isHidden = false
-                self.btnParticipantsCounts.isUserInteractionEnabled = false
+              
                 if data?.paymentStatus == 0{
                     self.btnApply.isHidden = false
                   
@@ -516,7 +510,7 @@ class ApplyGigVC: UIViewController, UIGestureRecognizerDelegate, SideMenuNavigat
                 }
                 
             }else if data?.status == 1{
-                self.btnParticipantsCounts.isUserInteractionEnabled = false
+           
                 self.btnApply.isHidden = false
                 self.btnMore.isHidden = true
                 self.btnApply.setTitle("Complete", for: .normal)
@@ -525,24 +519,24 @@ class ApplyGigVC: UIViewController, UIGestureRecognizerDelegate, SideMenuNavigat
                 self.btnChat.isHidden = false
             }else if data?.status == 2{
                 
-                self.btnParticipantsCounts.isUserInteractionEnabled = true
+            
                 self.btnMore.isHidden = true
                 self.btnApply.isHidden = false
                 self.btnApply.backgroundColor = .app
                 self.btnApply.setTitleColor(.white, for: .normal)
                 
                     if self.isReviewNil == true{
-                        self.widthAddReview.constant = 125
+                     
                         self.btnApply.setTitle("Update review", for: .normal)
-                        self.btnAddreview.setTitle("Update review", for: .normal)
+                   
                     }else{
-                        self.widthAddReview.constant = 100
+                     
                         self.btnApply.setTitle("Add review", for: .normal)
-                        self.btnAddreview.setTitle("Add review", for: .normal)
+                       
                     }
                 
             }else{
-                self.btnParticipantsCounts.isUserInteractionEnabled = false
+             
                 self.btnApply.isHidden = true
                 self.btnMore.isHidden = true
                 
@@ -566,13 +560,7 @@ class ApplyGigVC: UIViewController, UIGestureRecognizerDelegate, SideMenuNavigat
             self.lblAbout.sizeToFit()
             self.lblPlace.text = data?.place ?? ""
             
-            if data?.participants == "1"{
-                self.btnParticipantsCounts.setTitle("\(data?.participants ?? "") Participant left", for: .normal)
-            }else if data?.participants == "0"{
-                self.btnParticipantsCounts.setTitle("No participant", for: .normal)
-            }else{
-                self.btnParticipantsCounts.setTitle("\(data?.participants ?? "") Participants left", for: .normal)
-            }
+           
            
             if data?.appliedParticipants ?? 0 == 1{
                     self.btnParticipants.setTitle("\(data?.appliedParticipants ?? 0) New request", for: .normal)
@@ -589,11 +577,7 @@ class ApplyGigVC: UIViewController, UIGestureRecognizerDelegate, SideMenuNavigat
             let priceAttributeString = NSAttributedString(string: priceString, attributes: [.foregroundColor: UIColor.app])
             attributedString.append(priceAttributeString)
             self.lblPrice.attributedText = attributedString
-            if data?.type == "worldwide"{
-                self.btnGigType.setTitle("Worldwide", for: .normal)
-            }else{
-                self.btnGigType.setTitle("My location", for: .normal)
-            }
+         
             self.tblVwReiew.reloadData()
             self.tblVwReiew.invalidateIntrinsicContentSize()
             
@@ -811,7 +795,7 @@ class ApplyGigVC: UIViewController, UIGestureRecognizerDelegate, SideMenuNavigat
                 }
                 self.navigationController?.present(vc, animated: false)
             }else{
-                let vc = self.storyboard?.instantiateViewController(withIdentifier: "AddGigVC") as! AddGigVC
+                let vc = self.storyboard?.instantiateViewController(withIdentifier: "NewGigAddVC") as! NewGigAddVC
                 vc.isComing = false
                 vc.gigDetail = self.businessGigDetail
                 self.navigationController?.pushViewController(vc, animated: true)
@@ -1174,6 +1158,21 @@ extension ApplyGigVC: UITableViewDelegate,UITableViewDataSource{
         }
         
         return cell
+    }
+    
+    
+}
+
+extension ApplyGigVC:UICollectionViewDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout{
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return 1
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+   
+            let  cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ListToolSkillCVC", for: indexPath) as! ListToolSkillCVC
+            return cell
+        
     }
     
     

@@ -205,7 +205,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
     func addGigRoot(){
         let mainStoryBoard = UIStoryboard(name: "Main", bundle: nil)
-        let nextVC = mainStoryBoard.instantiateViewController(withIdentifier: "AddGigVC") as! AddGigVC
+        let nextVC = mainStoryBoard.instantiateViewController(withIdentifier: "NewGigAddVC") as! NewGigAddVC
         nextVC.isComing = true
         let nav = UINavigationController.init(rootViewController: nextVC)
         nav.isNavigationBarHidden = true

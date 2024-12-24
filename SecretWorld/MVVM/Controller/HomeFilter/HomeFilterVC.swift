@@ -287,17 +287,23 @@ class HomeFilterVC: UIViewController {
         if type == 1{
             isSelectGigTime = false
             isSelectGigPrice = false
-            Store.filterData = nil
+            isSelectGigTime = false
+            isSelectGigPrice = false
+            Store.filterData = ["minHours":1,"maxHours":24,"price_min":1,"price_max":10000,"radius":50]
             Store.isSelectGigFilter = false
         }else if type == 2{
             isSelectPopularity = false
             isSelectEndingSoon = false
-            Store.filterDataPopUp = nil
+            isSelectPopularity = false
+            isSelectEndingSoon = false
+            Store.filterDataPopUp = ["popularity":1,"endingSoon":1,"radius":50]
             Store.isSelectPopUpFilter = false
         }else{
             isSelectDealing = false
             isSelectRating = false
-            Store.filterDataBusiness = nil
+            isSelectDealing = false
+            isSelectRating = false
+            Store.filterDataBusiness = ["minDeal":1,"maxDeal":100,"rating":0,"radius":50]
             Store.isSelectBusinessFilter = false
         }
       
@@ -443,10 +449,10 @@ extension HomeFilterVC: UITableViewDelegate, UITableViewDataSource,RangeSeekSlid
                 cell.doubleThumbVw.isHidden = true
                 cell.singleThumbVw.isHidden = false
                 cell.popularVw.isHidden = true
-                cell.singleSlider.thumbLabel.text = "\(Store.filterDataBusiness?["rating"] as? Int ?? 1)Star"
+                cell.singleSlider.thumbLabel.text = "\(Store.filterDataBusiness?["rating"] as? Int ?? 0)Star"
                 cell.singleSlider.minimumValue = 0
                 cell.singleSlider.maximumValue = 5
-                cell.singleSlider.currentValue = Float(Store.filterDataBusiness?["rating"] as? Int ?? 1)
+                cell.singleSlider.currentValue = Float(Store.filterDataBusiness?["rating"] as? Int ?? 0)
                 cell.singleSlider.index = 2
                 cell.singleSlider.type = type
             }

@@ -9,6 +9,7 @@ import UIKit
 
 class GigViewCVC: UICollectionViewCell {
     //MARK: - IBOutlet
+    @IBOutlet weak var btnShare: UIButton!
     @IBOutlet weak var lblParticipants: UILabel!
     @IBOutlet weak var lblServiceName: UILabel!
     @IBOutlet weak var lblTaskDuration: UILabel!
@@ -32,6 +33,7 @@ class GigViewCVC: UICollectionViewCell {
     var arrParticipanstList = [Participantzz]()
     override func awakeFromNib() {
         super.awakeFromNib()
+        
         let nib = UINib(nibName: "GigParticipanstsCVC", bundle: nil)
         collVwParticipants.register(nib, forCellWithReuseIdentifier: "GigParticipanstsCVC")
         collVwParticipants.delegate = self

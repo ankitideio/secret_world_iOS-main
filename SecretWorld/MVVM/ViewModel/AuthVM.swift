@@ -110,6 +110,12 @@ class AuthVM{
         
     }
     
+    func CreateUserFunction(type:String,name:String,onSuccess:@escaping((CreateUserFunctionData?)->())){
+        let param:parameters = ["type":type,"name":name]
+        WebService.service(API.createUserFuntion,param: param,service: .post,is_raw_form: true) { (model:CreateUserFunctionModel,jsonData,jsonSer) in
+            onSuccess(model.data)
+        }
+    }
     func signUpApi(about: String, interests: [String], specialization: [String], dietary: [String], place: String, lat: Double, long: Double,deviceId:String, onSuccess: @escaping ((GetSignupData?) -> ())) {
         
         
