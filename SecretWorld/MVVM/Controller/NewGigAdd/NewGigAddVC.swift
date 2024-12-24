@@ -60,18 +60,17 @@ class NewGigAddVC: UIViewController {
     
     //MARK: - VARIABLES
     var selectGigType = "inMyLocation"
-    var userGigDetail:GetUserGigData?
+    var userGigDetail:GetUserGigDetailData?
     var isComing  = false
     var isUploading = false
     var viewModel  = AddGigVM()
     var lat = Double()
     var long = Double()
-    var gigDetail:GetGigDetailData?
+    var bsuinessGigDetail:BusinessGigDetailData?
     var walletViewModel = PaymentVM()
     var walletAmount = 0
     var gigFees:Int?
     var selectedStartDate = ""
-    var usergigDetail:GetUserGigData?
     var IsUserGig = false
     var serviceName = ""
     var serviceDuration = ""
@@ -79,8 +78,8 @@ class NewGigAddVC: UIViewController {
     var paymentTerm = ""
     var paymentMethod = ""
     var callBack:(()->())?
-    var arrGetCategories = [Functions]()
-    var arrGetSkill = [Functions]()
+    var arrGetCategories = [Skills]()
+    var arrGetSkill = [Skills]()
     var offset = 1
     var limit = 20
     var isWorldwide = false
@@ -93,7 +92,8 @@ class NewGigAddVC: UIViewController {
     var arrTools = [String]()
     var categoryId:String = ""
     var arrSkillId = [String]()
-   
+    var gigId = ""
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -138,13 +138,144 @@ func uiSet(){
     if isComing == true{
         getCommisionApi()
        
-        lblTitle.text = "Add Gig"
+        lblTitle.text = "Add Task"
 
     }else{
         Store.AddGigImage = nil
         Store.AddGigDetail = nil
-        lblTitle.text = "Edit Gig"
-
+        lblTitle.text = "Edit Task"
+        if Store.role == "user"{
+            self.txtFldTitle.text = userGigDetail?.gig?.title ?? ""
+            self.txtVwDescription.text = userGigDetail?.gig?.about ?? ""
+            self.btnChooseCategory.setTitle(userGigDetail?.gig?.category?.name ?? "", for: .normal)
+            self.btnChooseCategory.setTitleColor(.black, for: .normal)
+            self.btnChooseExperience.setTitle(userGigDetail?.gig?.experience ?? "", for: .normal)
+            self.btnChooseExperience.setTitleColor(.black, for: .normal)
+            self.txtVwAddress.text = userGigDetail?.gig?.address ?? ""
+            self.txtFldMap.text = userGigDetail?.gig?.place ?? ""
+            self.txtFldAmount.text = "\(userGigDetail?.gig?.price ?? 0)"
+            self.txtFldDressCode.text = userGigDetail?.gig?.dressCode ?? ""
+            self.txtVwSafetyTips.text = userGigDetail?.gig?.safetyTips ?? ""
+            self.txtVwInstruction.text = userGigDetail?.gig?.description ?? ""
+            self.txtFldTime.text = userGigDetail?.gig?.startTime ?? ""
+            self.txtFldTimeDuration.text = userGigDetail?.gig?.serviceDuration ?? ""
+            self.imgVwGig.imageLoad(imageUrl: userGigDetail?.gig?.image ?? "")
+            
+            let isoDateFormatter = ISO8601DateFormatter()
+            isoDateFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+            if let date = isoDateFormatter.date(from: userGigDetail?.gig?.startDate ?? "") {
+                let displayDateFormatter = DateFormatter()
+                displayDateFormatter.dateFormat = "dd-MM-yyyy"
+                let formattedDate = displayDateFormatter.string(from: date)
+                self.txtFldDate.text = formattedDate
+            }
+            
+            if userGigDetail?.gig?.paymentMethod == 0{
+                btnPaymentMethod.setTitle("Online", for: .normal)
+                btnPaymentMethod.setTitleColor(.black, for: .normal)
+            }else{
+                btnPaymentMethod.setTitle("Cash", for: .normal)
+                btnPaymentMethod.setTitleColor(.black, for: .normal)
+            }
+            if userGigDetail?.gig?.paymentTerms == 0{
+                btnPaymentTerms.setTitle("Fixed", for: .normal)
+                btnPaymentTerms.setTitleColor(.black, for: .normal)
+            }else{
+                btnPaymentTerms.setTitle("Hourly", for: .normal)
+                btnPaymentTerms.setTitleColor(.black, for: .normal)
+            }
+            txtFldNoOfPeople.text = userGigDetail?.gig?.totalParticipants ?? ""
+            for i in userGigDetail?.gig?.skills ?? []{
+                arrGetSkill.append(Skills(id: i.id ?? "", name: i.name ?? ""))
+            }
+            
+         
+            self.collVwSkills.reloadData()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            self.heightSkillVw.constant = self.collVwSkills.contentSize.height + 10
+             self.vwChooseSkill.isHidden = false
+            }
+            if userGigDetail?.gig?.type == "worldwide"{
+                selectGigType = "worldwide"
+                btnWorldwide.backgroundColor = .app
+                btnWorldwide.setTitleColor(.white, for: .normal)
+                btnLocal.backgroundColor = UIColor(hex: "#E7F3E6")
+                btnLocal.setTitleColor(.app, for: .normal)
+            }else{
+                selectGigType = "inMyLocation"
+                btnLocal.backgroundColor = .app
+                btnLocal.setTitleColor(.white, for: .normal)
+                btnWorldwide.backgroundColor = UIColor(hex: "#E7F3E6")
+                btnWorldwide.setTitleColor(.app, for: .normal)
+            }
+        }else{
+            self.txtFldTitle.text = bsuinessGigDetail?.title ?? ""
+            self.txtVwDescription.text = bsuinessGigDetail?.about ?? ""
+            self.btnChooseCategory.setTitle(bsuinessGigDetail?.category?.name ?? "", for: .normal)
+            self.btnChooseCategory.setTitleColor(.black, for: .normal)
+            self.btnChooseExperience.setTitle(bsuinessGigDetail?.experience ?? "", for: .normal)
+            self.btnChooseExperience.setTitleColor(.black, for: .normal)
+            self.txtVwAddress.text = bsuinessGigDetail?.address ?? ""
+            self.txtFldMap.text = bsuinessGigDetail?.place ?? ""
+            self.txtFldAmount.text = "\(bsuinessGigDetail?.price ?? 0)"
+            self.txtFldDressCode.text = bsuinessGigDetail?.dressCode ?? ""
+            self.txtVwSafetyTips.text = bsuinessGigDetail?.safetyTips ?? ""
+            self.txtVwInstruction.text = bsuinessGigDetail?.description ?? ""
+            self.txtFldTime.text = bsuinessGigDetail?.startTime ?? ""
+            self.txtFldTimeDuration.text = bsuinessGigDetail?.serviceDuration ?? ""
+            self.imgVwGig.imageLoad(imageUrl: bsuinessGigDetail?.image ?? "")
+            
+            let isoDateFormatter = ISO8601DateFormatter()
+            isoDateFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+            if let date = isoDateFormatter.date(from: bsuinessGigDetail?.startDate ?? "") {
+                let displayDateFormatter = DateFormatter()
+                displayDateFormatter.dateFormat = "dd-MM-yyyy"
+                let formattedDate = displayDateFormatter.string(from: date)
+                self.txtFldDate.text = formattedDate
+            }
+            
+            if bsuinessGigDetail?.paymentMethod == 0{
+                btnPaymentMethod.setTitle("Online", for: .normal)
+                btnPaymentMethod.setTitleColor(.black, for: .normal)
+            }else{
+                btnPaymentMethod.setTitle("Cash", for: .normal)
+                btnPaymentMethod.setTitleColor(.black, for: .normal)
+            }
+            if bsuinessGigDetail?.paymentTerms == 0{
+                btnPaymentTerms.setTitle("Fixed", for: .normal)
+                btnPaymentTerms.setTitleColor(.black, for: .normal)
+            }else{
+                btnPaymentTerms.setTitle("Hourly", for: .normal)
+                btnPaymentTerms.setTitleColor(.black, for: .normal)
+            }
+            txtFldNoOfPeople.text = bsuinessGigDetail?.totalParticipants ?? ""
+            for i in bsuinessGigDetail?.skills ?? []{
+                arrGetSkill.append(Skills(id: i.id ?? "", name: i.name ?? ""))
+            }
+            
+         
+            self.collVwSkills.reloadData()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            self.heightSkillVw.constant = self.collVwSkills.contentSize.height + 10
+             self.vwChooseSkill.isHidden = false
+            }
+            if bsuinessGigDetail?.type == "worldwide"{
+                selectGigType = "worldwide"
+                btnWorldwide.backgroundColor = .app
+                btnWorldwide.setTitleColor(.white, for: .normal)
+                btnLocal.backgroundColor = UIColor(hex: "#E7F3E6")
+                btnLocal.setTitleColor(.app, for: .normal)
+            }else{
+                selectGigType = "inMyLocation"
+                btnLocal.backgroundColor = .app
+                btnLocal.setTitleColor(.white, for: .normal)
+                btnWorldwide.backgroundColor = UIColor(hex: "#E7F3E6")
+                btnWorldwide.setTitleColor(.app, for: .normal)
+            }
+            if bsuinessGigDetail?.isCancellation == 1{
+               
+            }
+        }
       
     }
 }
@@ -219,12 +350,6 @@ func getCommisionApi(){
         return iso8601String
     }
     @IBAction func actionCreate(_ sender: UIButton) {
-        if let selectedDate = txtFldDate.text,
-           let selectedTime = txtFldTime.text,
-           let combinedDate = combineDateAndTime(dateString: selectedDate, timeString: selectedTime) {
-            print("Combined ISO 8601 Date: \(combinedDate)")
-            startDate = combinedDate
-        }
        
         view.endEditing(true)
         if txtFldTitle.text == ""{
@@ -270,57 +395,114 @@ func getCommisionApi(){
         }else if txtFldTimeDuration.text == ""{
             showSwiftyAlert("", "Please select time duration", false)
         }else{
-            
-            self.viewModel.checAddGig(price: Int(self.txtFldAmount.text ?? "") ?? 0) { message in
-                let vc = self.storyboard?.instantiateViewController(withIdentifier: "PlatformfeePopUpVC") as! PlatformfeePopUpVC
-                
-                vc.titleText = message
-                vc.callBack = { [weak self] isPay in
-                    guard let self = self else { return }
-                 
-                        viewModel.AddNewGigApi(usertype: Store.role ?? "",
-                                               image: imgVwGig,
-                                               name: Store.UserDetail?["userName"] as? String ?? "",
-                                               type: selectGigType,
-                                               title: txtFldTitle.text ?? "",
-                                               serviceName: "Haircut",
-                                               serviceDuration: txtFldTimeDuration.text ?? "",
-                                               startDate: startDate ?? "",
-                                               place:txtFldMap.text ?? "" ,
-                                               lat: lat,
-                                               long: long,
-                                               participants: txtFldNoOfPeople.text ?? "",
-                                               about: txtVwDescription.text ?? "",
-                                               price: Int(txtFldAmount.text ?? "") ?? 0,
-                                               gigId: "",
-                                               experience: btnChooseExperience.title(for: .normal) ?? "",
-                                               address: txtVwAddress.text ?? "",
-                                               paymentTerms: paymentTerms,
-                                               paymentMethod: paymentMethods,
-                                               category:categoryId,
-                                               skills: arrSkillId,
-                                               tools: arrTools,
-                                               dressCode: txtFldDressCode.text ?? "",
-                                               personNeeded: Int(txtFldNoOfPeople.text ?? "") ?? 0,
-                                               description: txtVwDescription.text ?? "",
-                                               safetyTips: txtVwSafetyTips.text ?? "",
-                                               startTime: txtFldTime.text ?? "",
-                                               isCancellation: isCancellation,
-                                               isImageNil: false) { data in
-                            let vc = self.storyboard?.instantiateViewController(withIdentifier: "GigCreatedVC") as! GigCreatedVC
-                            vc.modalPresentationStyle = .overFullScreen
-                            vc.callBack = {[weak self] in
-                                guard let self = self else { return }
-                                SceneDelegate().GigListVCRoot()
-                            }
-                            self.navigationController?.present(vc, animated: false)
-
-                            
-                        }
+            if paymentMethods == 0{
+                self.viewModel.checAddGig(price: Int(self.txtFldAmount.text ?? "") ?? 0) { message in
+                    let vc = self.storyboard?.instantiateViewController(withIdentifier: "PlatformfeePopUpVC") as! PlatformfeePopUpVC
+                    
+                    vc.titleText = message
+                    vc.callBack = { [weak self] isPay in
+                        guard let self = self else { return }
+                        self.addUpdateGigApi()
                     }
-                
+                    
+                    vc.modalPresentationStyle = .overFullScreen
+                    self.navigationController?.present(vc, animated: false)
+                }
+            }else{
+                self.addUpdateGigApi()
+            }
+        }
+    }
+    func addUpdateGigApi(){
+        guard let selectedDate = txtFldDate.text,
+              let selectedTime = txtFldTime.text else {
+            print("Date or time is missing.")
+            return
+        }
+        
+        if let combinedDate = combineDateAndTime(dateString: selectedDate, timeString: selectedTime) {
+            print("Combined ISO 8601 Date: \(combinedDate)")
+            startDate = combinedDate
+        }
+       
+        if isComing == true{
+            
+            viewModel.AddNewGigApi(usertype: Store.role ?? "",
+                                   image: imgVwGig,
+                                   name: Store.UserDetail?["userName"] as? String ?? "",
+                                   type: selectGigType,
+                                   title: txtFldTitle.text ?? "",
+                                   serviceName: "Haircut",
+                                   serviceDuration: txtFldTimeDuration.text ?? "",
+                                   startDate: startDate ?? "",
+                                   place:txtFldMap.text ?? "" ,
+                                   lat: lat,
+                                   long: long,
+                                   participants: txtFldNoOfPeople.text ?? "",
+                                   about: txtVwDescription.text ?? "",
+                                   price: Int(txtFldAmount.text ?? "") ?? 0,
+                                   gigId: "",
+                                   experience: btnChooseExperience.title(for: .normal) ?? "",
+                                   address: txtVwAddress.text ?? "",
+                                   paymentTerms: paymentTerms,
+                                   paymentMethod: paymentMethods,
+                                   category:categoryId,
+                                   skills: arrSkillId,
+                                   tools: arrTools,
+                                   dressCode: txtFldDressCode.text ?? "",
+                                   personNeeded: Int(txtFldNoOfPeople.text ?? "") ?? 0,
+                                   description: txtVwDescription.text ?? "",
+                                   safetyTips: txtVwSafetyTips.text ?? "",
+                                   startTime: selectedTime,
+                                   isCancellation: isCancellation,
+                                   isImageNil: false) { data in
+                let vc = self.storyboard?.instantiateViewController(withIdentifier: "GigCreatedVC") as! GigCreatedVC
                 vc.modalPresentationStyle = .overFullScreen
+                vc.callBack = {[weak self] in
+                    guard let self = self else { return }
+                    SceneDelegate().GigListVCRoot()
+                }
                 self.navigationController?.present(vc, animated: false)
+                
+            }
+        }else{
+            viewModel.UpdateNewGigApi(id:gigId, usertype: Store.role ?? "",
+                                   image: imgVwGig,
+                                   name: Store.UserDetail?["userName"] as? String ?? "",
+                                   type: selectGigType,
+                                   title: txtFldTitle.text ?? "",
+                                   serviceName: "Haircut",
+                                   serviceDuration: txtFldTimeDuration.text ?? "",
+                                   startDate: startDate ?? "",
+                                   place:txtFldMap.text ?? "" ,
+                                   lat: lat,
+                                   long: long,
+                                   participants: txtFldNoOfPeople.text ?? "",
+                                   about: txtVwDescription.text ?? "",
+                                   price: Int(txtFldAmount.text ?? "") ?? 0,
+                                   gigId: "",
+                                   experience: btnChooseExperience.title(for: .normal) ?? "",
+                                   address: txtVwAddress.text ?? "",
+                                   paymentTerms: paymentTerms,
+                                   paymentMethod: paymentMethods,
+                                   category:categoryId,
+                                   skills: arrSkillId,
+                                   tools: arrTools,
+                                   dressCode: txtFldDressCode.text ?? "",
+                                   personNeeded: Int(txtFldNoOfPeople.text ?? "") ?? 0,
+                                   description: txtVwDescription.text ?? "",
+                                   safetyTips: txtVwSafetyTips.text ?? "",
+                                   startTime: selectedTime,
+                                   isCancellation: isCancellation,
+                                   isImageNil: false) { data in
+                let vc = self.storyboard?.instantiateViewController(withIdentifier: "GigCreatedVC") as! GigCreatedVC
+                vc.modalPresentationStyle = .overFullScreen
+                vc.callBack = {[weak self] in
+                    guard let self = self else { return }
+                    SceneDelegate().GigListVCRoot()
+                }
+                self.navigationController?.present(vc, animated: false)
+                
             }
         }
     }
@@ -341,16 +523,20 @@ func getCommisionApi(){
         
     }
     @IBAction func actionAddTools(_ sender: UIButton) {
-        if !arrTools.contains(txtFldAddTool.text ?? ""){
-            arrTools.append(txtFldAddTool.text ?? "")
-            txtFldAddTool.text = ""
-            collVwTools.reloadData()
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                self.heightToolsVw.constant = self.collVwTools.contentSize.height + 10
-                self.vwAddTools.isHidden = false
+        if let toolName = txtFldAddTool.text?.trimmingCharacters(in: .whitespacesAndNewlines), !toolName.isEmpty {
+            if !arrTools.contains(toolName) {
+                arrTools.append(txtFldAddTool.text ?? "")
+                txtFldAddTool.text = ""
+                collVwTools.reloadData()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    self.heightToolsVw.constant = self.collVwTools.contentSize.height + 10
+                    self.vwAddTools.isHidden = false
+                }
+            }else{
+                showSwiftyAlert("", "Already added Tools.", false)
             }
         }else{
-            showSwiftyAlert("", "Already added Tools.", false)
+            showSwiftyAlert("", "Enter tools name.", false)
         }
     }
     @IBAction func actionChoosePaymentMethod(_ sender: UIButton) {
@@ -405,16 +591,22 @@ func getCommisionApi(){
     func getCategoryApi(type:String){
         viewModelAuth.UserFunstionsListApi(type: type,offset:offset,limit: limit, search: "") { data in
             self.arrGetCategories.removeAll()
-            self.arrGetCategories.insert(Functions(_id: "0", name: "Add Own Categories", type: "Category", functionID: "", status: 0, isDeleted: true, createdAt: "", updatedAt: "", v: 0), at: 0)
-            self.arrGetCategories.append(contentsOf: data?.data ?? [])
+            self.arrGetCategories.insert(Skills(id: "0", name: "Add Own Categories"), at: 0)
+            for i in data?.data ?? []{
+                self.arrGetCategories.append(Skills(id: i._id ?? "", name: i.name ?? ""))
+            }
+            
            
         }
     }
     func getSkillsApi(type:String){
         viewModelAuth.UserFunstionsListApi(type: type,offset:offset,limit: limit, search: "") { data in
             self.arrGetSkill.removeAll()
-            self.arrGetSkill.insert(Functions(_id: "0", name: "Add Own Skills", type: "Specialization", functionID: "", status: 0, isDeleted: true, createdAt: "", updatedAt: "", v: 0), at: 0)
-            self.arrGetSkill.append(contentsOf: data?.data ?? [])
+            self.arrGetSkill.insert(Skills(id: "0", name: "Add Own Skills"), at: 0)
+            for i in data?.data ?? []{
+                self.arrGetSkill.append(Skills(id: i._id ?? "", name: i.name ?? ""))
+            }
+         
            
         }
     }
@@ -468,7 +660,12 @@ func getCommisionApi(){
                 }
               
                 case "paymentMethod":
-                    btnPaymentMethod.setTitle("\(title)", for: .normal)
+                if title == "Cash"{
+                    paymentMethods = 1
+                }else{
+                    paymentMethods = 0
+                }
+                btnPaymentMethod.setTitle("\(title)", for: .normal)
                 btnPaymentMethod.setTitleColor(.black, for: .normal)
                 paymentMethod = title
                 default:
@@ -657,6 +854,17 @@ extension NewGigAddVC{
     func setupDatePicker(for textField: UITextField, mode: UIDatePicker.Mode, selector: Selector) {
         let datePicker = UIDatePicker()
         datePicker.datePickerMode = mode
+        if datePicker.datePickerMode == .date{
+            datePicker.minimumDate = Date()
+        }else if datePicker.datePickerMode == .time{
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "dd-MM-yyyy"
+            let currentDate = dateFormatter.string(from: Date())
+            if currentDate == txtFldDate.text {
+                datePicker.minimumDate = Date()
+            }
+        }
+       
         if #available(iOS 13.4, *) {
             datePicker.preferredDatePickerStyle = .wheels
         }

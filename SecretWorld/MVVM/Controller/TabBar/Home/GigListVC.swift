@@ -538,30 +538,33 @@ extension GigListVC:UICollectionViewDelegate,UICollectionViewDataSource,UICollec
             if uploadList == false{
             if isComing == 0{
                 //see all gigs
-                    let vc = self.storyboard?.instantiateViewController(withIdentifier: "ApplyGigVC") as! ApplyGigVC
-                    vc.isComing = 0
+                    let vc = self.storyboard?.instantiateViewController(withIdentifier: "UserApplyGigVC") as! UserApplyGigVC
+//                    vc.isComing = 0
                     if arrGigList.count > 0{
                         vc.gigId = arrGigList[indexPath.row].id ?? ""
                     }
                     self.navigationController?.pushViewController(vc, animated: true)
             }else  if isComing == 1{
                 //appliedgig
-                    let vc = self.storyboard?.instantiateViewController(withIdentifier: "ApplyGigVC") as! ApplyGigVC
-                    vc.isComing = 0
+                    let vc = self.storyboard?.instantiateViewController(withIdentifier: "UserApplyGigVC") as! UserApplyGigVC
+//                    vc.isComing = 0
+              
                     if arrAppliedGigs.count > 0{
                         vc.gigId = arrAppliedGigs[indexPath.row].gig?.id ?? ""
                     }
                     self.navigationController?.pushViewController(vc, animated: true)
             }else{
                 if Store.role == "b_user"{
-                        let vc = self.storyboard?.instantiateViewController(withIdentifier: "ApplyGigVC") as! ApplyGigVC
-                        vc.isComing = 1
+                        let vc = self.storyboard?.instantiateViewController(withIdentifier: "UserApplyGigVC") as! UserApplyGigVC
+//                        vc.isComing = 1
+                    vc.isComing = true
                         if arrBusinessGiglist.count > 0{
                             vc.gigId = arrBusinessGiglist[indexPath.row].id ?? ""
                         }
                         self.navigationController?.pushViewController(vc, animated: true)
                 }else{
                         let vc = self.storyboard?.instantiateViewController(withIdentifier: "UserApplyGigVC") as! UserApplyGigVC
+                    vc.isComing = true
                         if arrBusinessGiglist.count > 0{
                             vc.gigId = arrBusinessGiglist[indexPath.row].id ?? ""
                         }

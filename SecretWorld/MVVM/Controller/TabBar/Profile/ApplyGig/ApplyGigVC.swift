@@ -55,9 +55,9 @@ class ApplyGigVC: UIViewController, UIGestureRecognizerDelegate, SideMenuNavigat
     var gigId = ""
     var viewModel = AddGigVM()
     var BusinessUserDetail:UserDetailes?
-    var userDetail:UserDetailses?
-    var userGigDetail:GetUserGigData?
-    var businessGigDetail:GetGigDetailData?
+    var userDetail:Participantzz?
+    var userGigDetail:GetUserGigDetailData?
+    var businessGigDetail:BusinessGigDetailData?
     var userGigStatus:Int?
     var businessGigStatus:Int?
     var userId = ""
@@ -67,7 +67,7 @@ class ApplyGigVC: UIViewController, UIGestureRecognizerDelegate, SideMenuNavigat
     var heightDescription = 0
     var reviewHeight = 0
     var callBack:(()->())?
-    var promoCodeDetail:PromoCodes?
+//    var promoCodeDetail:PromoCodes?
     var providerUserId = ""
     var paymentStatus = 0
     var price = 0
@@ -184,403 +184,403 @@ class ApplyGigVC: UIViewController, UIGestureRecognizerDelegate, SideMenuNavigat
     }
     func getUserGigDetailApi(){
         
-        viewModel.GetUserGigDetailApi(gigId: gigId) { data in
-            for i in data?.reviews ?? []{
-                if Store.userId == i.user?.id{
-                    self.matchId = true
-                }
-            }
-            self.gigId = data?.id ?? ""
-            
-            self.providerUserId = data?.gig?.user?.id ?? ""
-            self.gigUserId = data?.gig?.user?.id ?? ""
-            self.mapVw.mapboxMap.setCamera(to: CameraOptions(center: CLLocationCoordinate2D(latitude: data?.gig?.lat ?? 0, longitude: data?.gig?.long ?? 0),zoom: 11,bearing: 0,pitch: 0))
-            let someCoordinate = CLLocationCoordinate2D(latitude: data?.gig?.lat ?? 0, longitude: data?.gig?.long ?? 0)
-            var pointAnnotation = PointAnnotation(coordinate: someCoordinate)
-            let imageName = "unseen"
-            
-            let price = data?.gig?.price ?? 0
-            let width = price < 10 ? 30 :
-                        price < 100 ? 45 :
-                        price < 1000 ? 55 :
-                        price < 10000 ? 65 : 75
-
-            guard let originalImage = UIImage(named: imageName) else { return }
-            let resizedImage = self.resizeGigImage(
-                originalImage,
-                to: price,
-                withTitle: "$\(price)", // Format price as a string
-                width: width
-            )
-
-            // Create the annotation
-          
-            pointAnnotation.image = .init(image: resizedImage, name: imageName)
-            let pointAnnotationManager = self.mapVw.annotations.makePointAnnotationManager()
-            pointAnnotationManager.annotations = [pointAnnotation]
-
-            self.userGigDetail = data
-            self.promoCodeDetail = data?.promoCodes
-            self.arrUserReview.removeAll()
-            self.arrUserReview.append(contentsOf: data?.reviews ?? [])
-            self.participantCount = data?.appliedParticipants ?? 0
-            if data?.reviews?.count ?? 0 > 0{
-                self.lblreview.isHidden = false
-             
-             
-                
-            }else{
-                
-              
-                self.lblreview.isHidden = true
-             
-            }
-            
-            self.btnMore.isHidden = true
-            self.userId = data?.gig?.user?.id ?? ""
-            self.gigUserType = data?.gig?.usertype ?? ""
-            self.userDetail = data?.gig?.user
-            
-            self.userGigStatus = data?.status
-            self.imgVwProvider.imageLoad(imageUrl: data?.gig?.user?.profilePhoto ?? "")
-            self.lblProviderName.text = data?.gig?.user?.name ?? ""
-            if data?.gig?.image == "" || data?.gig?.image == nil{
-                self.imgVwTitle.image = UIImage(named: "dummy")
-                self.mapVw.isHidden = false
-            }else{
-                self.imgVwTitle.imageLoad(imageUrl: data?.gig?.image ?? "")
-                self.mapVw.isHidden = true
-            }
-
-            
-//            self.lblAbout.text = data?.gig?.about ?? ""
-            self.textAbout = data?.gig?.about ?? ""
-            self.lblAbout.numberOfLines = 2
-            self.lblAbout.appendReadmore(after: self.textAbout, trailingContent: .readmore)
-            self.lblAbout.sizeToFit()
-            self.lblPlace.text = data?.gig?.place ?? ""
-            if data?.gig?.participants ?? "" > "1"{
-              
-                
-            }else if data?.gig?.participants ?? "" == "1"{
-              
-                
-            }else{
-              
-                
-            }
-            
-            if data?.appliedParticipants ?? 0 > 1{
-                    self.btnParticipants.setTitle("\(data?.appliedParticipants ?? 0) Participants", for: .normal)
-            }else if data?.appliedParticipants ?? 0 == 1{
-                self.btnParticipants.setTitle("\(data?.appliedParticipants ?? 0) Participant", for: .normal)
-            }else{
-                self.btnParticipants.setTitle("No participant", for: .normal)
-            }
-            
-            self.lblTitle.text = data?.gig?.title ?? ""
-            let attributedString = NSMutableAttributedString(string: "Price  ")
-            attributedString.addAttribute(.foregroundColor, value: UIColor.black, range: NSRange(location: 0, length: 6))
-            let priceString = "$\(data?.gig?.price ?? 0)"
-            let priceAttributeString = NSAttributedString(string: priceString, attributes: [.foregroundColor: UIColor.app])
-            attributedString.append(priceAttributeString)
-            self.lblPrice.attributedText = attributedString
-           
-            
-            if data?.gig?.usertype == "user"{
-                if data?.status == 0{
-                    self.btnApply.setTitle("Requested", for: .normal)
-                    self.btnApply.backgroundColor =  UIColor(red: 255/255, green: 230/255, blue: 182/255, alpha: 1.0)
-                    self.btnApply.setTitleColor(UIColor(red: 255/255, green: 178/255, blue: 30/255, alpha: 1.0), for: .normal)
-                    self.btnApply.isUserInteractionEnabled = false
-                    self.btnMore.isHidden = true
-                }else  if data?.status == 1{
-                    self.btnApply.isHidden = true
-                    self.btnApply.setTitle("", for: .normal)
-                    self.btnApply.backgroundColor =  UIColor.clear
-                    self.btnApply.setTitleColor(UIColor.clear, for: .normal)
-                    self.btnMore.isHidden = true
-                    self.btnApply.isUserInteractionEnabled = false
-                    self.btnChat.isHidden = false
-                }else if data?.status == 2{
-                    
-                    //complete
-                    self.btnChat.isHidden = true
-                    self.btnMore.isHidden = true
-                    if data?.promoCodes?.isViewed == false{
-                        let vc = self.storyboard?.instantiateViewController(withIdentifier: "PromoCodePopUpVC") as! PromoCodePopUpVC
-                        vc.modalPresentationStyle = .overFullScreen
-                        vc.promoCodeDetail = self.promoCodeDetail
-                        vc.callBack = {[weak self] in
-                            guard let self = self else { return }
-                            self.getUserGigDetailApi()
-                        }
-                        self.navigationController?.present(vc, animated: false)
-                        
-                    }else{
-                        if data?.isReview == true{
-                            
-                            self.btnApply.isHidden = false
-                         
-                            self.heightviewCompleteMsg.constant = 0
-                       
-                            self.btnApply.setTitle("Update review", for: .normal)
-                        }else{
-                            
-                            self.btnApply.isHidden = false
-                       
-                            self.btnApply.backgroundColor =  UIColor.app
-                            self.btnApply.setTitleColor(UIColor.white, for: .normal)
-                            self.btnMore.isHidden = true
-                            self.heightviewCompleteMsg.constant = 100
-                          
-                            self.btnApply.setTitle("Add review", for: .normal)
-
-//                                if self.isReviewNil == true{
-//                                    self.btnApply.setTitle("Update review", for: .normal)
-//                                    self.btnAddreview.setTitle("Update review", for: .normal)
+//        viewModel.GetUserGigDetailApi(gigId: gigId) { data in
+//            for i in data?.reviews ?? []{
+//                if Store.userId == i.user?.id{
+//                    self.matchId = true
+//                }
+//            }
+//            self.gigId = data?.id ?? ""
+//            
+//            self.providerUserId = data?.gig?.user?.id ?? ""
+//            self.gigUserId = data?.gig?.user?.id ?? ""
+//            self.mapVw.mapboxMap.setCamera(to: CameraOptions(center: CLLocationCoordinate2D(latitude: data?.gig?.lat ?? 0, longitude: data?.gig?.long ?? 0),zoom: 11,bearing: 0,pitch: 0))
+//            let someCoordinate = CLLocationCoordinate2D(latitude: data?.gig?.lat ?? 0, longitude: data?.gig?.long ?? 0)
+//            var pointAnnotation = PointAnnotation(coordinate: someCoordinate)
+//            let imageName = "unseen"
+//            
+//            let price = data?.gig?.price ?? 0
+//            let width = price < 10 ? 30 :
+//                        price < 100 ? 45 :
+//                        price < 1000 ? 55 :
+//                        price < 10000 ? 65 : 75
 //
-//                                }else{
-//                                    self.btnApply.setTitle("Add review", for: .normal)
-//                                    self.btnAddreview.setTitle("Add review", for: .normal)
-//                                }
-                            
-
-                        }
-                    }
-                }else{
-                    if Store.userId == data?.gig?.user?.id ?? ""{
-                        self.btnApply.isHidden = true
-                        self.btnApply.setTitle("", for: .normal)
-                        self.btnApply.backgroundColor =  UIColor.clear
-                        self.btnApply.setTitleColor(UIColor.clear, for: .normal)
-                    }else{
-                        self.btnApply.isHidden = false
-                        self.btnApply.setTitle("Apply", for: .normal)
-                        self.btnApply.backgroundColor =  UIColor.app
-                        self.btnApply.setTitleColor(UIColor.white, for: .normal)
-                    }
-                   
-                  
-                    self.btnMore.isHidden = true
-                }
-            }else{
-                
-                if data?.status == 0{
-                    self.btnApply.setTitle("Requested", for: .normal)
-                    self.btnApply.backgroundColor =  UIColor(red: 255/255, green: 230/255, blue: 182/255, alpha: 1.0)
-                    self.btnApply.setTitleColor(UIColor(red: 255/255, green: 178/255, blue: 30/255, alpha: 1.0), for: .normal)
-                    self.btnApply.isUserInteractionEnabled = false
-                    self.btnMore.isHidden = true
-                }else  if data?.status == 1{
-                    self.btnApply.isHidden = true
-                    self.btnApply.setTitle("", for: .normal)
-                    self.btnApply.backgroundColor =  UIColor.clear
-                    self.btnApply.setTitleColor(UIColor.clear, for: .normal)
-                    self.btnMore.isHidden = true
-                    self.btnApply.isUserInteractionEnabled = false
-                    self.btnChat.isHidden = false
-                }else if data?.status == 2{
-                    
-                    //complete
-                    self.btnChat.isHidden = true
-                    self.btnMore.isHidden = true
-                    if data?.promoCodes?.isViewed == false{
-                        let vc = self.storyboard?.instantiateViewController(withIdentifier: "PromoCodePopUpVC") as! PromoCodePopUpVC
-                        vc.modalPresentationStyle = .overFullScreen
-                        vc.promoCodeDetail = self.promoCodeDetail
-                        vc.callBack = {[weak self] in
-                            guard let self = self else { return }
-                            self.getUserGigDetailApi()
-                        }
-                        self.navigationController?.present(vc, animated: false)
-                        
-                    }else{
-                        if data?.isReview == true{
-                        
-                            self.btnApply.isHidden = true
-                            self.btnMore.isHidden = true
-                            self.heightviewCompleteMsg.constant = 0
-                        
-                            self.btnApply.setTitle("Update review", for: .normal)
-                          
-                        }else{
-                            
-                            self.btnApply.isHidden = false
-                        
-                            self.btnApply.backgroundColor =  UIColor.app
-                            self.btnApply.setTitleColor(UIColor.white, for: .normal)
-                            self.btnMore.isHidden = true
-                            self.heightviewCompleteMsg.constant = 100
-                          
-                            self.btnApply.setTitle("Add review", for: .normal)
-//                                if self.isReviewNil == true{
-//                                    self.btnApply.setTitle("Update review", for: .normal)
-//                                    self.btnAddreview.setTitle("Update review", for: .normal)
+//            guard let originalImage = UIImage(named: imageName) else { return }
+//            let resizedImage = self.resizeGigImage(
+//                originalImage,
+//                to: price,
+//                withTitle: "$\(price)", // Format price as a string
+//                width: width
+//            )
 //
-//                                }else{
-//                                    self.btnAddreview.setTitle("Add review", for: .normal)
-//                                    self.btnApply.setTitle("Add review", for: .normal)
-//                            }
-
-//                            self.btnChat.isHidden = false
-                        }
-                    }
-                    
-                }else{
-                    if Store.userId == data?.gig?.user?.id ?? ""{
-                        self.btnApply.isHidden = true
-                        self.btnApply.setTitle("", for: .normal)
-                        self.btnApply.backgroundColor =  UIColor.clear
-                        self.btnApply.setTitleColor(UIColor.clear, for: .normal)
-                    }else{
-                        self.btnApply.isHidden = false
-                        self.btnApply.setTitle("Apply", for: .normal)
-                        self.btnApply.backgroundColor =  UIColor.app
-                        self.btnApply.setTitleColor(UIColor.white, for: .normal)
-                    }
-                    self.btnMore.isHidden = true
-                }
-            }
-            self.tblVwReiew.reloadData()
-            self.tblVwReiew.invalidateIntrinsicContentSize()
-        }
+//            // Create the annotation
+//          
+//            pointAnnotation.image = .init(image: resizedImage, name: imageName)
+//            let pointAnnotationManager = self.mapVw.annotations.makePointAnnotationManager()
+//            pointAnnotationManager.annotations = [pointAnnotation]
+//
+//            self.userGigDetail = data
+////            self.promoCodeDetail = data?.promoCodes
+//            self.arrUserReview.removeAll()
+//            self.arrUserReview.append(contentsOf: data?.reviews ?? [])
+//            self.participantCount = data?.appliedParticipants ?? 0
+//            if data?.reviews?.count ?? 0 > 0{
+//                self.lblreview.isHidden = false
+//             
+//             
+//                
+//            }else{
+//                
+//              
+//                self.lblreview.isHidden = true
+//             
+//            }
+//            
+//            self.btnMore.isHidden = true
+//            self.userId = data?.gig?.user?.id ?? ""
+//            self.gigUserType = data?.gig?.usertype ?? ""
+//            self.userDetail = data?.gig?.user
+//            
+//            self.userGigStatus = data?.status
+//            self.imgVwProvider.imageLoad(imageUrl: data?.gig?.user?.profilePhoto ?? "")
+//            self.lblProviderName.text = data?.gig?.user?.name ?? ""
+//            if data?.gig?.image == "" || data?.gig?.image == nil{
+//                self.imgVwTitle.image = UIImage(named: "dummy")
+//                self.mapVw.isHidden = false
+//            }else{
+//                self.imgVwTitle.imageLoad(imageUrl: data?.gig?.image ?? "")
+//                self.mapVw.isHidden = true
+//            }
+//
+//            
+////            self.lblAbout.text = data?.gig?.about ?? ""
+//            self.textAbout = data?.gig?.about ?? ""
+//            self.lblAbout.numberOfLines = 2
+//            self.lblAbout.appendReadmore(after: self.textAbout, trailingContent: .readmore)
+//            self.lblAbout.sizeToFit()
+//            self.lblPlace.text = data?.gig?.place ?? ""
+//            if data?.gig?.participants ?? "" > "1"{
+//              
+//                
+//            }else if data?.gig?.participants ?? "" == "1"{
+//              
+//                
+//            }else{
+//              
+//                
+//            }
+//            
+//            if data?.appliedParticipants ?? 0 > 1{
+//                    self.btnParticipants.setTitle("\(data?.appliedParticipants ?? 0) Participants", for: .normal)
+//            }else if data?.appliedParticipants ?? 0 == 1{
+//                self.btnParticipants.setTitle("\(data?.appliedParticipants ?? 0) Participant", for: .normal)
+//            }else{
+//                self.btnParticipants.setTitle("No participant", for: .normal)
+//            }
+//            
+//            self.lblTitle.text = data?.gig?.title ?? ""
+//            let attributedString = NSMutableAttributedString(string: "Price  ")
+//            attributedString.addAttribute(.foregroundColor, value: UIColor.black, range: NSRange(location: 0, length: 6))
+//            let priceString = "$\(data?.gig?.price ?? 0)"
+//            let priceAttributeString = NSAttributedString(string: priceString, attributes: [.foregroundColor: UIColor.app])
+//            attributedString.append(priceAttributeString)
+//            self.lblPrice.attributedText = attributedString
+//           
+//            
+//            if data?.gig?.usertype == "user"{
+//                if data?.status == 0{
+//                    self.btnApply.setTitle("Requested", for: .normal)
+//                    self.btnApply.backgroundColor =  UIColor(red: 255/255, green: 230/255, blue: 182/255, alpha: 1.0)
+//                    self.btnApply.setTitleColor(UIColor(red: 255/255, green: 178/255, blue: 30/255, alpha: 1.0), for: .normal)
+//                    self.btnApply.isUserInteractionEnabled = false
+//                    self.btnMore.isHidden = true
+//                }else  if data?.status == 1{
+//                    self.btnApply.isHidden = true
+//                    self.btnApply.setTitle("", for: .normal)
+//                    self.btnApply.backgroundColor =  UIColor.clear
+//                    self.btnApply.setTitleColor(UIColor.clear, for: .normal)
+//                    self.btnMore.isHidden = true
+//                    self.btnApply.isUserInteractionEnabled = false
+//                    self.btnChat.isHidden = false
+//                }else if data?.status == 2{
+//                    
+//                    //complete
+//                    self.btnChat.isHidden = true
+//                    self.btnMore.isHidden = true
+//                    if data?.promoCodes?.isViewed == false{
+//                        let vc = self.storyboard?.instantiateViewController(withIdentifier: "PromoCodePopUpVC") as! PromoCodePopUpVC
+//                        vc.modalPresentationStyle = .overFullScreen
+//                        vc.promoCodeDetail = self.promoCodeDetail
+//                        vc.callBack = {[weak self] in
+//                            guard let self = self else { return }
+//                            self.getUserGigDetailApi()
+//                        }
+//                        self.navigationController?.present(vc, animated: false)
+//                        
+//                    }else{
+//                        if data?.isReview == true{
+//                            
+//                            self.btnApply.isHidden = false
+//                         
+//                            self.heightviewCompleteMsg.constant = 0
+//                       
+//                            self.btnApply.setTitle("Update review", for: .normal)
+//                        }else{
+//                            
+//                            self.btnApply.isHidden = false
+//                       
+//                            self.btnApply.backgroundColor =  UIColor.app
+//                            self.btnApply.setTitleColor(UIColor.white, for: .normal)
+//                            self.btnMore.isHidden = true
+//                            self.heightviewCompleteMsg.constant = 100
+//                          
+//                            self.btnApply.setTitle("Add review", for: .normal)
+//
+////                                if self.isReviewNil == true{
+////                                    self.btnApply.setTitle("Update review", for: .normal)
+////                                    self.btnAddreview.setTitle("Update review", for: .normal)
+////
+////                                }else{
+////                                    self.btnApply.setTitle("Add review", for: .normal)
+////                                    self.btnAddreview.setTitle("Add review", for: .normal)
+////                                }
+//                            
+//
+//                        }
+//                    }
+//                }else{
+//                    if Store.userId == data?.gig?.user?.id ?? ""{
+//                        self.btnApply.isHidden = true
+//                        self.btnApply.setTitle("", for: .normal)
+//                        self.btnApply.backgroundColor =  UIColor.clear
+//                        self.btnApply.setTitleColor(UIColor.clear, for: .normal)
+//                    }else{
+//                        self.btnApply.isHidden = false
+//                        self.btnApply.setTitle("Apply", for: .normal)
+//                        self.btnApply.backgroundColor =  UIColor.app
+//                        self.btnApply.setTitleColor(UIColor.white, for: .normal)
+//                    }
+//                   
+//                  
+//                    self.btnMore.isHidden = true
+//                }
+//            }else{
+//                
+//                if data?.status == 0{
+//                    self.btnApply.setTitle("Requested", for: .normal)
+//                    self.btnApply.backgroundColor =  UIColor(red: 255/255, green: 230/255, blue: 182/255, alpha: 1.0)
+//                    self.btnApply.setTitleColor(UIColor(red: 255/255, green: 178/255, blue: 30/255, alpha: 1.0), for: .normal)
+//                    self.btnApply.isUserInteractionEnabled = false
+//                    self.btnMore.isHidden = true
+//                }else  if data?.status == 1{
+//                    self.btnApply.isHidden = true
+//                    self.btnApply.setTitle("", for: .normal)
+//                    self.btnApply.backgroundColor =  UIColor.clear
+//                    self.btnApply.setTitleColor(UIColor.clear, for: .normal)
+//                    self.btnMore.isHidden = true
+//                    self.btnApply.isUserInteractionEnabled = false
+//                    self.btnChat.isHidden = false
+//                }else if data?.status == 2{
+//                    
+//                    //complete
+//                    self.btnChat.isHidden = true
+//                    self.btnMore.isHidden = true
+//                    if data?.promoCodes?.isViewed == false{
+//                        let vc = self.storyboard?.instantiateViewController(withIdentifier: "PromoCodePopUpVC") as! PromoCodePopUpVC
+//                        vc.modalPresentationStyle = .overFullScreen
+//                        vc.promoCodeDetail = self.promoCodeDetail
+//                        vc.callBack = {[weak self] in
+//                            guard let self = self else { return }
+//                            self.getUserGigDetailApi()
+//                        }
+//                        self.navigationController?.present(vc, animated: false)
+//                        
+//                    }else{
+//                        if data?.isReview == true{
+//                        
+//                            self.btnApply.isHidden = true
+//                            self.btnMore.isHidden = true
+//                            self.heightviewCompleteMsg.constant = 0
+//                        
+//                            self.btnApply.setTitle("Update review", for: .normal)
+//                          
+//                        }else{
+//                            
+//                            self.btnApply.isHidden = false
+//                        
+//                            self.btnApply.backgroundColor =  UIColor.app
+//                            self.btnApply.setTitleColor(UIColor.white, for: .normal)
+//                            self.btnMore.isHidden = true
+//                            self.heightviewCompleteMsg.constant = 100
+//                          
+//                            self.btnApply.setTitle("Add review", for: .normal)
+////                                if self.isReviewNil == true{
+////                                    self.btnApply.setTitle("Update review", for: .normal)
+////                                    self.btnAddreview.setTitle("Update review", for: .normal)
+////
+////                                }else{
+////                                    self.btnAddreview.setTitle("Add review", for: .normal)
+////                                    self.btnApply.setTitle("Add review", for: .normal)
+////                            }
+//
+////                            self.btnChat.isHidden = false
+//                        }
+//                    }
+//                    
+//                }else{
+//                    if Store.userId == data?.gig?.user?.id ?? ""{
+//                        self.btnApply.isHidden = true
+//                        self.btnApply.setTitle("", for: .normal)
+//                        self.btnApply.backgroundColor =  UIColor.clear
+//                        self.btnApply.setTitleColor(UIColor.clear, for: .normal)
+//                    }else{
+//                        self.btnApply.isHidden = false
+//                        self.btnApply.setTitle("Apply", for: .normal)
+//                        self.btnApply.backgroundColor =  UIColor.app
+//                        self.btnApply.setTitleColor(UIColor.white, for: .normal)
+//                    }
+//                    self.btnMore.isHidden = true
+//                }
+//            }
+//            self.tblVwReiew.reloadData()
+//            self.tblVwReiew.invalidateIntrinsicContentSize()
+//        }
     }
     func getBusinessGigDetailApi(){
         
         viewModel.GetBuisnessGigDetailApi(gigId: gigId) { data in
             self.businessGigDetail = data
-            self.BusinessUserDetail = data?.user
-            self.gigUserId = data?.user?.id ?? ""
-            self.businessGigStatus = data?.status
-            self.participantCount = data?.appliedParticipants ?? 0
-            self.arrBusinessReview = data?.reviews ?? []
-            self.providerUserId = data?.user?.id ?? ""
-            self.price = data?.price ?? 0
-            self.mapVw.mapboxMap.setCamera(to: CameraOptions(center: CLLocationCoordinate2D(latitude: data?.lat ?? 0, longitude: data?.long ?? 0),zoom: 11,bearing: 0,pitch: 0))
-            let someCoordinate = CLLocationCoordinate2D(latitude: data?.lat ?? 0, longitude: data?.long ?? 0)
-            var pointAnnotation = PointAnnotation(coordinate: someCoordinate)
+//            self.BusinessUserDetail = data?.user
+//            self.gigUserId = data?.user?.id ?? ""
+//            self.businessGigStatus = data?.status
+//            self.participantCount = data?.appliedParticipants ?? 0
+//            self.arrBusinessReview = data?.reviews ?? []
+//            self.providerUserId = data?.user?.id ?? ""
+//            self.price = data?.price ?? 0
+//            self.mapVw.mapboxMap.setCamera(to: CameraOptions(center: CLLocationCoordinate2D(latitude: data?.lat ?? 0, longitude: data?.long ?? 0),zoom: 11,bearing: 0,pitch: 0))
+//            let someCoordinate = CLLocationCoordinate2D(latitude: data?.lat ?? 0, longitude: data?.long ?? 0)
+//            var pointAnnotation = PointAnnotation(coordinate: someCoordinate)
             let imageName = "unseen"
             
-            let price = data?.price ?? 0
-            let width = price < 10 ? 30 :
-                        price < 100 ? 45 :
-                        price < 1000 ? 55 :
-                        price < 10000 ? 65 : 75
-
-            guard let originalImage = UIImage(named: imageName) else { return }
-            let resizedImage = self.resizeGigImage(
-                originalImage,
-                to: price,
-                withTitle: "$\(price)", // Format price as a string
-                width: width
-            )
-
-            // Create the annotation
-          
-            pointAnnotation.image = .init(image: resizedImage, name: imageName)
-            let pointAnnotationManager = self.mapVw.annotations.makePointAnnotationManager()
-            pointAnnotationManager.annotations = [pointAnnotation]
+//            let price = data?.price ?? 0
+//            let width = price < 10 ? 30 :
+//                        price < 100 ? 45 :
+//                        price < 1000 ? 55 :
+//                        price < 10000 ? 65 : 75
+//
+//            guard let originalImage = UIImage(named: imageName) else { return }
+//            let resizedImage = self.resizeGigImage(
+//                originalImage,
+//                to: price,
+//                withTitle: "$\(price)", // Format price as a string
+//                width: width
+//            )
+//
+//            // Create the annotation
+//          
+//            pointAnnotation.image = .init(image: resizedImage, name: imageName)
+//            let pointAnnotationManager = self.mapVw.annotations.makePointAnnotationManager()
+//            pointAnnotationManager.annotations = [pointAnnotation]
             
-            if data?.reviews?.count ?? 0 > 0{
-                self.lblreview.isHidden = false
-              
-                
-            }else{
-                
-             
-                self.lblreview.isHidden = true
-              
-            }
-            
-            if data?.status == 0{
-                self.btnMore.isHidden = false
-              
-                if data?.paymentStatus == 0{
-                    self.btnApply.isHidden = false
-                  
-                    self.btnApply.setTitle("Pay Now", for: .normal)
-                    self.btnApply.backgroundColor =  UIColor.app
-                    self.btnApply.setTitleColor(UIColor.white, for: .normal)
-                    self.paymentStatus = 0
-                }else{
-                    self.btnApply.isHidden = true
-                    
-                    self.paymentStatus = 1
-                }
-                
-            }else if data?.status == 1{
-           
-                self.btnApply.isHidden = false
-                self.btnMore.isHidden = true
-                self.btnApply.setTitle("Complete", for: .normal)
-                self.btnApply.backgroundColor =  UIColor.app
-                self.btnApply.setTitleColor(UIColor.white, for: .normal)
-                self.btnChat.isHidden = false
-            }else if data?.status == 2{
-                
-            
-                self.btnMore.isHidden = true
-                self.btnApply.isHidden = false
-                self.btnApply.backgroundColor = .app
-                self.btnApply.setTitleColor(.white, for: .normal)
-                
-                    if self.isReviewNil == true{
-                     
-                        self.btnApply.setTitle("Update review", for: .normal)
-                   
-                    }else{
-                     
-                        self.btnApply.setTitle("Add review", for: .normal)
-                       
-                    }
-                
-            }else{
-             
-                self.btnApply.isHidden = true
-                self.btnMore.isHidden = true
-                
-                
-            }
-            
-            self.imgVwProvider.imageLoad(imageUrl: data?.user?.profilePhoto ?? "")
-            self.lblProviderName.text = data?.user?.name ?? ""
-            if data?.image == "" || data?.image == nil{
-                self.imgVwTitle.image = UIImage(named: "dummy")
-                self.mapVw.isHidden = false
-            }else{
-                self.imgVwTitle.imageLoad(imageUrl: data?.image ?? "")
-                self.mapVw.isHidden = true
-            }
-            
-//            self.lblAbout.text = data?.about ?? ""
-            self.textAbout = data?.about ?? ""
-            self.lblAbout.numberOfLines = 2
-            self.lblAbout.appendReadmore(after: self.textAbout, trailingContent: .readmore)
-            self.lblAbout.sizeToFit()
-            self.lblPlace.text = data?.place ?? ""
-            
-           
-           
-            if data?.appliedParticipants ?? 0 == 1{
-                    self.btnParticipants.setTitle("\(data?.appliedParticipants ?? 0) New request", for: .normal)
-            }else if data?.appliedParticipants ?? 0 > 1{
-                self.btnParticipants.setTitle("\(data?.appliedParticipants ?? 0) New requests", for: .normal)
-            }else{
-                self.btnParticipants.setTitle("No request", for: .normal)
-            }
-            
-            self.lblTitle.text = data?.title ?? ""
-            let attributedString = NSMutableAttributedString(string: "Price  ")
-            attributedString.addAttribute(.foregroundColor, value: UIColor.black, range: NSRange(location: 0, length: 6))
-            let priceString = "$\(data?.price ?? 0)"
-            let priceAttributeString = NSAttributedString(string: priceString, attributes: [.foregroundColor: UIColor.app])
-            attributedString.append(priceAttributeString)
-            self.lblPrice.attributedText = attributedString
-         
-            self.tblVwReiew.reloadData()
-            self.tblVwReiew.invalidateIntrinsicContentSize()
-            
+//            if data?.reviews?.count ?? 0 > 0{
+//                self.lblreview.isHidden = false
+//              
+//                
+//            }else{
+//                
+//             
+//                self.lblreview.isHidden = true
+//              
+//            }
+//            
+//            if data?.status == 0{
+//                self.btnMore.isHidden = false
+//              
+//                if data?.paymentStatus == 0{
+//                    self.btnApply.isHidden = false
+//                  
+//                    self.btnApply.setTitle("Pay Now", for: .normal)
+//                    self.btnApply.backgroundColor =  UIColor.app
+//                    self.btnApply.setTitleColor(UIColor.white, for: .normal)
+//                    self.paymentStatus = 0
+//                }else{
+//                    self.btnApply.isHidden = true
+//                    
+//                    self.paymentStatus = 1
+//                }
+//                
+//            }else if data?.status == 1{
+//           
+//                self.btnApply.isHidden = false
+//                self.btnMore.isHidden = true
+//                self.btnApply.setTitle("Complete", for: .normal)
+//                self.btnApply.backgroundColor =  UIColor.app
+//                self.btnApply.setTitleColor(UIColor.white, for: .normal)
+//                self.btnChat.isHidden = false
+//            }else if data?.status == 2{
+//                
+//            
+//                self.btnMore.isHidden = true
+//                self.btnApply.isHidden = false
+//                self.btnApply.backgroundColor = .app
+//                self.btnApply.setTitleColor(.white, for: .normal)
+//                
+//                    if self.isReviewNil == true{
+//                     
+//                        self.btnApply.setTitle("Update review", for: .normal)
+//                   
+//                    }else{
+//                     
+//                        self.btnApply.setTitle("Add review", for: .normal)
+//                       
+//                    }
+//                
+//            }else{
+//             
+//                self.btnApply.isHidden = true
+//                self.btnMore.isHidden = true
+//                
+//                
+//            }
+//            
+//            self.imgVwProvider.imageLoad(imageUrl: data?.user?.profilePhoto ?? "")
+//            self.lblProviderName.text = data?.user?.name ?? ""
+//            if data?.image == "" || data?.image == nil{
+//                self.imgVwTitle.image = UIImage(named: "dummy")
+//                self.mapVw.isHidden = false
+//            }else{
+//                self.imgVwTitle.imageLoad(imageUrl: data?.image ?? "")
+//                self.mapVw.isHidden = true
+//            }
+//            
+////            self.lblAbout.text = data?.about ?? ""
+//            self.textAbout = data?.about ?? ""
+//            self.lblAbout.numberOfLines = 2
+//            self.lblAbout.appendReadmore(after: self.textAbout, trailingContent: .readmore)
+//            self.lblAbout.sizeToFit()
+//            self.lblPlace.text = data?.place ?? ""
+//            
+//           
+//           
+//            if data?.appliedParticipants ?? 0 == 1{
+//                    self.btnParticipants.setTitle("\(data?.appliedParticipants ?? 0) New request", for: .normal)
+//            }else if data?.appliedParticipants ?? 0 > 1{
+//                self.btnParticipants.setTitle("\(data?.appliedParticipants ?? 0) New requests", for: .normal)
+//            }else{
+//                self.btnParticipants.setTitle("No request", for: .normal)
+//            }
+//            
+//            self.lblTitle.text = data?.title ?? ""
+//            let attributedString = NSMutableAttributedString(string: "Price  ")
+//            attributedString.addAttribute(.foregroundColor, value: UIColor.black, range: NSRange(location: 0, length: 6))
+//            let priceString = "$\(data?.price ?? 0)"
+//            let priceAttributeString = NSAttributedString(string: priceString, attributes: [.foregroundColor: UIColor.app])
+//            attributedString.append(priceAttributeString)
+//            self.lblPrice.attributedText = attributedString
+//         
+//            self.tblVwReiew.reloadData()
+//            self.tblVwReiew.invalidateIntrinsicContentSize()
+//            
             
         }
     }
@@ -797,7 +797,7 @@ class ApplyGigVC: UIViewController, UIGestureRecognizerDelegate, SideMenuNavigat
             }else{
                 let vc = self.storyboard?.instantiateViewController(withIdentifier: "NewGigAddVC") as! NewGigAddVC
                 vc.isComing = false
-                vc.gigDetail = self.businessGigDetail
+//                vc.gigDetail = self.businessGigDetail
                 self.navigationController?.pushViewController(vc, animated: true)
             }
             
@@ -965,7 +965,7 @@ class ApplyGigVC: UIViewController, UIGestureRecognizerDelegate, SideMenuNavigat
                 let vc = self.storyboard?.instantiateViewController(withIdentifier: "UserDetailVC") as! UserDetailVC
                 vc.modalPresentationStyle = .overFullScreen
                 vc.gigId = gigId
-                vc.userDetail = userDetail
+//                vc.userDetail = userDetail
                 vc.callBack = { [weak self] message in
                     guard let self = self else { return }
                     let vc = self.storyboard?.instantiateViewController(withIdentifier: "CommonPopUpVC") as! CommonPopUpVC

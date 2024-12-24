@@ -29,13 +29,13 @@ class AddReviewVC: UIViewController, FloatRatingViewDelegate {
     @IBOutlet var lblPlace: UILabel!
     @IBOutlet var lblBusinessName: UILabel!
     
-    var userDetail:UserDetailses?
+    var userDetail:Participantzz?
     var callBack: (()->())?
     var viewModel = ExploreVM()
     var arrUserCategory:ServiceDetailsData?
     var isUpload = false
-    var userGigDetail:GetUserGigData?
-    var businessGigDetail:GetGigDetailData?
+    var userGigDetail:GetUserGigDetailData?
+    var businessGigDetail:BusinessGigDetailData?
     var userId = ""
     var isComing = 0
     var viewModelGig = AddGigVM()
@@ -46,7 +46,7 @@ class AddReviewVC: UIViewController, FloatRatingViewDelegate {
     var gigReview:Reviews?
     var serviceReview:ReviewService?
     var businessgigReview:ReviewGigBuser?
-    var userToUserGigDetail:GetGigDetailData?
+    var userToUserGigDetail:BusinessGigDetailData?
     var userToUserGigReview:ReviewGigBuser?
     var reviewsToParticipants:ReviewData?
     var isSelect = 0
@@ -122,7 +122,7 @@ class AddReviewVC: UIViewController, FloatRatingViewDelegate {
             //from user apply gig
             heightViewRating.constant = 30
             lblPlace.text = userGigDetail?.gig?.place ?? ""
-            lblRating.text = "\(userGigDetail?.rating ?? 0.0) (\(userGigDetail?.reviews?.count ?? 0) Reviews)"
+//            lblRating.text = "\(userGigDetail?.rating ?? (0.0)) (\(userGigDetail?.reviews?.count ?? 0) Reviews)"
             lblBusinessName.text = userGigDetail?.gig?.title ?? ""
             lblReviewDescription.text = "Your overall rating of this gig"
             
