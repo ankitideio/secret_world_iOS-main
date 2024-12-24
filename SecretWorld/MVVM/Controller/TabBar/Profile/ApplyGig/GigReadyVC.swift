@@ -16,9 +16,9 @@ class GigReadyVC: UIViewController {
     var callBack:(()->())?
     var gigDetail: FilteredItem?
     var isComing = 0
-    var gigDetail2:GetUserGigData?
+    var gigDetail2:GetUserGigDetailData?
     var groupId = ""
-    var userOwnerGigDetail:GetGigDetailData?
+    var userOwnerGigDetail:BusinessGigDetailData?
     
     override func viewDidLoad() {
         super.viewDidLoad()

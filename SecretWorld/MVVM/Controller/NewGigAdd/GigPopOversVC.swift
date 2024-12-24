@@ -15,8 +15,8 @@ class GigPopOversVC: UIViewController {
     var selectedIndex = 0
     var type:String?
     var viewModelAuth = AuthVM()
-    var arrGetCategories = [Functions]()
-    var arrGetSkills = [Functions]()
+    var arrGetCategories = [Skills]()
+    var arrGetSkills = [Skills]()
     var offset = 1
     var limit = 20
     var isWorldwide = false
@@ -52,7 +52,7 @@ class GigPopOversVC: UIViewController {
                        tblVwList.reloadData()
                    case "paymentMethod":
                        if locationType == "worldwide"{
-                           arrTitle.append("Cash")
+                           arrTitle.append("Online")
                        }else{
                            arrTitle.append("Cash")
                            arrTitle.append("Online")
@@ -94,9 +94,9 @@ extension GigPopOversVC: UITableViewDelegate,UITableViewDataSource{
         let cell = tableView.dequeueReusableCell(withIdentifier: "GigPopOverTVC", for: indexPath) as! GigPopOverTVC
            
         if type == "category"{
-            cell.lblTitle.text = arrGetCategories[indexPath.row].name ?? ""
+            cell.lblTitle.text = arrGetCategories[indexPath.row].name
         }else if type == "skills"{
-            cell.lblTitle.text = arrGetSkills[indexPath.row].name ?? ""
+            cell.lblTitle.text = arrGetSkills[indexPath.row].name
             }else {
                 cell.lblTitle.text = arrTitle[indexPath.row]
             }
@@ -115,9 +115,9 @@ extension GigPopOversVC: UITableViewDelegate,UITableViewDataSource{
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         self.dismiss(animated: false)
         if type == "category"{
-            callBack?(type ?? "", arrGetCategories[indexPath.row].name ?? "", arrGetCategories[indexPath.row]._id ?? "")
+            callBack?(type ?? "", arrGetCategories[indexPath.row].name, arrGetCategories[indexPath.row].id)
         }else if type == "skills"{
-            callBack?(type ?? "", arrGetSkills[indexPath.row].name ?? "", arrGetSkills[indexPath.row]._id ?? "")
+            callBack?(type ?? "", arrGetSkills[indexPath.row].name, arrGetSkills[indexPath.row].id)
         }else{
             callBack?(type ?? "", arrTitle[indexPath.row], "")
         }

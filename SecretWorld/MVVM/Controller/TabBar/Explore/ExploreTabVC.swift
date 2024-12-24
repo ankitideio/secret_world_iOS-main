@@ -250,10 +250,11 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
         if Store.role == "b_user"{
             arrData.removeAll()
             vwEarning.isHidden = true
-            vwCenter.isHidden = true
-            vwPopUpCenter.isHidden = true
-            vwBusinessCenter.isHidden = true
+//            vwCenter.isHidden = true
+//            vwPopUpCenter.isHidden = true
+//            vwBusinessCenter.isHidden = true
             viewGigList.isHidden = true
+            bottomStackVwRefreshAndRecenter.constant = 20
             socketData()
         }else{
             if type == 1{
@@ -1114,7 +1115,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                             
                             switch self.isSelectType {
                             case 1: // Gig
-                                let uniqueID = "gig_\(i.id ?? "")"
+                              
                                 let userId = i.userID
                                 if Store.userId == userId{
                                     
@@ -1124,7 +1125,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                                     self.customAnnotations.append(ClusterPoint(coordinate: CLLocationCoordinate2D(latitude: i.lat ?? 0, longitude: i.long ?? 0 ), price: i.price ?? 0, seen: i.seen ?? 0))
                                 }
                                 
-                                let centerCoordinate = CLLocationCoordinate2D(latitude: i.lat ?? 0, longitude: i.long ?? 0)
+                               
                                 self.processGigImageAndAnnotation(for: i, at: index)
                                 
                         
@@ -1184,6 +1185,15 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                         }else{
                             switch i.type ?? "" {
                             case "gig": // Gig
+                                let userId = i.userID
+                                if Store.userId == userId{
+                                    
+                                    self.customAnnotations.append(ClusterPoint(coordinate: CLLocationCoordinate2D(latitude: i.lat ?? 0, longitude: i.long ?? 0 ), price: i.price ?? 0, seen: 2))
+                                }else{
+                                    
+                                    self.customAnnotations.append(ClusterPoint(coordinate: CLLocationCoordinate2D(latitude: i.lat ?? 0, longitude: i.long ?? 0 ), price: i.price ?? 0, seen: i.seen ?? 0))
+                                }
+                                
                                
                                 self.processGigImageAndAnnotation(for: i, at: index)
                             case "business": // Gig
@@ -1192,31 +1202,49 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                             default: // Popup
                                 
                                 centerCoordinate = CLLocationCoordinate2D(latitude: i.lat ?? 0, longitude: i.long ?? 0)
-                                                if !self.arrPoint.contains(where: { $0.coordinates == centerCoordinate }) {
-                                                  self.arrPoint.append(Point(centerCoordinate))
-                                                  self.isAppendHeatMap = true
+                                if !self.arrPoint.contains(where: { $0.coordinates == centerCoordinate }) {
+                                    self.arrPoint.append(Point(centerCoordinate))
+                                    self.isAppendHeatMap = true
+                                }
+                                //popupMarker
+//                                self.downloadSinglePopUpImage(at: self.visibleIndex,isScroll: false)
+                                let difference = self.popUpTime(endTime: i.endDate ?? "")
+                                    let imageName = (self.mapView.mapboxMap.styleURI == .dark) ? "newPopUp" : "newPopUp"
+                                    if i.image == nil || i.image == ""{
+                                        
+                                        let imageName = (self.mapView.mapboxMap.styleURI == .dark) ? "newPopUp" : "newPopUp"
+                                        if let baseImage = UIImage(named: imageName),
+                                           let resizedImage = self.resizeImagePopUp(baseImage, to: CGSize(width: 61, height: 83), withText: difference, at: CGPoint(x: 0, y: 10)) {
+                                            var pointAnnotation = PointAnnotation(coordinate: centerCoordinate)
+                                            pointAnnotation.image = .init(image: resizedImage, name: "popup_\(index)")
+                                            
+                                            if index < self.arrPopUpPointAnnotations.count {
+                                                self.arrPopUpPointAnnotations[index] = pointAnnotation
+                                                
+                                            } else {
+                                                self.arrPopUpPointAnnotations.append(pointAnnotation)
+                                                
+                                            }
+                                        }
+                                        DispatchQueue.main.async {
+                                            if self.mapView.mapboxMap.cameraState.zoom > 7 {
+                                                if self.viewBusinessList.isHidden {
+                                                    let combinedAnnotations = self.arrPopUpPointAnnotations
+                                                    self.pointAnnotationManager?.annotations = combinedAnnotations
+                                                } else {
+                                                    let combinedAnnotations =  self.arrPopUpPointAnnotations
+                                                    self.pointAnnotationManager?.annotations = combinedAnnotations
                                                 }
+                                            } else {
+                                                self.pointAnnotationManager.annotations = []
+                                            }
+                                        }
+                                        
+                                    }else{
+                                        self.downloadPopUpImage(at: index)
                                 
+                                    }
                                 
-                                
-                                let imageName = (self.mapView.mapboxMap.styleURI == .dark) ? "newPopUp" : "newPopUp"
-                                if let baseImage = UIImage(named: imageName),
-                                                 let resizedImage = self.resizeImage(baseImage, to: CGSize(width: 61, height: 83)) {
-                                                  var pointAnnotation = PointAnnotation(coordinate: centerCoordinate)
-                                                  pointAnnotation.image = .init(image: resizedImage, name: "popup_\(index)")
-                                                  if index < self.arrGigPointAnnotations.count {
-                                                    self.arrGigPointAnnotations[index] = pointAnnotation
-                                                  } else {
-                                                    self.arrGigPointAnnotations.append(pointAnnotation)
-                                                  }
-                                                }
-                                                DispatchQueue.main.async {
-                                                 if self.mapView.mapboxMap.cameraState.zoom > 7{
-                                                     self.pointAnnotationManager?.annotations = self.arrPopUpPointAnnotations
-                                                  }else{
-                                                    self.pointAnnotationManager.annotations = []
-                                                  }
-                                                }
                                               }
                                             }
                                           }
@@ -3042,7 +3070,7 @@ extension ExploreTabVC:AnnotationInteractionDelegate{
                         let vc = self?.storyboard?.instantiateViewController(withIdentifier: "NewGigAddVC") as! NewGigAddVC
                         vc.isComing = false
                         vc.IsUserGig = true
-                        vc.usergigDetail = data
+//                        vc.usergigDetail = data
                         self?.navigationController?.pushViewController(vc, animated: true)
                         
                     }else{
@@ -3058,7 +3086,7 @@ extension ExploreTabVC:AnnotationInteractionDelegate{
                             SocketIOManager.sharedInstance.home(dict: param)
                             
                         }
-                            let vc = self?.storyboard?.instantiateViewController(withIdentifier: "ApplyGigVC") as! ApplyGigVC
+                        let vc = self?.storyboard?.instantiateViewController(withIdentifier: "UserApplyGigVC") as! UserApplyGigVC
                             vc.gigId = selectedItem.id ?? ""
                             vc.callBack = { [weak self] in
                                 guard let self = self else { return }
@@ -3087,9 +3115,9 @@ extension ExploreTabVC:AnnotationInteractionDelegate{
                 self.present(vc, animated: true)
             }else{
       
-                    let vc = self.storyboard?.instantiateViewController(withIdentifier: "ApplyGigVC") as! ApplyGigVC
+                    let vc = self.storyboard?.instantiateViewController(withIdentifier: "UserApplyGigVC") as! UserApplyGigVC
                     vc.gigId = selectedItem.id ?? ""
-                    vc.isComing = 1
+//                    vc.isComing = 1
                     vc.callBack = { [weak self] in
                         guard let self = self else { return }
 //                        self.mapView.viewAnnotations.removeAll()
@@ -3218,7 +3246,7 @@ extension ExploreTabVC:AnnotationInteractionDelegate{
            print("View More button pressed")
            print("selectItemSeen: \(selectItemSeen)")
            if selectItemSeen == 1 {
-            let vc = self.storyboard?.instantiateViewController(withIdentifier: "ApplyGigVC") as! ApplyGigVC
+            let vc = self.storyboard?.instantiateViewController(withIdentifier: "UserApplyGigVC") as! UserApplyGigVC
             vc.gigId = selectGigId
             vc.callBack = {[weak self] in
                 
@@ -3232,7 +3260,7 @@ extension ExploreTabVC:AnnotationInteractionDelegate{
            } else if selectItemSeen == 0 {
             let param: parameters = ["userId": Store.userId ?? "", "lat": "\(currentLat)", "long": "\(currentLong)", "radius": mapRadius, "gigId": selectGigId,"type":2,"gigType":Store.GigType ?? 0 ]
             SocketIOManager.sharedInstance.home(dict: param)
-             let vc = self.storyboard?.instantiateViewController(withIdentifier: "ApplyGigVC") as! ApplyGigVC
+             let vc = self.storyboard?.instantiateViewController(withIdentifier: "UserApplyGigVC") as! UserApplyGigVC
              vc.callBack = { [weak self] in
                  guard let self = self else { return }
             self.mapView.viewAnnotations.removeAll()
@@ -3247,9 +3275,9 @@ extension ExploreTabVC:AnnotationInteractionDelegate{
            }
           }
          }else{
-          let vc = self.storyboard?.instantiateViewController(withIdentifier: "ApplyGigVC") as! ApplyGigVC
+          let vc = self.storyboard?.instantiateViewController(withIdentifier: "UserApplyGigVC") as! UserApplyGigVC
           vc.gigId = self.selectGigId
-          vc.isComing = 1
+//          vc.isComing = 1
           vc.callBack = {[weak self] in
               
               guard let self = self else { return }
@@ -3457,7 +3485,7 @@ extension ExploreTabVC: UITableViewDelegate,UITableViewDataSource{
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if homeListenerCall{
             self.dismiss(animated: true)
-            let vc = self.storyboard?.instantiateViewController(withIdentifier: "ApplyGigVC") as! ApplyGigVC
+            let vc = self.storyboard?.instantiateViewController(withIdentifier: "UserApplyGigVC") as! UserApplyGigVC
             if arrData.count > 0{
                 vc.gigId = arrData[indexPath.row].id ?? ""
             }

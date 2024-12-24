@@ -20,23 +20,23 @@ class UserDetailVC: UIViewController {
     var callBack: ((_ messsage:String)->())?
     var viewModel = AddGigVM()
     var gigId = ""
-    var userDetail:UserDetailses?
+    var businessDetail:BusinessGigDetailData?
     var isComing = false
     var name:String?
-    var data:GetUserGigData?
+    var userDetail:GetUserGigDetailData?
     override func viewDidLoad() {
         super.viewDidLoad()
         uiSet()
     }
     func uiSet(){
-        if isComing{
-            lblName.text = data?.gig?.user?.name ?? ""
-            lblGender.text = data?.gig?.user?.gender ?? ""
-            imgVwUser.imageLoad(imageUrl: data?.gig?.user?.profilePhoto ?? "")
+        if Store.role == "user"{
+            lblName.text = userDetail?.gig?.user?.name ?? ""
+            lblGender.text = userDetail?.gig?.user?.gender ?? ""
+            imgVwUser.imageLoad(imageUrl: userDetail?.gig?.user?.profilePhoto ?? "")
         }else{
-            lblName.text = userDetail?.name ?? ""
-            lblGender.text = userDetail?.gender ?? ""
-            imgVwUser.imageLoad(imageUrl: userDetail?.profilePhoto ?? "")
+            lblName.text = businessDetail?.user?.name ?? ""
+            lblGender.text = businessDetail?.user?.gender ?? ""
+            imgVwUser.imageLoad(imageUrl: businessDetail?.user?.profilePhoto ?? "")
         }
        
         

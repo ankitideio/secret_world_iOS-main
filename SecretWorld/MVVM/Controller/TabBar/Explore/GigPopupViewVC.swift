@@ -13,12 +13,12 @@ class GigPopupViewVC: UIViewController {
     @IBOutlet var collVwGigList: UICollectionView!
     //MARK: - Variables
     var isSelectBtn = 0
-    var callBack:((_ isSelect:Int?,_ isChat:Bool,_ gigData:GetUserGigData?,_ userGig:Bool)->())?
+    var callBack:((_ isSelect:Int?,_ isChat:Bool,_ gigData:GetUserGigDetailData?,_ userGig:Bool)->())?
     var arrData = [FilteredItem]()
     var currentIndex = 0
     var selectedId = ""
     var viewModel = AddGigVM()
-    var data:GetUserGigData?
+    var data:GetUserGigDetailData?
     var callBackCancel:(()->())?
     var arrParticipanstList = [Participantzz]()
     var isUserGig = false
@@ -33,7 +33,7 @@ class GigPopupViewVC: UIViewController {
             DispatchQueue.main.async {
                 guard let data = data else { return }
                 self.data = data
-                self.arrParticipanstList = data.participantsList ?? []
+//                self.arrParticipanstList = data.participantsList ?? []
                 self.updateCellData()
             }
         }
@@ -115,7 +115,7 @@ extension GigPopupViewVC: UICollectionViewDataSource,UICollectionViewDelegate,UI
                 cell.lblParticipants.text = "Participants: \(gigData.gig?.totalParticipants ?? "")"
             }
             
-            cell.lblParticipantsCount.text = "Spots: (\(gigData.appliedParticipants ?? 0)/\(gigData.gig?.totalParticipants ?? ""))"
+//            cell.lblParticipantsCount.text = "Spots: (\(gigData.gig?.appliedParticipants ?? 0)/\(gigData.gig?.totalParticipants ?? ""))"
             // Bind gig data to cell
             let priceText = "Payout: $\(gigData.gig?.price ?? 0)"
             let attributedString = NSMutableAttributedString(string: priceText)

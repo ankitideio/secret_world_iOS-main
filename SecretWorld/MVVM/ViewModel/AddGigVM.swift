@@ -42,64 +42,7 @@ class AddGigVM{
             onSuccess(model.message ?? "")
         }
     }
-    func AddGigApi(usertype:String,
-                   image:UIImageView,
-                   name:String,
-                   title:String,
-                   serviceName:String,
-                   serviceDuration:String,
-                   startDate:String,
-                   place:String,
-                   lat:Double,
-                   long:Double,
-                   participants:String,
-                   type:String,
-                   price:Int,
-                   about:String,
-                   isImageNil:Bool,
-                   onSuccess:@escaping((CreateGigData?)->())){
-        let formatter = DateFormatter()
-        formatter.dateFormat = dateFormat.fullDate.rawValue
-        formatter.dateFormat = "yyyy-MM-dd"
-        let date = formatter.string(from: Date())
-        var param = [String:Any]()
-        if isImageNil{
-            param = ["usertype": usertype,
-                     "name":name,
-                     "title": title,
-                     "serviceName": serviceName,
-                     "serviceDuration": serviceDuration,
-                     "startDate": startDate,
-                     "place": place,
-                     "lat": lat,
-                     "long":long,
-                     "participants": participants,
-                     "type": type,
-                     "price":price,
-                     "about": about]
-        }else{
-            let imageInfo : ImageStructInfo
-            imageInfo = ImageStructInfo.init(fileName: "Img\(date).jpeg", type: "jpeg", data: image.image?.toData() ?? Data(), key: "profileImage")
-            param = ["usertype": usertype,
-                     "image": imageInfo,
-                     "name":name,
-                     "title": title,
-                     "serviceName": serviceName,
-                     "serviceDuration": serviceDuration,
-                     "startDate": startDate,
-                     "place": place,
-                     "lat": lat,
-                     "long":long,
-                     "participants": participants,
-                     "type": type,
-                     "price":price,
-                     "about": about]
-        }
-        print(param)
-        WebService.service(API.addGig,param: param,service: .post,is_raw_form: false){(model:CreateGigModel,jsonData,jsonSer) in
-            onSuccess(model.data)
-        }
-    }
+  
     
     func AddNewGigApi(usertype: String,
                       image: UIImageView,
@@ -183,6 +126,87 @@ class AddGigVM{
         }
     }
 
+    func UpdateNewGigApi(id:String,usertype: String,
+                      image: UIImageView,
+                      name: String,
+                      type: String,
+                      title: String,
+                      serviceName: String,
+                      serviceDuration: String,
+                      startDate: String,
+                      place: String,
+                      lat: Double,
+                      long: Double,
+                      participants: String,
+                      about: String,
+                      price: Int,
+                      gigId: String,
+                      experience: String,
+                      address: String,
+                      paymentTerms: Int,
+                      paymentMethod: Int,
+                      category: String,
+                      skills: [String],
+                      tools: [String],
+                      dressCode: String,
+                      personNeeded: Int,
+                      description: String,
+                      safetyTips: String,
+                      startTime: String,
+                      isCancellation: Int,
+                      isImageNil: Bool,
+                      onSuccess: @escaping ((CreateGigData?) -> ())) {
+        
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        let date = formatter.string(from: Date())
+        
+        var param: [String: Any] = [
+            "usertype": usertype,
+            "name": name,
+            "type": type,
+            "title": title,
+            "serviceName": serviceName,
+            "serviceDuration": serviceDuration,
+            "startDate": startDate,
+            "place": place,
+            "lat": lat,
+            "long": long,
+            "participants": participants,
+            "about": about,
+            "price": price,
+            "gigId": gigId,
+            "experience": experience,
+            "address": address,
+            "paymentTerms": paymentTerms,
+            "paymentMethod": paymentMethod,
+            "category": category,
+            "skills": skills,
+            "tools": tools,
+            "dressCode": dressCode,
+            "personNeeded": personNeeded,
+            "description": description,
+            "safetyTips": safetyTips,
+            "startTime": startTime,
+            "isCancellation": isCancellation
+        ]
+        
+        if !isImageNil {
+            let imageInfo = ImageStructInfo(
+                fileName: "Img\(date).jpeg",
+                type: "jpeg",
+                data: image.image?.toData() ?? Data(),
+                key: "profileImage"
+            )
+            param["image"] = imageInfo
+        }
+        
+        print(param)
+        
+        WebService.service(API.updateGig, param: param, service: .put, is_raw_form: false) { (model: CreateGigModel, jsonData, jsonSer) in
+            onSuccess(model.data)
+        }
+    }
     func GetGigApi(offset:Int,
                    limit:Int,
                    type:Int,
@@ -204,21 +228,21 @@ class AddGigVM{
             onSccess(model.data)
         }
     }
-    func GetBuisnessGigDetailApi(gigId:String,onSccess:@escaping((GetGigDetailData?)->())){
+    func GetBuisnessGigDetailApi(gigId:String,onSccess:@escaping((BusinessGigDetailData?)->())){
         let param: parameters = ["gigId": gigId]
         print(param)
-        WebService.service(API.businessGigDetails,param: param,service: .get,is_raw_form: true) { (model:BGigDetailModel,jsonData,jsonSer) in
+        WebService.service(API.businessGigDetails,param: param,service: .get,is_raw_form: true) { (model:BusinessGigDetailModel,jsonData,jsonSer) in
             onSccess(model.data)
         }
     }
-    func GetUserGigDetailApi(gigId:String,onSccess:@escaping((GetUserGigData?)->())){
+    func GetUserGigDetailApi(gigId:String,onSccess:@escaping((GetUserGigDetailData?)->())){
         let param: parameters = ["gigId": gigId]
         print(param)
         WebService.service(API.UserGigDetails,param: param,service: .get,is_raw_form: true) { (model:GetUserGigDetailModel,jsonData,jsonSer) in
             onSccess(model.data)
         }
     }
-    func GetPopUpGigDetailApi(gigId:String,onSccess:@escaping((GetUserGigData?)->())){
+    func GetPopUpGigDetailApi(gigId:String,onSccess:@escaping((GetUserGigDetailData?)->())){
         let param: parameters = ["gigId": gigId]
         print(param)
         WebService.service(API.UserGigDetails,param: param,service: .get,showHud: false,is_raw_form: true) { (model:GetUserGigDetailModel,jsonData,jsonSer) in
