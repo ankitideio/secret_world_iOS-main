@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="32700.99.1234" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="23504" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22685"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23506"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -28,7 +29,7 @@
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mIw-Hw-vZL">
                                 <rect key="frame" x="10" y="16.666666666666668" width="119" height="18.000000000000004"/>
                                 <fontDescription key="fontDescription" name="Nunito-Regular" family="Nunito" pointSize="13"/>
-                                <nil key="textColor"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="GrH-62-ekZ">
@@ -38,10 +39,10 @@
                                     <constraint firstAttribute="width" constant="20" id="dJ7-yW-TJS"/>
                                 </constraints>
                                 <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
-                                <state key="normal" image="crossinterst"/>
+                                <state key="normal" image="whiteCross 1"/>
                             </button>
                         </subviews>
-                        <color key="backgroundColor" red="0.24313725490196078" green="0.61176470588235299" blue="0.20784313725490194" alpha="0.20000000000000001" colorSpace="custom" customColorSpace="sRGB"/>
+                        <color key="backgroundColor" name="AppColor"/>
                         <constraints>
                             <constraint firstItem="GrH-62-ekZ" firstAttribute="leading" secondItem="mIw-Hw-vZL" secondAttribute="trailing" constant="5" id="C1w-HG-pll"/>
                             <constraint firstItem="GrH-62-ekZ" firstAttribute="centerY" secondItem="tij-GF-4uo" secondAttribute="centerY" id="Suh-tB-2CG"/>
@@ -72,6 +73,9 @@
         </collectionViewCell>
     </objects>
     <resources>
-        <image name="crossinterst" width="20" height="20"/>
+        <image name="whiteCross 1" width="25" height="25"/>
+        <namedColor name="AppColor">
+            <color red="0.24300000071525574" green="0.6119999885559082" blue="0.20800000429153442" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
     </resources>
 </document>

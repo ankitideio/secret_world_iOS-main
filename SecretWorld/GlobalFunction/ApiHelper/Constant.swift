@@ -169,6 +169,7 @@ enum API: String
     case resendOtp = "auth/resendOtpmobile"
     case createAccount = "auth/createAccount"
     case userFunctionsList = "admin/user/usersfunctions_list"
+    case createUserFuntion = "admin/user/create_user_functions"
     case completeUserAccount = "auth/usercompleteAccount"
     case getServies = "admin/user/getServices"
     case createBusinessAccount = "auth/businessusercompleteAccount"

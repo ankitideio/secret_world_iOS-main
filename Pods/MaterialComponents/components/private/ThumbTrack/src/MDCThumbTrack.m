@@ -24,6 +24,7 @@
 #import "MaterialMath.h"
 #import "MaterialRipple.h"
 #import "MaterialTypography.h"
+#import <UIKit/UIKit.h>
 
 #pragma mark - ThumbTrack constants
 
@@ -184,7 +185,7 @@ static inline CGFloat DistanceFromPointToPoint(CGPoint point1, CGPoint point2) {
         onTintColor ? [onTintColor colorWithAlphaComponent:kTrackOnAlpha] : InkColorDefault();
     _touchController.defaultInkView.inkColor = rippleColor;
     _rippleView.rippleColor = rippleColor;
-    _clearColor = UIColor.clearColor;
+      _clearColor = UIColorFromHex(@"#3E9C35");
     _valueLabelTextColor = ValueLabelTextColorDefault();
     _trackOnTickColor = UIColor.blackColor;
     _trackOffTickColor = UIColor.blackColor;
@@ -240,6 +241,25 @@ static inline CGFloat DistanceFromPointToPoint(CGPoint point1, CGPoint point2) {
   [self setNeedsLayout];
 }
 
+UIColor *UIColorFromHex(NSString *hexString) {
+    NSString *cleanString = [hexString stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    if ([cleanString hasPrefix:@"#"]) {
+        cleanString = [cleanString substringFromIndex:1];
+    }
+
+    if ([cleanString length] != 6) {
+        return [UIColor clearColor];
+    }
+
+    unsigned int rgbValue = 0;
+    [[NSScanner scannerWithString:cleanString] scanHexInt:&rgbValue];
+
+    CGFloat red = ((rgbValue >> 16) & 0xFF) / 255.0;
+    CGFloat green = ((rgbValue >> 8) & 0xFF) / 255.0;
+    CGFloat blue = (rgbValue & 0xFF) / 255.0;
+
+    return [UIColor colorWithRed:red green:green blue:blue alpha:1.0];
+}
 - (void)setInkColor:(UIColor *)inkColor {
   _touchController.defaultInkView.inkColor = inkColor;
   [self setNeedsLayout];
@@ -1314,3 +1334,4 @@ static inline CGFloat DistanceFromPointToPoint(CGPoint point1, CGPoint point2) {
 }
 
 @end
+

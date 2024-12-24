@@ -215,7 +215,7 @@ class TabBarVC: UIViewController{
                             vc.isComing = false
                             self.navigationController?.pushViewController(vc, animated: true)
                         }else{
-                            let vc = self.storyboard?.instantiateViewController(withIdentifier: "AddGigVC") as! AddGigVC
+                            let vc = self.storyboard?.instantiateViewController(withIdentifier: "NewGigAddVC") as! NewGigAddVC
                             vc.isComing = true
                             vc.callBack = {
                                 self.uiSet()
@@ -255,7 +255,7 @@ class TabBarVC: UIViewController{
                         }
                         self.navigationController?.present(vc, animated: false)
                     }else{
-                            let vc = self.storyboard?.instantiateViewController(withIdentifier: "AddGigVC") as! AddGigVC
+                            let vc = self.storyboard?.instantiateViewController(withIdentifier: "NewGigAddVC") as! NewGigAddVC
                             vc.isComing = true
                             self.navigationController?.pushViewController(vc, animated: true)
                     }

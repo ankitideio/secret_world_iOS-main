@@ -278,12 +278,26 @@ extension GigPopupViewVC: UICollectionViewDataSource,UICollectionViewDelegate,UI
             cell.btnDismiss.addTarget(self, action: #selector(actionDismiss), for: .touchUpInside)
             cell.btnViewMore.tag = indexPath.row
             cell.btnViewMore.addTarget(self, action: #selector(actionViewMore), for: .touchUpInside)
-            
+            cell.btnShare.tag = indexPath.row
+            cell.btnShare.addTarget(self, action: #selector(actionShare), for: .touchUpInside)
             //cell.btnChat.isHidden = gigData.status != 1
         }
         return cell
     }
-
+ 
+    @objc func actionShare(sender:UIButton){
+        let deepLinkURL = URL(string: "http://18.218.117.223/secretWorld/path1/:\(data?.id ?? "")")!
+        
+               // Initialize UIActivityViewController
+               let activityViewController = UIActivityViewController(activityItems: [deepLinkURL], applicationActivities: nil)
+               
+               // Exclude certain activities if needed
+               activityViewController.excludedActivityTypes = [.assignToContact, .addToReadingList]
+               
+               // Present the activity view controller
+               present(activityViewController, animated: true, completion: nil)
+    }
+    
     @objc func actionDismiss(sender:UIButton){
         self.dismiss(animated: true)
         callBackCancel?() 

@@ -394,6 +394,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
     @objc func methodOfReceivedSelectHome(notification:Notification){
         if isSelectType == 3{
             viewStoreList.isHidden = true
+            bottomStackVwRefreshAndRecenter.constant = 10
         }else if isSelectType == 2{
             viewBusinessList.isHidden = true
         }else{
@@ -408,7 +409,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
     @objc func methodOfReceiveddeSelectHome(notification:Notification){
         if isSelectType == 3{
             viewStoreList.isHidden = false
-      
+            bottomStackVwRefreshAndRecenter.constant = 10
         }else if isSelectType == 2{
             viewBusinessList.isHidden = false
            
@@ -423,7 +424,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                     self.viewNoMatch.isHidden = true
                 }else{
                     self.viewGigList.isHidden = true
-                    self.viewNoMatch.isHidden = false
+                    self.viewNoMatch.isHidden = true
                 }
             }
 
@@ -464,6 +465,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
     @objc func selectStore(notification:Notification){
         
         self.viewStoreList.isHidden = false
+        self.bottomStackVwRefreshAndRecenter.constant = 10
         self.getStoreData()
 
         if deviceHasNotch{
@@ -658,6 +660,8 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                         self.mapView.viewAnnotations.removeAll()
                         self.viewThreeDot.isHidden = true
                         self.actionButton.isHidden = true
+                        self.viewInMyLocation.isHidden = true
+                        self.viewWorldwide.isHidden = true
                         self.btnGigFilter.isHidden = false
                         self.heightTblVwGigList.constant = CGFloat(self.view.frame.height - 180)
                         self.btnUpArrow.setImage(UIImage(named:"bottomarrow"), for: .normal)
@@ -673,6 +677,8 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                     }
                 } else {
                     UIView.animate(withDuration: 0.5) {
+                        self.viewInMyLocation.isHidden = false
+                        self.viewWorldwide.isHidden = false
                         self.viewRefresh.isHidden = false
                         self.viewRecenter.isHidden = false
                         self.viewThreeDot.isHidden = true
@@ -705,7 +711,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                         self.viewThreeDot.isHidden = true
                         self.actionButton.isHidden = true
                         self.btnStoreFilter.isHidden = false
-                        self.heightPopUpList.constant = CGFloat(self.view.frame.height - 180)
+                        self.heightPopUpList.constant = CGFloat(self.view.frame.height - 130)
                         self.btnUpArrow.setImage(UIImage(named:"bottomarrow"), for: .normal)
                         self.collVwStore.isScrollEnabled = true
                         self.btnUpArrow.isSelected = true
@@ -752,7 +758,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                         self.viewThreeDot.isHidden = true
                         self.btnBusinessFilter.isHidden = false
                         self.actionButton.isHidden = true
-                        self.heightBusinessList.constant = CGFloat(self.view.frame.height - 180)
+                        self.heightBusinessList.constant = CGFloat(self.view.frame.height - 130)
                         self.btnUpArrow.setImage(UIImage(named:"bottomarrow"), for: .normal)
                         self.collVwBusiness.isScrollEnabled = true
                         self.btnUpArrow.isSelected = true
@@ -991,16 +997,17 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                                     }
                                    
                                     self.viewNoMatch.isHidden = true
+                                    self.bottomStackVwRefreshAndRecenter.constant = 10
                                     
                                 }
                             } else {
                                 self.arrGigPointAnnotations.removeAll()
-                                
+                                self.bottomStackVwRefreshAndRecenter.constant = 20
                                 self.removePointClusters()
                                 if !(Store.isSelectTab ?? false){
                                     self.heightTblVwGigList.constant = 0
                                     self.viewGigList.isHidden = true
-                                    self.viewNoMatch.isHidden = false
+                                    self.viewNoMatch.isHidden = true
                                 }
                             }
                             if self.arrData.count == 1{
@@ -1033,10 +1040,15 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                                 self.lblPopUpCount.text = "Popups"
                             }
                             if self.arrData.count > 0{
+                                if self.viewStoreList.isHidden{
+                                    self.bottomStackVwRefreshAndRecenter.constant = 20
+                                }else{
+                                    self.bottomStackVwRefreshAndRecenter.constant = 10
+                                }
                                 self.heightPopUpList.constant = 60
                             }else{
                                 self.arrPopUpPointAnnotations.removeAll()
-                         
+                                self.bottomStackVwRefreshAndRecenter.constant = 20
                                 self.heightPopUpList.constant = 0
                             }
                             self.collVwStore.reloadData()
@@ -1056,10 +1068,16 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                                 
                             }
                             if self.arrData.count > 0{
-                            
+                                if self.viewBusinessList.isHidden{
+                                    self.bottomStackVwRefreshAndRecenter.constant = 20
+                                }else{
+                                    self.bottomStackVwRefreshAndRecenter.constant = 10
+                                }
+                               
                                 self.heightBusinessList.constant = 60
                                 
                             }else{
+                                self.bottomStackVwRefreshAndRecenter.constant = 20
                                 self.heightBusinessList.constant = 0
                                 self.arrBusinessPointAnnotations.removeAll()
                            
@@ -1982,33 +2000,33 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
               Exp(.linear)
               Exp(.heatmapDensity)
               0
-              UIColor.clear // Fully transparent for density 0
+              UIColor.clear
               0.05
-              UIColor(hex: "#F0F8FF") // Alice blue for very low density
+              UIColor(hex: "#F0F8FF")
               0.1
-              UIColor(hex: "#ADD8E6") // Light blue for very low density
+              UIColor(hex: "#ADD8E6")
               0.2
-              UIColor(hex: "#87CEFA") // Sky blue for low density
+              UIColor(hex: "#87CEFA")
               0.3
-              UIColor(hex: "#3CB371") // Medium sea green for moderate low density
+              UIColor(hex: "#3CB371")
               0.4
-              UIColor(hex: "#00FF00") // Green for low-medium density
+              UIColor(hex: "#00FF00")
               0.5
-              UIColor(hex: "#FFFF00") // Yellow for medium density
+              UIColor(hex: "#FFFF00")
               0.6
-              UIColor(hex: "#FFA500") // Orange for high-medium density
+              UIColor(hex: "#FFA500")
               0.7
-              UIColor(hex: "#FF4500") // Red-Orange for high density
+              UIColor(hex: "#FF4500")
               0.8
-              UIColor(hex: "#FF0000") // Red for very high density
+              UIColor(hex: "#FF0000")
               0.85
-              UIColor(hex: "#FF1493") // Deep pink for very high density
+              UIColor(hex: "#FF1493")
               0.9
-              UIColor(hex: "#FF00FF") // Magenta for near-maximum density
+              UIColor(hex: "#FF00FF")
               0.95
-              UIColor(hex: "#8A2BE2") // Blue-violet for near-maximum density
+              UIColor(hex: "#8A2BE2")
               1.0
-              UIColor(hex: "#4B0082") // Indigo for maximum density
+              UIColor(hex: "#4B0082") 
             }
           )
           // Set heatmap intensity and radius
@@ -2054,20 +2072,30 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
        
         if isSelectType == 2{
             self.viewBusinessList.isHidden = true
-            bottomStackVwRefreshAndRecenter.constant = 10
+            if arrData.count > 0{
+              bottomStackVwRefreshAndRecenter.constant = 20
+            }else{
+             bottomStackVwRefreshAndRecenter.constant = 20
+            }
         }else if isSelectType == 3{
             self.viewStoreList.isHidden = true
-            bottomStackVwRefreshAndRecenter.constant = 10
+            if arrData.count > 0{
+              bottomStackVwRefreshAndRecenter.constant = 20
+            }else{
+             bottomStackVwRefreshAndRecenter.constant = 20
+            }
         }else{
             self.viewInMyLocation.isHidden = true
             self.viewWorldwide.isHidden = true
             self.isSelectGigList = false
 //            self.viewGigList.isHidden = true
-            if viewNoMatch.isHidden{
-                bottomStackVwRefreshAndRecenter.constant = 10
-            }else{
-                bottomStackVwRefreshAndRecenter.constant = 10
-            }
+           
+                if arrData.count > 0{
+                  bottomStackVwRefreshAndRecenter.constant = 10
+                }else{
+                 bottomStackVwRefreshAndRecenter.constant = 20
+                }
+           
            
         }
         NotificationCenter.default.post(name: Notification.Name("touchMap"), object: nil)
@@ -3011,7 +3039,7 @@ extension ExploreTabVC:AnnotationInteractionDelegate{
                 vc.callBack = { [weak self] isSelect,isChat,data,isUserGig in
                     if isUserGig{
                         
-                        let vc = self?.storyboard?.instantiateViewController(withIdentifier: "AddGigVC") as! AddGigVC
+                        let vc = self?.storyboard?.instantiateViewController(withIdentifier: "NewGigAddVC") as! NewGigAddVC
                         vc.isComing = false
                         vc.IsUserGig = true
                         vc.usergigDetail = data

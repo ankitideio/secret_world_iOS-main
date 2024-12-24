@@ -58,7 +58,7 @@ class ChatVC: UIViewController {
     func getMessage(){
         if Store.userNotificationCount ?? 0 > 0{
             btnRightSideNotification.isHidden = false
-            leftSideViewDot.isHidden = false
+            leftSideViewDot.isHidden = true
             viewDot.isHidden = false
         }else{
             btnRightSideNotification.isHidden = true

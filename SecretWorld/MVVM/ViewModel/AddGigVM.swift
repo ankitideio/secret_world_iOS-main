@@ -100,6 +100,89 @@ class AddGigVM{
             onSuccess(model.data)
         }
     }
+    
+    func AddNewGigApi(usertype: String,
+                      image: UIImageView,
+                      name: String,
+                      type: String,
+                      title: String,
+                      serviceName: String,
+                      serviceDuration: String,
+                      startDate: String,
+                      place: String,
+                      lat: Double,
+                      long: Double,
+                      participants: String,
+                      about: String,
+                      price: Int,
+                      gigId: String,
+                      experience: String,
+                      address: String,
+                      paymentTerms: Int,
+                      paymentMethod: Int,
+                      category: String,
+                      skills: [String],
+                      tools: [String],
+                      dressCode: String,
+                      personNeeded: Int,
+                      description: String,
+                      safetyTips: String,
+                      startTime: String,
+                      isCancellation: Int,
+                      isImageNil: Bool,
+                      onSuccess: @escaping ((CreateGigData?) -> ())) {
+        
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        let date = formatter.string(from: Date())
+        
+        var param: [String: Any] = [
+            "usertype": usertype,
+            "name": name,
+            "type": type,
+            "title": title,
+            "serviceName": serviceName,
+            "serviceDuration": serviceDuration,
+            "startDate": startDate,
+            "place": place,
+            "lat": lat,
+            "long": long,
+            "participants": participants,
+            "about": about,
+            "price": price,
+            "gigId": gigId,
+            "experience": experience,
+            "address": address,
+            "paymentTerms": paymentTerms,
+            "paymentMethod": paymentMethod,
+            "category": category,
+            "skills": skills,
+            "tools": tools,
+            "dressCode": dressCode,
+            "personNeeded": personNeeded,
+            "description": description,
+            "safetyTips": safetyTips,
+            "startTime": startTime,
+            "isCancellation": isCancellation
+        ]
+        
+        if !isImageNil {
+            let imageInfo = ImageStructInfo(
+                fileName: "Img\(date).jpeg",
+                type: "jpeg",
+                data: image.image?.toData() ?? Data(),
+                key: "profileImage"
+            )
+            param["image"] = imageInfo
+        }
+        
+        print(param)
+        
+        WebService.service(API.addGig, param: param, service: .post, is_raw_form: false) { (model: CreateGigModel, jsonData, jsonSer) in
+            onSuccess(model.data)
+        }
+    }
+
     func GetGigApi(offset:Int,
                    limit:Int,
                    type:Int,

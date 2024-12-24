@@ -10,9 +10,19 @@ import FXExpandableLabel
 import SideMenu
 import MapboxMaps
 import Solar
+import AlignedCollectionViewFlowLayout
 
 class UserApplyGigVC: UIViewController, SideMenuNavigationControllerDelegate {
     //MARK: - OUTLEST
+    @IBOutlet var lblParticipants: UILabel!
+    @IBOutlet weak var lblSafetyTips: UILabel!
+    @IBOutlet weak var lblInstruction: UILabel!
+    @IBOutlet weak var lblTaskDescription: UILabel!
+    @IBOutlet weak var lblGigExperience: UILabel!
+    @IBOutlet weak var lblGigCategory: UILabel!
+    @IBOutlet weak var lblGigDuration: UILabel!
+    @IBOutlet weak var lblGigDate: UILabel!
+    @IBOutlet weak var lblGigTime: UILabel!
     @IBOutlet weak var mapVw: MapView!
     @IBOutlet weak var btnChat: UIButton!
     @IBOutlet var viewCompletegigMsg: UIView!
@@ -27,19 +37,22 @@ class UserApplyGigVC: UIViewController, SideMenuNavigationControllerDelegate {
     @IBOutlet var lblTitle: UILabel!
     @IBOutlet weak var lblAbout: UILabel!
     @IBOutlet var imgVwTitle: UIImageView!
-    @IBOutlet var btnAddreview: UIButton!
-    @IBOutlet var heightBtnApply: NSLayoutConstraint!
     @IBOutlet var lblreview: UILabel!
     @IBOutlet var heightViewReviewTile: NSLayoutConstraint!
     @IBOutlet var heightTllvwHeight: NSLayoutConstraint!
     @IBOutlet var heightviewCompleteMsg: NSLayoutConstraint!
     @IBOutlet var btnApply: UIButton!
     @IBOutlet var btnParticipants: UIButton!
-    @IBOutlet var btnGigType: UIButton!
     @IBOutlet var btnMore: UIButton!
     @IBOutlet var tblVwReiew: UITableView!
+    @IBOutlet weak var collVwTools: UICollectionView!
+    @IBOutlet weak var collVwSkills: UICollectionView!
+    @IBOutlet weak var heightCollVwTools: NSLayoutConstraint!
+    @IBOutlet weak var heightCollVwSkill: NSLayoutConstraint!
     
     //MARK: - VARIABLES
+    var arrSkills: [Category]?
+    var arrTools: [String]?
     var gigId = ""
     var viewModel = AddGigVM()
     var businessGigDetail:GetGigDetailData?
@@ -76,8 +89,38 @@ class UserApplyGigVC: UIViewController, SideMenuNavigationControllerDelegate {
         let nibNearBy = UINib(nibName: "ReviewTVC", bundle: nil)
         tblVwReiew.register(nibNearBy, forCellReuseIdentifier: "ReviewTVC")
         tblVwReiew.estimatedRowHeight = 80
+        let nib = UINib(nibName: "BusinessCategoryCVC", bundle: nil)
+        collVwTools.register(nib, forCellWithReuseIdentifier: "BusinessCategoryCVC")
+        collVwSkills.register(nib, forCellWithReuseIdentifier: "BusinessCategoryCVC")
+        let alignedFlowLayoutCollVwDietry = AlignedCollectionViewFlowLayout(horizontalAlignment: .left, verticalAlignment: .top)
+        collVwTools.collectionViewLayout = alignedFlowLayoutCollVwDietry
+        
+        let alignedFlowLayoutCollVwSpecializ = AlignedCollectionViewFlowLayout(horizontalAlignment: .left, verticalAlignment: .top)
+        collVwSkills.collectionViewLayout = alignedFlowLayoutCollVwSpecializ
+        
+        
+        if let flowLayout = collVwTools.collectionViewLayout as? UICollectionViewFlowLayout {
+            flowLayout.estimatedItemSize = CGSize(width: 0, height: 37)
+            flowLayout.itemSize = UICollectionViewFlowLayout.automaticSize
+            
+        }
+        
+        if let flowLayout1 = collVwSkills.collectionViewLayout as? UICollectionViewFlowLayout {
+            flowLayout1.estimatedItemSize = CGSize(width: 0, height: 37)
+            flowLayout1.itemSize = UICollectionViewFlowLayout.automaticSize
+            //collVwSkills.semanticContentAttribute = UISemanticContentAttribute.forceRightToLeft
+        }
+
         
     }
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        let heightInterest = self.collVwTools.collectionViewLayout.collectionViewContentSize.height
+        self.heightCollVwTools.constant = heightInterest
+        let heightDietry = self.collVwSkills.collectionViewLayout.collectionViewContentSize.height
+        self.heightCollVwSkill.constant = heightDietry
+        self.view.layoutIfNeeded()
+      }
     @objc func handleSwipe() {
         navigationController?.popViewController(animated: true)
     }
@@ -112,12 +155,12 @@ class UserApplyGigVC: UIViewController, SideMenuNavigationControllerDelegate {
         mapVw.ornaments.attributionButton.isHidden = true
         tblVwReiew.estimatedRowHeight = 100
         tblVwReiew.rowHeight = UITableView.automaticDimension
-        btnAddreview.isHidden = true
+    
         lblreview.isHidden = true
         heightTllvwHeight.constant = 0
         heightviewCompleteMsg.constant = 0
-        viewServiceProvider.isHidden = true
-        viewSeprator.isHidden = true
+        //viewServiceProvider.isHidden = true
+       // viewSeprator.isHidden = true
         lblAbout.numberOfLines = 5
         addTapGestureToLabel()
         getBusinessGigDetailApi()
@@ -174,14 +217,43 @@ class UserApplyGigVC: UIViewController, SideMenuNavigationControllerDelegate {
                 self.lblreview.isHidden = true
                 self.heightViewReviewTile.constant = 0
             }
+            
             self.gigUserId = data?.user?.id ?? ""
             self.businessGigDetail = data
+            
+            self.arrSkills = data?.skills ?? []
+            self.arrTools = data?.tools ?? []
+            
+            self.lblTitle.text = data?.title ?? ""
+            self.lblPlace.text = data?.place ?? ""
+            
+            let isoDateFormatter = ISO8601DateFormatter()
+            isoDateFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+            if let date = isoDateFormatter.date(from: data?.startDate ?? "") {
+                let displayDateFormatter = DateFormatter()
+                displayDateFormatter.dateFormat = "dd/MM/yy"
+                let formattedDate = displayDateFormatter.string(from: date)
+                self.lblGigDate.text = formattedDate
+            }
+            
+            self.lblGigTime.text = data?.startTime ?? ""
+            self.lblGigDuration.text = data?.serviceDuration ?? ""
+            self.lblGigCategory.text = data?.category?.name ?? ""
+            self.lblGigExperience.text = data?.experience ?? ""
+            self.lblTaskDescription.text = data?.about ?? ""
+            self.lblInstruction.text = data?.description ?? ""
+            self.lblSafetyTips.text = data?.safetyTips ?? ""
+            self.lblPrice.text = "$\(data?.price ?? 0)"
+            self.lblInstruction.text = data?.safetyTips ?? ""
+            self.lblParticipants.text = "\(data?.appliedParticipants ?? 0)/\(data?.totalParticipants ?? "") participants"
+            
+            
             self.BusinessUserDetail = data?.user
             self.businessGigStatus = data?.status
-            self.btnApply.isHidden = true
+            self.btnApply.isHidden = false
             self.participantCount = data?.appliedParticipants ?? 0
             if data?.status == 0{
-                self.btnApply.isHidden = true
+                self.btnApply.isHidden = false
                 self.btnMore.isHidden = false
                
             }else if data?.status == 1{
@@ -212,7 +284,7 @@ class UserApplyGigVC: UIViewController, SideMenuNavigationControllerDelegate {
                 
                 self.btnApply.backgroundColor = .app
                 self.btnApply.setTitleColor(.white, for: .normal)
-                self.btnChat.isHidden = true
+                self.btnChat.isHidden = false
             }else{
                 self.btnMore.isHidden = true
                     self.btnApply.isHidden = false
@@ -263,12 +335,10 @@ class UserApplyGigVC: UIViewController, SideMenuNavigationControllerDelegate {
             let priceAttributeString = NSAttributedString(string: priceString, attributes: [.foregroundColor: UIColor.app])
             attributedString.append(priceAttributeString)
             self.lblPrice.attributedText = attributedString
-            if data?.type == "worldwide"{
-                self.btnGigType.setTitle("Worldwide", for: .normal)
-            }else{
-                self.btnGigType.setTitle("My location", for: .normal)
-            }
+            
             self.tblVwReiew.reloadData()
+            self.collVwTools.reloadData()
+            self.collVwSkills.reloadData()
             self.tblVwReiew.invalidateIntrinsicContentSize()
         }
     }
@@ -389,7 +459,7 @@ class UserApplyGigVC: UIViewController, SideMenuNavigationControllerDelegate {
                     vc.modalPresentationStyle = .overFullScreen
                     vc.callBack = {[weak self] in
                         guard let self = self else { return }
-                        self.btnApply.isHidden = true
+                        self.btnApply.isHidden = false
                         self.viewCompletegigMsg.isHidden = true
                         self.heightviewCompleteMsg.constant = 0
                         self.getBusinessGigDetailApi()
@@ -479,7 +549,7 @@ class UserApplyGigVC: UIViewController, SideMenuNavigationControllerDelegate {
                 }
                 self.navigationController?.present(vc, animated: false)
             }else{
-                let vc = self.storyboard?.instantiateViewController(withIdentifier: "AddGigVC") as! AddGigVC
+                let vc = self.storyboard?.instantiateViewController(withIdentifier: "NewGigAddVC") as! NewGigAddVC
                 vc.isComing = false
                 vc.gigDetail = self.businessGigDetail
                 self.navigationController?.pushViewController(vc, animated: true)
@@ -643,4 +713,35 @@ extension UserApplyGigVC: UITableViewDelegate,UITableViewDataSource{
     }
     
     
+}
+//MARK: - UICollectionViewDelegate
+extension UserApplyGigVC:UICollectionViewDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout{
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        if collectionView == collVwTools{
+            return arrTools?.count ?? 0
+        }else{
+            return arrSkills?.count ?? 0
+        }
+        
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        if collectionView == collVwTools{
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "BusinessCategoryCVC", for: indexPath) as! BusinessCategoryCVC
+            cell.vwBg.backgroundColor = UIColor(hex: "#C7E2C4")
+            cell.lblName.text = arrTools?[indexPath.row]
+            cell.vwBg.layer.cornerRadius = 18
+            cell.widthBtnCross.constant = 0
+            return cell
+        }else{
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "BusinessCategoryCVC", for: indexPath) as! BusinessCategoryCVC
+            cell.vwBg.backgroundColor = UIColor(hex: "#C7E2C4")
+            cell.lblName.text = arrSkills?[indexPath.row].name ?? ""
+            cell.vwBg.layer.cornerRadius = 18
+            cell.widthBtnCross.constant = 0
+            
+            return cell
+        }
+    }
+   
 }

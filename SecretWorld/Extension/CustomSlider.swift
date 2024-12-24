@@ -64,10 +64,11 @@ class CustomSlider: UIView {
         // Configure the slider appearance
         slider.addTarget(self, action: #selector(sliderValueChanged(_:)), for: .valueChanged)
         slider.trackHeight = 4
-        slider.thumbRadius = 8
+        slider.thumbRadius = 9
         slider.layer.cornerRadius = 2.0
         slider.layer.masksToBounds = true
         slider.trackBackgroundColor = .lightGray
+        slider.trackEndsAreRounded = true
         addSubview(slider)
 
         // Set the custom thumb image with a border
@@ -139,14 +140,29 @@ class CustomSlider: UIView {
         updateThumbLabelPosition()
     }
 
+//    private func updateThumbLabelPosition() {
+//        // Calculate the thumb's position
+//        let trackWidth = slider.bounds.width - 30  // Adjust for thumb width
+//        
+//        let thumbX = CGFloat(slider.value - slider.minimumValue) / CGFloat(slider.maximumValue - slider.minimumValue) * trackWidth + 15
+//        let thumbY = slider.center.y - 30
+//
+//        // Update the label's position
+//        thumbLabel.center = CGPoint(x: thumbX, y: thumbY)
+//    }
     private func updateThumbLabelPosition() {
-        // Calculate the thumb's position
         let trackWidth = slider.bounds.width - 30  // Adjust for thumb width
-        let thumbX = CGFloat(slider.value - slider.minimumValue) / CGFloat(slider.maximumValue - slider.minimumValue) * trackWidth + 15  // Adjust for thumb size
-        let thumbY = slider.center.y - 30
+        // Prevent division by zero
+        if slider.maximumValue != slider.minimumValue {
+            let thumbX = CGFloat(slider.value - slider.minimumValue) / CGFloat(slider.maximumValue - slider.minimumValue) * trackWidth + 15  // Adjust for thumb size
+            let thumbY = slider.center.y - 30
 
-        // Update the label's position
-        thumbLabel.center = CGPoint(x: thumbX, y: thumbY)
+            // Update the label's position
+            thumbLabel.center = CGPoint(x: thumbX, y: thumbY)
+        } else {
+            // Handle the case where max and min values are equal (invalid state)
+            print("Warning: Slider minimum and maximum values are equal.")
+        }
     }
 
     private func setThumbImageWithBorder() {
@@ -159,17 +175,13 @@ class CustomSlider: UIView {
         // Draw the thumb circle with a border
         let thumbPath = UIBezierPath(ovalIn: CGRect(origin: .zero, size: thumbSize))
         context?.setFillColor(UIColor.app.cgColor)  // Fill color
-        context?.setStrokeColor(thumbBorderColor.cgColor)  // Border color
-        context?.setLineWidth(3.0)  // Border width
-        thumbPath.fill()
-        thumbPath.stroke()
-
+      
         // Create the image
         let thumbImage = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
 
         // Set the custom thumb image
-        slider.setThumbColor(.black, for: .normal)
+        slider.setThumbColor(.app, for: .normal)
     }
 
     private func updateThumbImageBorderColor() {

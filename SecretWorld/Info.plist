@@ -12,7 +12,15 @@
 				<string>com.googleusercontent.apps.195240213154-2j508k5mukgjtd93vgju6hoqnf34g91v</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array/>
+		</dict>
 	</array>
+	<key>FirebaseAppDelegateProxyEnabled</key>
+	<false/>
 	<key>MBXAccessToken</key>
 	<string>pk.eyJ1Ijoia2V2aW56aGFuZzIzYSIsImEiOiJjbTJibnlmMHYwc3kyMmtweW5oYWJrbzRjIn0.6dtm6-z0rx5kqbAAh_N96Q</string>
 	<key>NSAppTransportSecurity</key>
