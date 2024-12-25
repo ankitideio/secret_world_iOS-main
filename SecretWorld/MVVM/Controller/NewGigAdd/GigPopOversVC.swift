@@ -52,7 +52,7 @@ class GigPopOversVC: UIViewController {
                        tblVwList.reloadData()
                    case "paymentMethod":
                        if locationType == "worldwide"{
-                           arrTitle.append("Online")
+                           arrTitle.append("Cash")
                        }else{
                            arrTitle.append("Cash")
                            arrTitle.append("Online")
@@ -96,7 +96,7 @@ extension GigPopOversVC: UITableViewDelegate,UITableViewDataSource{
         if type == "category"{
             cell.lblTitle.text = arrGetCategories[indexPath.row].name
         }else if type == "skills"{
-            cell.lblTitle.text = arrGetSkills[indexPath.row].name
+            cell.lblTitle.text = arrGetSkills[indexPath.row].name 
             }else {
                 cell.lblTitle.text = arrTitle[indexPath.row]
             }
@@ -115,9 +115,9 @@ extension GigPopOversVC: UITableViewDelegate,UITableViewDataSource{
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         self.dismiss(animated: false)
         if type == "category"{
-            callBack?(type ?? "", arrGetCategories[indexPath.row].name, arrGetCategories[indexPath.row].id)
+            callBack?(type ?? "", arrGetCategories[indexPath.row].name ?? "", arrGetCategories[indexPath.row].id)
         }else if type == "skills"{
-            callBack?(type ?? "", arrGetSkills[indexPath.row].name, arrGetSkills[indexPath.row].id)
+            callBack?(type ?? "", arrGetSkills[indexPath.row].name ?? "", arrGetSkills[indexPath.row].id)
         }else{
             callBack?(type ?? "", arrTitle[indexPath.row], "")
         }

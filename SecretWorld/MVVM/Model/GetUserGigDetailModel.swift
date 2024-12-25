@@ -8,45 +8,85 @@
 import Foundation
 
 // MARK: - GetUserGigDetailModel
-struct BusinessGigDetailModel: Codable {
-    let status, message: String?
+struct GetUserGigDetailModel: Codable {
+    let status: String?
+    let message: String?
     let statusCode: Int?
-    let data: BusinessGigDetailData?
-    
+    let data: GetUserGigData?
 }
 
 // MARK: - DataClass
-    struct BusinessGigDetailData: Codable {
-    let id, name, title, startDate: String?
-    let startTime, serviceName, experience, address: String?
-    let paymentTerms, paymentMethod: Int?
-    let skills: [CategoryGig]?
-    let tools: [String]?
-    let dressCode: String?
-    let personNeeded: Int?
-    let description, safetyTips: String?
-    let isCancellation: Int?
-    let serviceDuration, place: String?
-    let lat, long: Double?
-    let type: String?
-    let image: String?
-    let paymentStatus: Int?
-    let participants, totalParticipants: String?
-    let price, status: Int?
-    let about: String?
-    let user: Participantzz?
+struct GetUserGigData: Codable {
+    let id: String?
+    let status: Int?
+    let applyuserID: String?
+    let promoCodes: PromoCodes?
+    let gig: Giges?
     let appliedParticipants: Int?
-    let category: CategoryGig?
-    let distance: Double?
     let reviews: [Reviews]?
-
+    let isReview: Bool?
+    let rating: Double?
+    let participantsList: [Participantzz]? // Added participants list
+    
     enum CodingKeys: String, CodingKey {
-        case id = "_id"
-        case name, title, startDate, startTime, serviceName, experience, address, paymentTerms, paymentMethod, skills, tools, dressCode, personNeeded, description, safetyTips, isCancellation, serviceDuration, place, lat, long, type, image, paymentStatus, participants, totalParticipants, price, status, about, user, appliedParticipants, category, distance, reviews
+        case id, status
+        case applyuserID = "applyuserId"
+        case promoCodes, gig, appliedParticipants, rating, reviews, isReview, participantsList
     }
 }
 
+// MARK: - Gig
+struct Giges: Codable {
+    let usertype: String?
+    let name: String?
+    let title: String?
+    let place: String?
+    let skills: [CategoryUser]?
+    let tools: [String]?
+    let serviceDuration: String?
+    let serviceName: String?
+    let startDate: String?
+    let lat: Double?
+    let long: Double?
+    let type: String?
+    let image: String?
+    let participants: String?
+    let totalParticipants: String?
+    let price: Int?
+    let about: String?
+    let createdAt: String?
+    let updatedAt: String?
+    let user: UserDetailses?
+    let distance:Double?
+    let startTime:String?
+    let category:CategoryUser?
+    let isCancellation:Int?
+    let safetyTips:String?
+    let description:String?
+    let dressCode:String?
+    let paymentMethod:Int?
+    let paymentStatus:Int?
+    let paymentTerms:Int?
+    let experience:String?
+    let address:String?
+    enum CodingKeys: String, CodingKey {
+        case usertype, name, title, place, serviceDuration, serviceName, startDate
+        case lat, long, type, image, participants, totalParticipants, price, about, createdAt, updatedAt, user,distance,startTime,category,skills,tools,isCancellation,safetyTips,description,dressCode,paymentMethod,paymentStatus,paymentTerms,experience,address
+    }
+}
 
+// MARK: - User
+struct UserDetailses: Codable {
+    let id: String?
+    let name: String?
+    let gender: String?
+    let profilePhoto: String?
+
+    enum CodingKeys: String, CodingKey {
+        case id, name, gender
+        case profilePhoto = "profile_photo"
+    }
+}
 
 // MARK: - PromoCodes
 struct PromoCodes: Codable {
@@ -72,6 +112,22 @@ struct PromoCodes: Codable {
     }
 }
 
+struct CategoryUser: Codable {
+    let id, name, type, functionID: String?
+    let status: Int?
+    let isDeleted: Bool?
+    let createdAt, updatedAt: String?
+    let v: Int?
+
+    enum CodingKeys: String, CodingKey {
+        case id = "_id"
+        case name, type
+        case functionID = "function_id"
+        case status, isDeleted, createdAt, updatedAt
+        case v = "__v"
+    }
+}
+
 // MARK: - Review
 struct Reviews: Codable {
     let id: String?
@@ -80,9 +136,8 @@ struct Reviews: Codable {
     let media: String?
     let createdAt: String?
     let updatedAt: String?
-    let user: Participantzz?
+    let user: UserDetailses?
 }
-
 
 // MARK: - Participant
 struct Participantzz: Codable {
@@ -96,14 +151,3 @@ struct Participantzz: Codable {
         case profilePhoto = "profile_photo"
     }
 }
-
-// MARK: - Category
-struct CategoryGig: Codable {
-    let id, name: String?
-
-    enum CodingKeys: String, CodingKey {
-        case id = "_id"
-        case name
-    }
-}
-

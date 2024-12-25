@@ -8,5 +8,7 @@
 import UIKit
 
 class ListToolSkillCVC: UICollectionViewCell {
+    @IBOutlet weak var lblTitle: UILabel!
+    @IBOutlet weak var vwBackground: UIView!
     
 }

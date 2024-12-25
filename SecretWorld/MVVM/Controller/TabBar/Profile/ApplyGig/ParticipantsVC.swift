@@ -30,7 +30,7 @@ class ParticipantsVC: UIViewController {
     var gigType = 0
     var isGroup = false
     var isCustomerAsProvider = false
-    var businessGigDetail:BusinessGigDetailData?
+    var businessGigDetail:GetGigDetailData?
     var callBack: (()->())?
     var userId = ""
     override func viewDidLoad() {

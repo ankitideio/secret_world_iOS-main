@@ -14,8 +14,10 @@ import AlignedCollectionViewFlowLayout
 
 class UserApplyGigVC: UIViewController, SideMenuNavigationControllerDelegate {
     //MARK: - OUTLEST
+    @IBOutlet weak var lblTotalParticipant: UILabel!
+    @IBOutlet weak var widthGigType: NSLayoutConstraint!
+    @IBOutlet weak var lblGigType: UILabel!
     @IBOutlet weak var lblDistance: UILabel!
-    @IBOutlet var lblParticipants: UILabel!
     @IBOutlet weak var lblSafetyTips: UILabel!
     @IBOutlet weak var lblInstruction: UILabel!
     @IBOutlet weak var lblTaskDescription: UILabel!
@@ -36,6 +38,7 @@ class UserApplyGigVC: UIViewController, SideMenuNavigationControllerDelegate {
     @IBOutlet var lblServiceProvider: UILabel!
     @IBOutlet var lblPlace: UILabel!
     @IBOutlet var lblTitle: UILabel!
+    @IBOutlet weak var lblAbout: UILabel!
     @IBOutlet var imgVwTitle: UIImageView!
     @IBOutlet var lblreview: UILabel!
     @IBOutlet var heightViewReviewTile: NSLayoutConstraint!
@@ -51,20 +54,21 @@ class UserApplyGigVC: UIViewController, SideMenuNavigationControllerDelegate {
     @IBOutlet weak var heightCollVwSkill: NSLayoutConstraint!
     
     //MARK: - VARIABLES
-    var arrSkills: [CategoryGig]?
-    var arrTools: [String]?
+    var arrTools =  [String]()
+    var arrSkill = [Skills]()
+    var arrCategory = [Skills]()
     var gigId = ""
     var viewModel = AddGigVM()
-    var businessGigDetail:BusinessGigDetailData?
-    //    var BusinessUserDetail:UserDetailes?
-
+    var businessGigDetail:GetGigDetailData?
+    var BusinessUserDetail:UserDetailes?
+    var businessGigStatus:Int?
     var arrUserReview = [ReviewGigBuser]()
     var heightDescription = 0
     var reviewHeight = 0
     var paymentStatus = 0
     var price = 0
     var providerUserId = ""
-    var userGigDetail:GetUserGigDetailData?
+    var userGigDetail:GetGigDetailData?
     var arrCompleteParticipants = [GetRequestData]()
     var participantsId = ""
     var arrDetail = [GroupChatModel]()
@@ -76,19 +80,16 @@ class UserApplyGigVC: UIViewController, SideMenuNavigationControllerDelegate {
     var groupId = ""
     var isReviewNil = false
     private var solar: Solar?
-    var callBack:(()->())?
-    var isComing = false
-    var userGigStatus:String = ""
-    var bsuinessGigStatus:String = ""
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         sideMenu = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "SideMenuNavigationController") as? SideMenuNavigationController
-        sideMenu?.sideMenuDelegate = self
+         sideMenu?.sideMenuDelegate = self
         let swipeRight = UISwipeGestureRecognizer(target: self, action: #selector(handleSwipe))
-        swipeRight.direction = .right
-        view.addGestureRecognizer(swipeRight)
-        
+                  swipeRight.direction = .right
+                  view.addGestureRecognizer(swipeRight)
+
         let nibNearBy = UINib(nibName: "ReviewTVC", bundle: nil)
         tblVwReiew.register(nibNearBy, forCellReuseIdentifier: "ReviewTVC")
         tblVwReiew.estimatedRowHeight = 80
@@ -98,7 +99,6 @@ class UserApplyGigVC: UIViewController, SideMenuNavigationControllerDelegate {
         let alignedFlowLayoutCollVwDietry = AlignedCollectionViewFlowLayout(horizontalAlignment: .left, verticalAlignment: .top)
         collVwTools.collectionViewLayout = alignedFlowLayoutCollVwDietry
         
-       
         let alignedFlowLayoutCollVwSpecializ = AlignedCollectionViewFlowLayout(horizontalAlignment: .left, verticalAlignment: .top)
         collVwSkills.collectionViewLayout = alignedFlowLayoutCollVwSpecializ
         
@@ -114,7 +114,7 @@ class UserApplyGigVC: UIViewController, SideMenuNavigationControllerDelegate {
             flowLayout1.itemSize = UICollectionViewFlowLayout.automaticSize
             //collVwSkills.semanticContentAttribute = UISemanticContentAttribute.forceRightToLeft
         }
-        
+
         
     }
     override func viewDidLayoutSubviews() {
@@ -124,16 +124,15 @@ class UserApplyGigVC: UIViewController, SideMenuNavigationControllerDelegate {
         let heightDietry = self.collVwSkills.collectionViewLayout.collectionViewContentSize.height
         self.heightCollVwSkill.constant = heightDietry
         self.view.layoutIfNeeded()
-    }
-    
+      }
     @objc func handleSwipe() {
         navigationController?.popViewController(animated: true)
     }
-    
+
     override func viewWillAppear(_ animated: Bool) {
-        print("AuthKey-----",Store.authKey ?? "")
         uiSet()
         getGigChat()
+        print("AuthKey------",Store.authKey ?? "")
     }
     override func viewWillLayoutSubviews() {
         self.heightTllvwHeight.constant = self.tblVwReiew.contentSize.height+10
@@ -149,46 +148,28 @@ class UserApplyGigVC: UIViewController, SideMenuNavigationControllerDelegate {
                 if let styleURL = URL(string: "mapbox://styles/kevinzhang23a/cm2bod8mi00qg01pgepsohjq0") {
                     mapVw.mapboxMap.loadStyleURI(StyleURI(url: styleURL) ?? .light)
                 }
-                
+
             }else{
-                if let styleURL = URL(string: "mapbox://styles/kevinzhang23a/cm2bod8mi00qg01pgepsohjq0") {
-                    mapVw.mapboxMap.loadStyleURI(StyleURI(url: styleURL) ?? .light)
-                }
+        if let styleURL = URL(string: "mapbox://styles/kevinzhang23a/cm2bod8mi00qg01pgepsohjq0") {
+                           mapVw.mapboxMap.loadStyleURI(StyleURI(url: styleURL) ?? .light)
+                       }
             }
-        }
+            }
         mapVw.ornaments.scaleBarView.isHidden = true
         mapVw.ornaments.logoView.isHidden = true
         mapVw.ornaments.attributionButton.isHidden = true
         tblVwReiew.estimatedRowHeight = 100
         tblVwReiew.rowHeight = UITableView.automaticDimension
-        
+    
         lblreview.isHidden = true
         heightTllvwHeight.constant = 0
         heightviewCompleteMsg.constant = 0
-     
-        if Store.role != "user"{
-            //Business
-            
-            heightTllvwHeight.constant = 0
-            heightviewCompleteMsg.constant = 0
-            viewServiceProvider.isHidden = true
-            viewSeprator.isHidden = true
-            viewCompletegigMsg.isHidden = true
-            tblVwReiew.isHidden = false
-            
-            getCompleteParticipants(loader: false)
-            getBusinessGigDetailApi()
-        
-        }else{
-            //User
-            
-            heightTllvwHeight.constant = 0
-            heightviewCompleteMsg.constant = 0
-            viewServiceProvider.isHidden = false
-            viewSeprator.isHidden = false
-            getUserGigDetailApi()
-        
-        }
+        viewServiceProvider.isHidden = true
+        viewSeprator.isHidden = true
+        lblAbout.numberOfLines = 5
+        addTapGestureToLabel()
+        getBusinessGigDetailApi()
+        getCompleteParticipants(loader: false)
     }
     func getCompleteParticipants(loader:Bool){
         
@@ -203,11 +184,21 @@ class UserApplyGigVC: UIViewController, SideMenuNavigationControllerDelegate {
             }
         }
     }
-    
     func getBusinessGigDetailApi(){
+       
         viewModel.GetBuisnessGigDetailApi(gigId: gigId) { data in
+            self.arrSkill.removeAll()
+            self.arrTools.removeAll()
+            self.arrCategory.removeAll()
+            self.arrCategory.append(Skills(id: data?.category?.id ?? "", name: data?.category?.name ?? ""))
+            for i in data?.skills ?? []{
+                self.arrSkill.append(Skills(id: i.id ?? "", name: i.name ?? ""))
+            }
+            self.arrTools = data?.tools ?? []
+            self.collVwTools.reloadData()
+            self.collVwSkills.reloadData()
+            self.arrUserReview = data?.reviews ?? []
             self.businessGigDetail = data
-            
             self.mapVw.mapboxMap.setCamera(to: CameraOptions(center: CLLocationCoordinate2D(latitude: data?.lat ?? 0, longitude: data?.long ?? 0),zoom: 11,bearing: 0,pitch: 0))
             let someCoordinate = CLLocationCoordinate2D(latitude: data?.lat ?? 0, longitude: data?.long ?? 0)
             var pointAnnotation = PointAnnotation(coordinate: someCoordinate)
@@ -215,10 +206,10 @@ class UserApplyGigVC: UIViewController, SideMenuNavigationControllerDelegate {
             
             let price = data?.price ?? 0
             let width = price < 10 ? 30 :
-            price < 100 ? 45 :
-            price < 1000 ? 55 :
-            price < 10000 ? 65 : 75
-            
+                        price < 100 ? 45 :
+                        price < 1000 ? 55 :
+                        price < 10000 ? 65 : 75
+
             guard let originalImage = UIImage(named: imageName) else { return }
             let resizedImage = self.resizeGigImage(
                 originalImage,
@@ -226,9 +217,9 @@ class UserApplyGigVC: UIViewController, SideMenuNavigationControllerDelegate {
                 withTitle: "$\(price)", // Format price as a string
                 width: width
             )
-            
+
             // Create the annotation
-            
+          
             pointAnnotation.image = .init(image: resizedImage, name: imageName)
             let pointAnnotationManager = self.mapVw.annotations.makePointAnnotationManager()
             pointAnnotationManager.annotations = [pointAnnotation]
@@ -243,14 +234,18 @@ class UserApplyGigVC: UIViewController, SideMenuNavigationControllerDelegate {
             }
             
             self.gigUserId = data?.user?.id ?? ""
-            
-            self.arrSkills = data?.skills ?? []
-            self.arrTools = data?.tools ?? []
-            self.lblDistance.text = "\(Int(data?.distance ?? 0.0))Km away from you"
-            
+            self.businessGigDetail = data
+           
             self.lblTitle.text = data?.title ?? ""
             self.lblPlace.text = data?.place ?? ""
-            
+           
+            if data?.type == "worldwide"{
+                self.lblGigType.text = "(WorldWide)"
+                self.widthGigType.constant = 96
+            }else{
+                self.lblGigType.text = "(Local)"
+                self.widthGigType.constant = 56
+            }
             let isoDateFormatter = ISO8601DateFormatter()
             isoDateFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
             if let date = isoDateFormatter.date(from: data?.startDate ?? "") {
@@ -269,26 +264,25 @@ class UserApplyGigVC: UIViewController, SideMenuNavigationControllerDelegate {
             self.lblSafetyTips.text = data?.safetyTips ?? ""
             self.lblPrice.text = "$\(data?.price ?? 0)"
             self.lblInstruction.text = data?.safetyTips ?? ""
-            self.lblParticipants.text = "\(data?.appliedParticipants ?? 0)/\(data?.appliedParticipants ?? 0) participants"
+            if data?.distance ?? 0 > 0{
+                let formattedNumber = String(format: "%.0f", data?.distance ?? 0.0)
+                self.lblDistance.text = "\(formattedNumber)Km away from you"
+            }else{
+                let formattedNumber = String(format: "%.1f", data?.distance ?? 0.0)
+                self.lblDistance.text = "\(formattedNumber)Km away from you"
+            }
             
-            self.btnApply.isHidden = false
+            
+            self.BusinessUserDetail = data?.user
+            self.businessGigStatus = data?.status
+            self.btnApply.isHidden = true
+            self.participantCount = data?.appliedParticipants ?? 0
             if data?.status == 0{
-                self.bsuinessGigStatus = "0"
-                if Store.userId == data?.user?.id ?? ""{
-                    self.btnApply.isHidden = true
-                    if self.isComing == true{
-                        self.btnMore.isHidden = false
-                    }else{
-                        self.btnMore.isHidden = true
-                    }
-                   
-                }else{
-                    self.btnApply.isHidden = false
-                    self.btnMore.isHidden = true
-                }
+                self.btnApply.isHidden = true
+                self.btnMore.isHidden = false
+               
             }else if data?.status == 1{
-                self.bsuinessGigStatus = "1"
-                self.btnChat.isHidden = false
+                
                 self.btnApply.isHidden = false
                 self.btnMore.isHidden = true
                 self.btnApply.setTitle("Complete", for: .normal)
@@ -296,44 +290,33 @@ class UserApplyGigVC: UIViewController, SideMenuNavigationControllerDelegate {
                 self.btnApply.setTitleColor(UIColor.white, for: .normal)
                 self.btnChat.isHidden = false
             }else if data?.status == 2{
-                self.bsuinessGigStatus = "2"
+                
                 self.btnApply.isHidden = false
                 self.btnMore.isHidden = true
                 for i in data?.reviews ?? []{
-                    if Store.userId == i.user?.id{
+                    if Store.userId == i.userID?.id{
                         self.isReviewNil = true
                         break
+                        }else{
+                            self.isReviewNil = false
+                        }
+                }
+                    if self.isReviewNil == true{
+                        self.btnApply.setTitle("Update review", for: .normal)
                     }else{
-                        self.isReviewNil = false
+                        self.btnApply.setTitle("Add review", for: .normal)
                     }
-                }
-                if self.isReviewNil == true{
-                    self.btnApply.setTitle("Update review", for: .normal)
-                }else{
-                    self.btnApply.setTitle("Add review", for: .normal)
-                }
                 
                 self.btnApply.backgroundColor = .app
                 self.btnApply.setTitleColor(.white, for: .normal)
-                self.btnChat.isHidden = false
+                self.btnChat.isHidden = true
             }else{
-                self.bsuinessGigStatus = ""
-                if Store.userId == data?.user?.id ?? ""{
-                  
-                    if self.isComing == true{
-                        self.btnMore.isHidden = false
-                    }else{
-                        self.btnMore.isHidden = true
-                    }
-                    self.btnApply.isHidden = true
-                }else{
-                    self.btnMore.isHidden = true
+                self.btnMore.isHidden = true
                     self.btnApply.isHidden = false
                     self.btnApply.setTitle("Apply", for: .normal)
                     self.btnApply.backgroundColor =  UIColor.app
                     self.btnApply.setTitleColor(UIColor.white, for: .normal)
-                }
-                self.paymentStatus = 0
+                    self.paymentStatus = 0
                 
             }
             self.imgVwProvider.imageLoad(imageUrl: data?.user?.profilePhoto ?? "")
@@ -345,19 +328,17 @@ class UserApplyGigVC: UIViewController, SideMenuNavigationControllerDelegate {
                 self.imgVwTitle.imageLoad(imageUrl: data?.image ?? "")
                 self.mapVw.isHidden = true
             }
-            
+
             
             self.textAbout = data?.about ?? ""
-       
+            self.lblAbout.numberOfLines = 2
+            self.lblAbout.appendReadmore(after: self.textAbout, trailingContent: .readmore)
+            self.lblAbout.sizeToFit()
+            
             self.lblPlace.text = data?.place ?? ""
             
-            if data?.participants == "0"{
-                self.lblPrticipansCount.text = "0"
-            }else if data?.participants == "1"{
-                self.lblPrticipansCount.text = "\(data?.participants ?? "")"
-            }else{
-                self.lblPrticipansCount.text = "\(data?.participants ?? "")"
-            }
+            self.lblTotalParticipant.text = "\(data?.appliedParticipants ?? 0)/\(data?.totalParticipants ?? "") Participants"
+            self.lblPrticipansCount.text = "\(data?.appliedParticipants ?? 0)"
             
             self.lblTitle.text = data?.title ?? ""
             let attributedString = NSMutableAttributedString(string: "Price  ")
@@ -368,221 +349,18 @@ class UserApplyGigVC: UIViewController, SideMenuNavigationControllerDelegate {
             self.lblPrice.attributedText = attributedString
             
             self.tblVwReiew.reloadData()
-            self.collVwTools.reloadData()
-            self.collVwSkills.reloadData()
             self.tblVwReiew.invalidateIntrinsicContentSize()
         }
-        
     }
     
-    func getUserGigDetailApi(){
-        
-        viewModel.GetUserGigDetailApi(gigId: gigId) { data in
-            self.userGigDetail = data
-            self.providerUserId = data?.gig?.user?.id ?? ""
-            self.mapVw.mapboxMap.setCamera(to: CameraOptions(center: CLLocationCoordinate2D(latitude: data?.gig?.lat ?? 0, longitude: data?.gig?.long ?? 0),zoom: 11,bearing: 0,pitch: 0))
-            let someCoordinate = CLLocationCoordinate2D(latitude: data?.gig?.lat ?? 0, longitude: data?.gig?.long ?? 0)
-            var pointAnnotation = PointAnnotation(coordinate: someCoordinate)
-            let imageName = "unseen"
-            
-            let price = data?.gig?.price ?? 0
-            let width = price < 10 ? 30 :
-            price < 100 ? 45 :
-            price < 1000 ? 55 :
-            price < 10000 ? 65 : 75
-            
-            guard let originalImage = UIImage(named: imageName) else { return }
-            let resizedImage = self.resizeGigImage(
-                originalImage,
-                to: price,
-                withTitle: "$\(price)", // Format price as a string
-                width: width
-            )
-            
-            // Create the annotation
-            
-            self.lblDistance.text = "\(Int(data?.gig?.distance ?? 0.0))Km away from you"
-            pointAnnotation.image = .init(image: resizedImage, name: imageName)
-            let pointAnnotationManager = self.mapVw.annotations.makePointAnnotationManager()
-            pointAnnotationManager.annotations = [pointAnnotation]
-            
-            self.price = data?.gig?.price ?? 0
-            if self.arrUserReview.count > 0{
-                self.lblreview.isHidden = false
-                self.heightViewReviewTile.constant = 40
-            }else{
-                self.lblreview.isHidden = true
-                self.heightViewReviewTile.constant = 0
-            }
-            
-            self.gigUserId = data?.gig?.user?.id ?? ""
-            
-            self.arrSkills = data?.gig?.skills ?? []
-            self.arrTools = data?.gig?.tools ?? []
-            
-            self.lblTitle.text = data?.gig?.title ?? ""
-            self.lblPlace.text = data?.gig?.place ?? ""
-            
-            let isoDateFormatter = ISO8601DateFormatter()
-            isoDateFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-            if let date = isoDateFormatter.date(from: data?.gig?.startDate ?? "") {
-                let displayDateFormatter = DateFormatter()
-                displayDateFormatter.dateFormat = "dd/MM/yy"
-                let formattedDate = displayDateFormatter.string(from: date)
-                self.lblGigDate.text = formattedDate
-            }
-            
-            self.lblGigTime.text = data?.gig?.startTime ?? ""
-            self.lblGigDuration.text = data?.gig?.serviceDuration ?? ""
-            self.lblGigCategory.text = data?.gig?.category?.name ?? ""
-            self.lblGigExperience.text = data?.gig?.experience ?? ""
-            self.lblTaskDescription.text = data?.gig?.about ?? ""
-            self.lblInstruction.text = data?.gig?.description ?? ""
-            self.lblSafetyTips.text = data?.gig?.safetyTips ?? ""
-            self.lblPrice.text = "$\(data?.gig?.price ?? 0)"
-            self.lblInstruction.text = data?.gig?.safetyTips ?? ""
-            self.lblParticipants.text = "\(data?.appliedParticipants ?? 0)/\(data?.gig?.totalParticipants ?? "") participants"
-           
-            if data?.status == 0{
-                if Store.userId == data?.gig?.user?.id ?? ""{
-                    self.btnApply.isHidden = true
-                    if self.isComing == true{
-                        self.btnMore.isHidden = false
-                    }else{
-                        self.btnMore.isHidden = true
-                    }
-                }else{
-                    self.btnApply.isHidden = false
-                    self.btnMore.isHidden = true
-                    self.btnApply.setTitle("Requested", for: .normal)
-                    self.btnApply.backgroundColor = UIColor(red: 255/255, green: 230/255, blue: 182/255, alpha: 1.0)
-                    self.btnApply.setTitleColor(UIColor(red: 255/255, green: 178/255, blue: 30/255, alpha: 1.0), for: .normal)
-                    self.btnApply.isUserInteractionEnabled = false
-                }
-                self.userGigStatus = "0"
-            }else if data?.status == 1{
-                if Store.userId == data?.gig?.user?.id{
-                    self.btnChat.isHidden = false
-                    self.btnApply.isHidden = false
-                    self.btnMore.isHidden = true
-                    self.btnApply.setTitle("Complete", for: .normal)
-                    self.btnApply.backgroundColor =  UIColor.app
-                    self.btnApply.setTitleColor(UIColor.white, for: .normal)
-                }else{
-                    self.btnChat.isHidden = false
-                    self.btnApply.isHidden = true
-                    self.btnMore.isHidden = true
-                    
-                }
-               
-                self.userGigStatus = "1"
-            }else if data?.status == 2{
-                
-                self.btnApply.isHidden = false
-                self.btnMore.isHidden = true
-                for i in data?.reviews ?? []{
-                    if Store.userId == i.user?.id{
-                        self.isReviewNil = true
-                        break
-                    }else{
-                        self.isReviewNil = false
-                    }
-                }
-                if self.isReviewNil == true{
-                    self.btnApply.setTitle("Update review", for: .normal)
-                }else{
-                    self.btnApply.setTitle("Add review", for: .normal)
-                }
-                
-                self.btnApply.backgroundColor = .app
-                self.btnApply.setTitleColor(.white, for: .normal)
-                self.btnChat.isHidden = true
-                self.userGigStatus = "2"
-                
-            }else{
-                if data?.participantsList?.count ?? 0 > 0{
-                    if Store.userId == data?.gig?.user?.id ?? ""{
-                        self.btnChat.isHidden = false
-                        self.btnApply.isHidden = false
-                        self.btnMore.isHidden = true
-                        self.btnApply.setTitle("Complete", for: .normal)
-                        self.btnApply.backgroundColor =  UIColor.app
-                        self.btnApply.setTitleColor(UIColor.white, for: .normal)
-                    }else{
-                        self.btnMore.isHidden = true
-                        self.btnApply.isHidden = false
-                        self.btnApply.setTitle("Compelete", for: .normal)
-                        self.btnApply.backgroundColor =  UIColor.app
-                        self.btnApply.setTitleColor(UIColor.white, for: .normal)
-                    }
-                    self.paymentStatus = 0
-                    self.userGigStatus = ""
-                }else{
-                    if Store.userId == data?.gig?.user?.id ?? ""{
-                        
-                        if self.isComing == true{
-                            self.btnMore.isHidden = false
-                        }else{
-                            self.btnMore.isHidden = true
-                        }
-                        self.btnApply.isHidden = true
-                    }else{
-                        self.btnMore.isHidden = true
-                        self.btnApply.isHidden = false
-                        self.btnApply.setTitle("Apply", for: .normal)
-                        self.btnApply.backgroundColor =  UIColor.app
-                        self.btnApply.setTitleColor(UIColor.white, for: .normal)
-                    }
-                    self.paymentStatus = 0
-                    self.userGigStatus = ""
-                }
-            }
-            self.imgVwProvider.imageLoad(imageUrl: data?.gig?.user?.profilePhoto ?? "")
-            self.lblProviderName.text = data?.gig?.user?.name ?? ""
-            if data?.gig?.image == "" || data?.gig?.image == nil{
-                self.imgVwTitle.image = UIImage(named: "dummy")
-                self.mapVw.isHidden = false
-            }else{
-                self.imgVwTitle.imageLoad(imageUrl: data?.gig?.image ?? "")
-                self.mapVw.isHidden = true
-            }
-            
-            
-            self.textAbout = data?.gig?.about ?? ""
-          
-            self.lblPlace.text = data?.gig?.place ?? ""
-            
-            if data?.gig?.participants == "0"{
-                self.lblPrticipansCount.text = "0"
-            }else if data?.gig?.participants == "1"{
-                self.lblPrticipansCount.text = "\(data?.gig?.participants ?? "")"
-            }else{
-                self.lblPrticipansCount.text = "\(data?.gig?.participants ?? "")"
-            }
-            
-            self.lblTitle.text = data?.gig?.title ?? ""
-            let attributedString = NSMutableAttributedString(string: "Price  ")
-            attributedString.addAttribute(.foregroundColor, value: UIColor.black, range: NSRange(location: 0, length: 6))
-            let priceString = "$\(data?.gig?.price ?? 0)"
-            let priceAttributeString = NSAttributedString(string: priceString, attributes: [.foregroundColor: UIColor.app])
-            attributedString.append(priceAttributeString)
-            self.lblPrice.attributedText = attributedString
-            
-            self.tblVwReiew.reloadData()
-            self.collVwTools.reloadData()
-            self.collVwSkills.reloadData()
-            self.tblVwReiew.invalidateIntrinsicContentSize()
-            
-        }
-    }
     func getGigChat(){
         let param:parameters = ["gigId":self.gigId,"senderId":Store.userId ?? "","isOpen":true,"deviceId":Store.deviceToken ?? ""]
         SocketIOManager.sharedInstance.getGroupChat(dict: param)
         SocketIOManager.sharedInstance.groupData = { data in
             if data?[0].groupChatDetails?.count ?? 0 > 0{
-                self.groupId = data?[0].groupChatDetails?[0].group?.id ?? ""
-                let id = data?[0].groupChatDetails?[0].gig?._id ?? ""
-                
+            self.groupId = data?[0].groupChatDetails?[0].group?.id ?? ""
+            let id = data?[0].groupChatDetails?[0].gig?._id ?? ""
+     
                 if self.gigId == id {
                     Store.GigChatDetail = data ?? []
                 }
@@ -590,12 +368,29 @@ class UserApplyGigVC: UIViewController, SideMenuNavigationControllerDelegate {
         }
     }
     
+    func addTapGestureToLabel() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(labelTapped))
+        lblAbout.isUserInteractionEnabled = true
+        lblAbout.addGestureRecognizer(tapGesture)
+    }
+    
+    @objc func labelTapped(_ gesture: UITapGestureRecognizer) {
+        guard let text = lblAbout.text else { return }
+
+              let readmore = (text as NSString).range(of: TrailingContent.readmore.text)
+              let readless = (text as NSString).range(of: TrailingContent.readless.text)
+              if gesture.didTap(label: lblAbout, inRange: readmore) {
+                  lblAbout.appendReadLess(after: textAbout, trailingContent: .readless)
+              } else if  gesture.didTap(label: lblAbout, inRange: readless) {
+                  lblAbout.appendReadmore(after: textAbout, trailingContent: .readmore)
+              } else { return }
+    }
     
     func resizeImage(_ image: UIImage, to size: CGSize) -> UIImage? {
-        UIGraphicsBeginImageContextWithOptions(size, false, 0.0)
-        defer { UIGraphicsEndImageContext() }
-        image.draw(in: CGRect(origin: .zero, size: size))
-        return UIGraphicsGetImageFromCurrentImageContext()
+      UIGraphicsBeginImageContextWithOptions(size, false, 0.0)
+      defer { UIGraphicsEndImageContext() }
+      image.draw(in: CGRect(origin: .zero, size: size))
+      return UIGraphicsGetImageFromCurrentImageContext()
     }
     func resizeGigImage(_ image: UIImage, to price: Int, withTitle title: String,width:Int) -> UIImage {
         // Set static width and height to 30
@@ -647,165 +442,94 @@ class UserApplyGigVC: UIViewController, SideMenuNavigationControllerDelegate {
     
     @IBAction func actionApply(_ sender: UIButton) {
         
-        if Store.role == "b_user"{
-            if bsuinessGigStatus == "2"{
+        if businessGigStatus == 2{
             if arrCompleteParticipants.count > 1{
-              let vc = self.storyboard?.instantiateViewController(withIdentifier: "ParticipantsVC") as! ParticipantsVC
-              vc.isComing = 2
-              vc.businessGigDetail = businessGigDetail
-              vc.gigId = gigId
-              self.navigationController?.pushViewController(vc, animated: true)
+                let vc = self.storyboard?.instantiateViewController(withIdentifier: "ParticipantsVC") as! ParticipantsVC
+                vc.isComing = 2
+                vc.businessGigDetail = businessGigDetail
+                vc.gigId = gigId
+                self.navigationController?.pushViewController(vc, animated: true)
             }else{
-              let vc = self.storyboard?.instantiateViewController(withIdentifier: "AddReviewVC") as! AddReviewVC
-              vc.modalPresentationStyle = .overFullScreen
-              vc.isComing = 1
-              if arrCompleteParticipants[sender.tag].review == nil{
-                vc.isUpdateReview = false
-              }else{
-                vc.isUpdateReview = true
-                vc.reviewsToParticipants = arrCompleteParticipants[sender.tag].review
-              }
-              vc.gigId = gigId
-              vc.userId = participantsId
-              vc.businessGigDetail = businessGigDetail
-              vc.callBack = {[weak self] in
-                guard let self = self else { return }
-                let vc = self.storyboard?.instantiateViewController(withIdentifier: "AfterFeedbackPopUpVC") as! AfterFeedbackPopUpVC
+                let vc = self.storyboard?.instantiateViewController(withIdentifier: "AddReviewVC") as! AddReviewVC
                 vc.modalPresentationStyle = .overFullScreen
-                vc.callBack = {[weak self] in
-                  guard let self = self else { return }
-                  self.btnApply.isHidden = true
-                  self.viewCompletegigMsg.isHidden = true
-                  self.heightviewCompleteMsg.constant = 0
-                  self.getBusinessGigDetailApi()
-                  self.getCompleteParticipants(loader: false)
+                vc.isComing = 5
+                vc.gigId = gigId
+                vc.userId = providerUserId
+                vc.userToUserGigDetail = userGigDetail
+                for (index, review) in arrUserReview.enumerated() {
+                    if Store.userId == review.userID?.id ?? ""{
+                        vc.isUpdateReview = true
+                        vc.userToUserGigReview = review
+                        break
+                    }
                 }
-                self.navigationController?.present(vc, animated: false)
-              }
-              self.navigationController?.present(vc, animated: true)
-            }
-          }else if bsuinessGigStatus == "1"{
-            viewModel.CompleteGigApi(gigid: gigId) { message in
-              let vc = self.storyboard?.instantiateViewController(withIdentifier: "CommonPopUpVC") as! CommonPopUpVC
-              vc.isSelect = 10
-              vc.message = message
-              vc.callBack = {[weak self] in
-                guard let self = self else { return }
-                self.getBusinessGigDetailApi()
-                self.getGigChat()
-              }
-              vc.modalPresentationStyle = .overFullScreen
-              self.navigationController?.present(vc, animated: true)
-            }
-          }else{
-           
-            if paymentStatus == 0{
-              viewModel.createGig(gigId: gigId,price:price) { data in
-                let vc = self.storyboard?.instantiateViewController(withIdentifier: "WebViewVC") as! WebViewVC
-                vc.modalPresentationStyle = .overFullScreen
-                vc.paymentLink = data?.url ?? ""
-                vc.callback = { [weak self] payment in
-                  guard let self = self else { return }
-                  if payment == true{
-                    let vc = self.storyboard?.instantiateViewController(withIdentifier: "GigCreatedVC") as! GigCreatedVC
+                vc.callBack = {[weak self] in
+                    guard let self = self else { return }
+                    let vc = self.storyboard?.instantiateViewController(withIdentifier: "AfterFeedbackPopUpVC") as! AfterFeedbackPopUpVC
                     vc.modalPresentationStyle = .overFullScreen
                     vc.callBack = {[weak self] in
-                      guard let self = self else { return }
-                      SceneDelegate().GigListVCRoot()
+                        guard let self = self else { return }
+                        self.btnApply.isHidden = true
+                        self.viewCompletegigMsg.isHidden = true
+                        self.heightviewCompleteMsg.constant = 0
+                        self.getBusinessGigDetailApi()
+                        
+                        
                     }
                     self.navigationController?.present(vc, animated: false)
-                  }else{
-                    let vc = self.storyboard?.instantiateViewController(withIdentifier: "CommonPopUpVC") as! CommonPopUpVC
-                    vc.isSelect = 20
-                    vc.callBack = {[weak self] in
-                      guard let self = self else { return }
-                      SceneDelegate().GigListVCRoot()
-                    }
-                    vc.modalPresentationStyle = .overFullScreen
-                    self.navigationController?.present(vc, animated: true)
-                  }
+                    
+                }
+                self.navigationController?.present(vc, animated: true)
+            }
+        }else if businessGigStatus == 1{
+            viewModel.CompleteGigApi(gigid: gigId) { message in
+                let vc = self.storyboard?.instantiateViewController(withIdentifier: "CommonPopUpVC") as! CommonPopUpVC
+                vc.isSelect = 10
+                vc.message = message
+                vc.callBack = {[weak self] in
+                    guard let self = self else { return }
+                    self.getBusinessGigDetailApi()
+                    self.getGigChat()
                 }
                 vc.modalPresentationStyle = .overFullScreen
-                self.present(vc, animated: false)
-              }
+                self.navigationController?.present(vc, animated: true)
+                
+                
             }
-          }
         }else{
-            
-          if userGigStatus == "0"{
-            print(userGigStatus ?? 0)
-          }else if userGigStatus == "1"{
-            let vc = self.storyboard?.instantiateViewController(withIdentifier: "ChatInboxVC") as! ChatInboxVC
-            vc.receiverId = providerUserId
-            self.navigationController?.pushViewController(vc, animated: true)
-          }else if userGigStatus == "2"{
-            let vc = self.storyboard?.instantiateViewController(withIdentifier: "AddReviewVC") as! AddReviewVC
-            vc.modalPresentationStyle = .overFullScreen
-            vc.isComing = 2
-            vc.gigId = gigId
-            vc.userId = providerUserId
-            vc.userGigDetail = userGigDetail
-            for (index, review) in arrUserReview.enumerated() {
-              if Store.userId == review.user?.id ?? ""{
-                vc.isUpdateReview = true
-//                vc.gigReview = review
-                break
-              }
-            }
-            vc.callBack = {[weak self] in
-              guard let self = self else { return }
-              let vc = self.storyboard?.instantiateViewController(withIdentifier: "AfterFeedbackPopUpVC") as! AfterFeedbackPopUpVC
-              vc.modalPresentationStyle = .overFullScreen
-              vc.callBack = {[weak self] in
-                guard let self = self else { return }
-                self.btnApply.isHidden = true
-                self.viewCompletegigMsg.isHidden = true
-                self.heightviewCompleteMsg.constant = 0
-                self.getUserGigDetailApi()
-              }
-              self.navigationController?.present(vc, animated: false)
-            }
-            self.navigationController?.present(vc, animated: true)
-          }else{
-              if userGigDetail?.participantsList?.count ?? 0 > 0{
-                  viewModel.CompleteGigApi(gigid: gigId) { message in
-                       let vc = self.storyboard?.instantiateViewController(withIdentifier: "CommonPopUpVC") as! CommonPopUpVC
-                       vc.isSelect = 10
-                       vc.message = message
-                       vc.callBack = {[weak self] in
-                         guard let self = self else { return }
-                         self.getUserGigDetailApi()
-                         self.getGigChat()
-                       }
-                       vc.modalPresentationStyle = .overFullScreen
-                       self.navigationController?.present(vc, animated: true)
-                     }
-              }else{
-                  let vc = self.storyboard?.instantiateViewController(withIdentifier: "UserDetailVC") as! UserDetailVC
-                  vc.modalPresentationStyle = .overFullScreen
-                  vc.gigId = gigId
-                  vc.userDetail = userGigDetail
-                  vc.businessDetail = businessGigDetail
-                  vc.callBack = { [weak self] message in
-                    guard let self = self else { return }
-                    let vc = self.storyboard?.instantiateViewController(withIdentifier: "CommonPopUpVC") as! CommonPopUpVC
-                    vc.isSelect = 10
-                    vc.message = message
-                    vc.callBack = {[weak self] in
-                      guard let self = self else { return }
-                      self.getUserGigDetailApi()
-                      
-                  
-                    }
+            if paymentStatus == 0{
+                viewModel.createGig(gigId: gigId,price:price) { data in
+                    let vc = self.storyboard?.instantiateViewController(withIdentifier: "WebViewVC") as! WebViewVC
                     vc.modalPresentationStyle = .overFullScreen
+                    vc.paymentLink = data?.url ?? ""
+                    vc.callback = { [weak self] payment in
+                        guard let self = self else { return }
+                        if payment == true{
+                            let vc = self.storyboard?.instantiateViewController(withIdentifier: "GigCreatedVC") as! GigCreatedVC
+                            vc.modalPresentationStyle = .overFullScreen
+                            vc.callBack = {[weak self] in
+                                guard let self = self else { return }
+                                SceneDelegate().GigListVCRoot()
+                            }
+                            self.navigationController?.present(vc, animated: true)
+                        }else{
+                            let vc = self.storyboard?.instantiateViewController(withIdentifier: "CommonPopUpVC") as! CommonPopUpVC
+                            vc.modalPresentationStyle = .overFullScreen
+                            vc.isSelect = 20
+                            vc.callBack = {[weak self] in
+                                guard let self = self else { return }
+                                SceneDelegate().GigListVCRoot()
+                            }
+                            self.navigationController?.present(vc, animated: true)
+                        }
+                        
+                    }
+                    
                     self.navigationController?.present(vc, animated: true)
-                  }
-                  self.navigationController?.present(vc, animated: true)
-              }
-           
-          }
+                }
+            }
         }
-      }
+    }
     @IBAction func actionParticipants(_ sender: UIButton) {
         let vc = self.storyboard?.instantiateViewController(withIdentifier: "ParticipantsVC") as! ParticipantsVC
         vc.gigId = gigId
@@ -837,13 +561,11 @@ class UserApplyGigVC: UIViewController, SideMenuNavigationControllerDelegate {
             }else{
                 let vc = self.storyboard?.instantiateViewController(withIdentifier: "NewGigAddVC") as! NewGigAddVC
                 vc.isComing = false
-                
-                vc.gigId = gigId
-                if Store.role == "user"{
-                    vc.userGigDetail = self.userGigDetail
-                }else{
-                    vc.bsuinessGigDetail = self.businessGigDetail
-                }
+                vc.isDetailData = true
+                vc.arrTools = self.arrTools
+                vc.arrSkills = self.arrSkill
+            
+                vc.bsuinessGigDetail = self.businessGigDetail
                 self.navigationController?.pushViewController(vc, animated: true)
             }
         }
@@ -878,7 +600,7 @@ class UserApplyGigVC: UIViewController, SideMenuNavigationControllerDelegate {
             let vc = self.storyboard?.instantiateViewController(withIdentifier: "GigReadyVC") as! GigReadyVC
             vc.modalPresentationStyle = .overFullScreen
             vc.isComing = 2
-            //            vc.userOwnerGigDetail = userGigDetail
+            vc.userOwnerGigDetail = userGigDetail
             vc.groupId = groupId
             vc.callBack = {[weak self] in
                 guard let self = self else { return }
@@ -896,7 +618,7 @@ class UserApplyGigVC: UIViewController, SideMenuNavigationControllerDelegate {
                         SocketIOManager.sharedInstance.sendMessage(dict: param2)
                     }else{
                         let param2 = ["senderId":Store.userId ?? "",
-                                      // "groupId":self.groupId,
+                                     // "groupId":self.groupId,
                                       "message":"\(Store.BusinessUserDetail?["userName"] as? String ?? "") is ready",
                                       "deviceId":Store.deviceToken ?? "",
                                       "gigId":self.gigId]
@@ -904,7 +626,7 @@ class UserApplyGigVC: UIViewController, SideMenuNavigationControllerDelegate {
                     }
                     
                 }
-                
+
                 let vc = self.storyboard?.instantiateViewController(withIdentifier: "GigChatVC") as! GigChatVC
                 vc.gigId = self.gigId
                 vc.gigUserId = self.gigUserId
@@ -929,7 +651,30 @@ class UserApplyGigVC: UIViewController, SideMenuNavigationControllerDelegate {
             self.navigationController?.present(vc, animated: true)
         }
     }
-    
+    //{
+        
+//        guard let menu = sideMenu else { return }
+//
+//           var settings = SideMenuSettings()
+//           settings.presentationStyle = .menuSlideIn
+//        settings.presentDuration = 1.4
+//        settings.dismissDuration = 1.4
+//           settings.menuWidth = view.frame.width * 1.0
+//           settings.statusBarEndAlpha = 0
+//           settings.presentationStyle.backgroundColor = .white
+//           settings.presentationStyle.presentingEndAlpha = 0.3
+//           SideMenuManager.default.rightMenuNavigationController = menu
+//           menu.settings = settings
+//        DispatchQueue.global(qos: .userInitiated).async {
+//            // Do heavy tasks like data fetching here
+//            Store.gigDetail = ["gigId": self.gigId, "participantCount": self.participantCount, "userGigId": self.gigUserId]
+//
+//            DispatchQueue.main.async {
+//                // Present menu on main thread after background work is done
+//                self.present(menu, animated: true, completion: nil)
+//            }
+//        }
+    //}
     
 }
 //MARK: -UITableViewDelegate
@@ -987,9 +732,9 @@ extension UserApplyGigVC: UITableViewDelegate,UITableViewDataSource{
 extension UserApplyGigVC:UICollectionViewDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout{
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if collectionView == collVwTools{
-            return arrTools?.count ?? 0
+            return arrTools.count
         }else{
-            return arrSkills?.count ?? 0
+            return arrSkill.count
         }
         
     }
@@ -997,20 +742,18 @@ extension UserApplyGigVC:UICollectionViewDelegate,UICollectionViewDataSource,UIC
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if collectionView == collVwTools{
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "BusinessCategoryCVC", for: indexPath) as! BusinessCategoryCVC
-            cell.vwBg.backgroundColor = UIColor(hex: "#C7E2C4")
-            cell.lblName.text = arrTools?[indexPath.row]
+            cell.lblName.text = arrTools[indexPath.row]
             cell.vwBg.layer.cornerRadius = 18
             cell.widthBtnCross.constant = 0
             return cell
         }else{
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "BusinessCategoryCVC", for: indexPath) as! BusinessCategoryCVC
-            cell.vwBg.backgroundColor = UIColor(hex: "#C7E2C4")
-            cell.lblName.text = arrSkills?[indexPath.row].name ?? ""
+            cell.lblName.text = arrSkill[indexPath.row].name
             cell.vwBg.layer.cornerRadius = 18
             cell.widthBtnCross.constant = 0
             
             return cell
         }
     }
-    
+   
 }

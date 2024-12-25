@@ -12,7 +12,7 @@ class PromoCodePopUpVC: UIViewController {
     @IBOutlet var lblExpiryDate: UILabel!
     @IBOutlet var lblDiscount: UILabel!
     @IBOutlet var lblPromoCode: UILabel!
-//    var promoCodeDetail:PromoCodes?
+    var promoCodeDetail:PromoCodes?
     var callBack:(()->())?
     var viewModel = AddGigVM()
     override func viewDidLoad() {
@@ -20,11 +20,11 @@ class PromoCodePopUpVC: UIViewController {
         uiSet()
     }
     func uiSet(){
-//        lblDiscount.text = "\(promoCodeDetail?.discount ?? 0)%"
-//        if let formattedDate = formatDate(dateString: promoCodeDetail?.expiryTime ?? "", inputFormat: "yyyy-MM-dd'T'HH:mm:ss.SSSZ", outputFormat: "dd MMM yyyy") {
-//            lblExpiryDate.text = "Expire on \(formattedDate)"
-//        }
-//        lblPromoCode.text = promoCodeDetail?.promoCode ?? ""
+        lblDiscount.text = "\(promoCodeDetail?.discount ?? 0)%"
+        if let formattedDate = formatDate(dateString: promoCodeDetail?.expiryTime ?? "", inputFormat: "yyyy-MM-dd'T'HH:mm:ss.SSSZ", outputFormat: "dd MMM yyyy") {
+            lblExpiryDate.text = "Expire on \(formattedDate)"
+        }
+        lblPromoCode.text = promoCodeDetail?.promoCode ?? ""
         
     }
    
@@ -33,18 +33,18 @@ class PromoCodePopUpVC: UIViewController {
         showSwiftyAlert("", "Copied promo code", true)
     }
     @IBAction func actionThanks(_ sender: UIButton) {
-//        viewModel.UpdatePromoStatusApi(gigid: promoCodeDetail?.gigID ?? "", userid: promoCodeDetail?.applyuserID ?? "") {
-//            self.dismiss(animated: false)
-//            self.callBack?()
-//        }
+        viewModel.UpdatePromoStatusApi(gigid: promoCodeDetail?.gigID ?? "", userid: promoCodeDetail?.applyuserID ?? "") {
+            self.dismiss(animated: false)
+            self.callBack?()
+        }
         
     }
     
     @IBAction func actionDismis(_ sender: UIButton) {
-//        viewModel.UpdatePromoStatusApi(gigid: promoCodeDetail?.gigID ?? "", userid: promoCodeDetail?.applyuserID ?? "") {
-//            self.dismiss(animated: false)
-//            self.callBack?()
-//        }
+        viewModel.UpdatePromoStatusApi(gigid: promoCodeDetail?.gigID ?? "", userid: promoCodeDetail?.applyuserID ?? "") {
+            self.dismiss(animated: false)
+            self.callBack?()
+        }
     }
     func formatDate(dateString: String, inputFormat: String, outputFormat: String) -> String? {
         let dateFormatter = DateFormatter()
