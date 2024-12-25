@@ -219,10 +219,25 @@ extension NotificationsVC: UITableViewDelegate,UITableViewDataSource{
         let notificationForDate = notifications[date]
         let notification = notificationForDate?[indexPath.row]
         if notification?.status == "1"{
-         let vc = self.storyboard?.instantiateViewController(withIdentifier: "UserApplyGigVC") as! UserApplyGigVC
-            vc.gigId = notification?.gigId ?? ""
-            self.navigationController?.pushViewController(vc, animated: true)
-           
+            if Store.userId == notification?.gigUser{
+                
+                if Store.role == "b_user"{
+                    let vc = self.storyboard?.instantiateViewController(withIdentifier: "ApplyGigVC") as! ApplyGigVC
+                    vc.gigId = notification?.gigId ?? ""
+                    vc.isComing = 1
+                    self.navigationController?.pushViewController(vc, animated: true)
+                }else{
+                    let vc = self.storyboard?.instantiateViewController(withIdentifier: "UserApplyGigVC") as! UserApplyGigVC
+                    vc.gigId = notification?.gigId ?? ""
+                    self.navigationController?.pushViewController(vc, animated: true)
+                }
+               
+            }else{
+                
+                let vc = self.storyboard?.instantiateViewController(withIdentifier: "ApplyGigVC") as! ApplyGigVC
+                vc.gigId = notification?.gigId ?? ""
+                self.navigationController?.pushViewController(vc, animated: true)
+            }
         }else if notification?.status == "2"{
             if Store.userId == notification?.popUpUser{
                 let vc = self.storyboard?.instantiateViewController(withIdentifier: "PopUpDeatilVC") as! PopUpDeatilVC

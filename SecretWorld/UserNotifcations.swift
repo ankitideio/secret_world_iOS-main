@@ -68,20 +68,27 @@ class UserNotifcations: NSObject , UNUserNotificationCenterDelegate {
         
         if status == "1"{
             if Store.userId == gigUserId{
-           
+                if Store.role == "b_user"{
+                    let topController = UIApplication.topViewController()
+                    let storyboard = UIStoryboard(name: "Main", bundle: nil)
+                    let vc: ApplyGigVC = storyboard.instantiateViewController(withIdentifier: "ApplyGigVC") as! ApplyGigVC
+                    vc.hidesBottomBarWhenPushed = false
+                    vc.gigId = gigId ?? ""
+                    vc.isComing = 1
+                    topController?.navigationController?.pushViewController(vc, animated: true)
+                }else{
                     let topController = UIApplication.topViewController()
                     let storyboard = UIStoryboard(name: "Main", bundle: nil)
                     let vc: UserApplyGigVC = storyboard.instantiateViewController(withIdentifier: "UserApplyGigVC") as! UserApplyGigVC
                     vc.hidesBottomBarWhenPushed = false
                     vc.gigId = gigId ?? ""
-//                    vc.isComing = 1
                     topController?.navigationController?.pushViewController(vc, animated: true)
-                
+                }
                
             }else{
                 let topController = UIApplication.topViewController()
                 let storyboard = UIStoryboard(name: "Main", bundle: nil)
-                let vc: UserApplyGigVC = storyboard.instantiateViewController(withIdentifier: "UserApplyGigVC") as! UserApplyGigVC
+                let vc: ApplyGigVC = storyboard.instantiateViewController(withIdentifier: "ApplyGigVC") as! ApplyGigVC
                 vc.hidesBottomBarWhenPushed = false
                 vc.gigId = gigId ?? ""
                 topController?.navigationController?.pushViewController(vc, animated: true)
