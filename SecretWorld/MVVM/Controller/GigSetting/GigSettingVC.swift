@@ -22,7 +22,7 @@ class GigSettingVC: UIViewController {
     }
     //MARK: - FUNCTIONS
     func uiSet(){
-        arrSetting.append(["img" : "verify","title":"Complete your gig"])
+        arrSetting.append(["img" : "verify","title":"Complete your task"])
         arrSetting.append(["img" : "lock","title":"Private your profile"])
         setupOverlayView()
     }

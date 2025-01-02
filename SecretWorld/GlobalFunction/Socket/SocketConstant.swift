@@ -8,7 +8,9 @@
 import Foundation
 
 enum socketKeys : String {
-    case socketBaseUrl = "http://18.218.117.223:8081/"
+//    case socketBaseUrl = "http://18.218.117.223:8081/"
+    case socketBaseUrl = "https://ws.secretworld.ai/"
+   
     var instance : String {
         return self.rawValue
     }

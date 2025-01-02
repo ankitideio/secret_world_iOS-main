@@ -9,6 +9,9 @@ import UIKit
 class TabBarVC: UIViewController{
     //MARK: - OUTLETS
     
+    @IBOutlet weak var btnItinerary: UIButton!
+    @IBOutlet weak var lblItinerary: UILabel!
+    @IBOutlet weak var vwItinerary: UIView!
     @IBOutlet var bottomImmgVwImgAppIcon: NSLayoutConstraint!
     @IBOutlet var imgVwAppIcon: UIImageView!
     @IBOutlet var lblBusiness: UILabel!
@@ -90,8 +93,10 @@ class TabBarVC: UIViewController{
         if Store.role == "b_user"{
             viewExplore.isHidden = true
             viewMenu.isHidden = false
+            vwItinerary.isHidden = true
         }else{
-            viewExplore.isHidden = false
+            vwItinerary.isHidden = false
+            viewExplore.isHidden = true
             viewMenu.isHidden = true
         }
         switch selectedButtonTag {
@@ -101,7 +106,8 @@ class TabBarVC: UIViewController{
                 self.homeSetup()
             }
         case 2:
-            exploreSetup()
+//            exploreSetup()
+            itinerarySetup()
         case 3:
             bookmarkSetup()
         case 4:
@@ -298,6 +304,9 @@ class TabBarVC: UIViewController{
         btnExplore.isSelected = false
         btnChat.isSelected = false
         btnProfile.isSelected = false
+        lblItinerary.textColor = UIColor(red: 137/255, green: 137/255, blue: 137/255,alpha: 1.0)
+        btnItinerary.isSelected = false
+        btnItinerary.setImage(UIImage(named: "grayItinerary"), for: .normal)
     }
     @IBAction func actionBusiness(_ sender: UIButton) {
 //        sender.isSelected = !sender.isSelected
@@ -490,6 +499,9 @@ class TabBarVC: UIViewController{
         btnExplore.isSelected = false
         btnChat.isSelected = false
         btnProfile.isSelected = false
+        lblItinerary.textColor = UIColor(red: 137/255, green: 137/255, blue: 137/255,alpha: 1.0)
+        btnItinerary.isSelected = false
+        btnItinerary.setImage(UIImage(named: "grayItinerary"), for: .normal)
     }
     @IBAction func actionExplore(_ sender: UIButton) {
         //isHomeBtnSelect = true
@@ -537,6 +549,9 @@ class TabBarVC: UIViewController{
         btnChat.isSelected = false
         btnProfile.isSelected = false
         btnMenu.isSelected = false
+        lblItinerary.textColor = UIColor(red: 137/255, green: 137/255, blue: 137/255,alpha: 1.0)
+        btnItinerary.isSelected = false
+        btnItinerary.setImage(UIImage(named: "grayItinerary"), for: .normal)
     }
     func bookmarkSetup(){
         btnAddService.isHidden = true
@@ -556,6 +571,9 @@ class TabBarVC: UIViewController{
         btnChat.isSelected = false
         btnProfile.isSelected = false
         btnMenu.isSelected = false
+        lblItinerary.textColor = UIColor(red: 137/255, green: 137/255, blue: 137/255,alpha: 1.0)
+        btnItinerary.isSelected = false
+        btnItinerary.setImage(UIImage(named: "grayItinerary"), for: .normal)
     }
     @IBAction func actionChat(_ sender: UIButton) {
         homeButtonsSetup(sender: false)
@@ -601,6 +619,9 @@ class TabBarVC: UIViewController{
         btnExplore.isSelected = false
         btnProfile.isSelected = false
         btnMenu.isSelected = false
+        lblItinerary.textColor = UIColor(red: 137/255, green: 137/255, blue: 137/255,alpha: 1.0)
+        btnItinerary.isSelected = false
+        btnItinerary.setImage(UIImage(named: "grayItinerary"), for: .normal)
     }
     @IBAction func actionProfile(_ sender: UIButton) {
         homeButtonsSetup(sender: false)
@@ -649,6 +670,56 @@ class TabBarVC: UIViewController{
         btnHome.isSelected = false
         btnExplore.isSelected = false
         btnChat.isSelected = false
+        lblItinerary.textColor = UIColor(red: 137/255, green: 137/255, blue: 137/255,alpha: 1.0)
+        btnItinerary.isSelected = false
+        btnItinerary.setImage(UIImage(named: "grayItinerary"), for: .normal)
+    }
+    
+    @IBAction func actionItinerary(_ sender: UIButton) {
+        homeButtonsSetup(sender: false)
+        self.zoomHomeIcon(isZoomedIn: false)
+        let deviceHasNotch = UIApplication.shared.hasNotch
+        if deviceHasNotch{
+            if UIDevice.current.hasDynamicIsland {
+                heightBottomVw.constant = 114
+                topShadowView.constant = 0
+                }else{
+                heightBottomVw.constant = 104
+                topShadowView.constant = 0
+            }
+        
+        }else{
+          heightBottomVw.constant = 80
+          topShadowView.constant = 0
+        }
+        NotificationCenter.default.post(name: Notification.Name("StopTimer"), object: nil)
+        NotificationCenter.default.post(name: Notification.Name("ExploreApi"), object: nil)
+        sender.isSelected = !sender.isSelected
+        if sender.isSelected == true{
+            NotificationCenter.default.post(name: Notification.Name("SelectOther"), object: nil)
+            itinerarySetup()
+            selectedButtonTag = sender.tag
+        }
+    }
+    func itinerarySetup(){
+        btnAddService.isHidden = false
+        lblItinerary.textColor = .app
+        lblMenu.textColor = UIColor(red: 137/255, green: 137/255, blue: 137/255, alpha: 1.0)
+        lblHome.textColor = UIColor(red: 137/255, green: 137/255, blue: 137/255, alpha: 1.0)
+        lblChat.textColor = UIColor(red: 137/255, green: 137/255, blue: 137/255, alpha: 1.0)
+        lblProfile.textColor = UIColor(red: 137/255, green: 137/255, blue: 137/255, alpha: 1.0)
+        scrollVw.setContentOffset(.zero, animated: false)
+        scrollVw.setContentOffset(CGPoint(x: scrollVw.frame.size.width*6, y: 0), animated: false)
+        btnAddService.isHidden = true
+        btnItinerary.setImage(UIImage(named: "itinerary"), for: .normal)
+        btnChat.setImage(UIImage(named: "chatt"), for: .normal)
+        btnProfile.setImage(UIImage(named: "profiletab"), for: .normal)
+        btnMenu.setImage(UIImage(named: "menuunselect"), for: .normal)
+        btnItinerary.isSelected = true
+        btnHome.isSelected = false
+        btnChat.isSelected = false
+        btnProfile.isSelected = false
+        btnMenu.isSelected = false
     }
     @objc func touchMap(notification:Notification){
         homeButtonsSetup(sender: false)

@@ -147,36 +147,48 @@ class AddPopUpVC: UIViewController,UIImagePickerControllerDelegate, UINavigation
 
     }
     @IBAction func actionUploadMarkerLogo(_ sender: UIButton) {
-        if isUploadMarker == true{
-            do {
-                let processedImage = try BackgroundRemoval().removeBackground(image: imgVwMarkerLogo.image ?? UIImage())
-                self.imgVwMarkerLogo.image = processedImage
-                Store.MarkerLogo = processedImage
-                let vc = self.storyboard?.instantiateViewController(withIdentifier: "ChangePhotoVC") as! ChangePhotoVC
-                vc.isComing = 9
-                vc.callBack = { [weak self] image in
-                    guard let self = self else { return }
-                    self.imgVwMarkerLogo.image = image
-                    if Store.MarkerLogo == UIImage(named: "") || Store.MarkerLogo == nil{
-                        self.btnMarkerLogo.setImage(UIImage(named: "Group25"), for: .normal)
-                        self.isUploadMarker = false
-                    }else{
-                        self.btnMarkerLogo.setImage(UIImage(named: ""), for: .normal)
-                    }
-                }
-                self.navigationController?.pushViewController(vc, animated: true)
-            }catch{
-                print("Error removing background: \(error.localizedDescription)")
+        let vc = self.storyboard?.instantiateViewController(withIdentifier: "AddMarkerImageVC") as! AddMarkerImageVC
+        vc.callBack = { image in
+            if image == UIImage(named: "") || image == nil{
+                self.btnMarkerLogo.setImage(UIImage(named: "Group25"), for: .normal)
+            }else{
+                self.btnMarkerLogo.setImage(UIImage(named: ""), for: .normal)
+                self.imgVwMarkerLogo.image = image
             }
-        }else{
-            openCamera()
-//            ImagePicker().pickImage(self) { image in
-//                self.imgVwMarkerLogo.image = image
-//                Store.MarkerLogo = image
-//                self.btnMarkerLogo.setImage(UIImage(named: ""), for: .normal)
-//                self.isUploadMarker = true
-//            }
+            
         }
+        self.navigationController?.pushViewController(vc, animated: true)
+//        if isUploadMarker == true{
+//            do {
+//                let processedImage = try BackgroundRemoval().removeBackground(image: imgVwMarkerLogo.image ?? UIImage())
+//                self.imgVwMarkerLogo.image = processedImage
+//                Store.MarkerLogo = processedImage
+//                let vc = self.storyboard?.instantiateViewController(withIdentifier: "ChangePhotoVC") as! ChangePhotoVC
+//                vc.isComing = 9
+//                vc.callBack = { [weak self] image in
+//                    guard let self = self else { return }
+//                    self.imgVwMarkerLogo.image = image
+//                    if Store.MarkerLogo == UIImage(named: "") || Store.MarkerLogo == nil{
+//                        self.btnMarkerLogo.setImage(UIImage(named: "Group25"), for: .normal)
+//                        self.isUploadMarker = false
+//                    }else{
+//                        self.btnMarkerLogo.setImage(UIImage(named: ""), for: .normal)
+//                    }
+//                }
+//                self.navigationController?.pushViewController(vc, animated: true)
+//            }catch{
+//                print("Error removing background: \(error.localizedDescription)")
+//            }
+//        }else{
+//
+//            openCamera()
+////            ImagePicker().pickImage(self) { image in
+////                self.imgVwMarkerLogo.image = image
+////                Store.MarkerLogo = image
+////                self.btnMarkerLogo.setImage(UIImage(named: ""), for: .normal)
+////                self.isUploadMarker = true
+////            }
+//        }
     }
     func openCamera() {
            if UIImagePickerController.isSourceTypeAvailable(.camera) {
@@ -333,8 +345,8 @@ class AddPopUpVC: UIViewController,UIImagePickerControllerDelegate, UINavigation
                     }else{
                         do {
                             // Remove background from the image
-                            let processedImage = try BackgroundRemoval().removeBackground(image: imgVwMarkerLogo.image ?? UIImage())
-                            self.imgVwMarkerLogo.image = processedImage
+//                            let processedImage = try BackgroundRemoval().removeBackground(image: imgVwMarkerLogo.image ?? UIImage())
+//                            self.imgVwMarkerLogo.image = processedImage
                             viewModel.UpdatePopUpApi(id: popupDetails?.id ?? "",
                                                      name: txtFldName.text ?? "",
                                                      usertype: "user", storeType: popUptype,

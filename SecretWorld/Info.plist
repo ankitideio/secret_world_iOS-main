@@ -15,8 +15,12 @@
 		<dict>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.SecretWorld</string>
 			<key>CFBundleURLSchemes</key>
-			<array/>
+			<array>
+				<string>com.SecretWorld</string>
+			</array>
 		</dict>
 	</array>
 	<key>FirebaseAppDelegateProxyEnabled</key>

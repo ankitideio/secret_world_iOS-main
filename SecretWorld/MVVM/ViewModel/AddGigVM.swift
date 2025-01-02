@@ -219,6 +219,7 @@ class AddGigVM{
         let date = formatter.string(from: Date())
         
         var param: [String: Any] = [
+            "id":gigId,
             "usertype": usertype,
             "name": name,
             "type": type,

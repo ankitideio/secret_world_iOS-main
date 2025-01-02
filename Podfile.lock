@@ -1,5 +1,10 @@
 PODS:
   - AlignedCollectionViewFlowLayout (1.1.2)
+  - CalendarKit (1.1.11)
+  - Charts (4.1.0):
+    - Charts/Core (= 4.1.0)
+  - Charts/Core (4.1.0):
+    - SwiftAlgorithms (~> 1.0)
   - CollectionViewWaterfallLayout (0.5.0)
   - CountryPickerView (3.3.0)
   - ExpandableLabel (0.5.2)
@@ -54,6 +59,7 @@ PODS:
     - GoogleUtilities/UserDefaults (~> 7.8)
     - nanopb (< 2.30911.0, >= 2.30908.0)
   - FloatRatingView (4.0)
+  - FSCalendar (2.8.4)
   - FXExpandableLabel (0.1)
   - GoogleAppMeasurement (10.24.0):
     - GoogleAppMeasurement/AdIdSupport (= 10.24.0)
@@ -203,6 +209,7 @@ PODS:
     - Starscream (~> 4.0.6)
   - Solar-dev (3.0.1)
   - Starscream (4.0.8)
+  - SwiftAlgorithms (1.0.0)
   - SwiftMessages (9.0.9):
     - SwiftMessages/App (= 9.0.9)
   - SwiftMessages/App (9.0.9)
@@ -214,6 +221,8 @@ PODS:
 
 DEPENDENCIES:
   - AlignedCollectionViewFlowLayout
+  - CalendarKit
+  - Charts
   - CollectionViewWaterfallLayout
   - CountryPickerView
   - ExpandableLabel
@@ -221,6 +230,7 @@ DEPENDENCIES:
   - Firebase/Analytics
   - Firebase/Messaging
   - FloatRatingView
+  - FSCalendar
   - FXExpandableLabel
   - GoogleMaps
   - GooglePlaces
@@ -254,6 +264,8 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - AlignedCollectionViewFlowLayout
+    - CalendarKit
+    - Charts
     - CollectionViewWaterfallLayout
     - CountryPickerView
     - ExpandableLabel
@@ -264,6 +276,7 @@ SPEC REPOS:
     - FirebaseInstallations
     - FirebaseMessaging
     - FloatRatingView
+    - FSCalendar
     - FXExpandableLabel
     - GoogleAppMeasurement
     - GoogleDataTransport
@@ -298,6 +311,7 @@ SPEC REPOS:
     - Socket.IO-Client-Swift
     - Solar-dev
     - Starscream
+    - SwiftAlgorithms
     - SwiftMessages
     - SwiftRangeSlider
     - SwiftyJSON
@@ -307,6 +321,8 @@ SPEC REPOS:
 
 SPEC CHECKSUMS:
   AlignedCollectionViewFlowLayout: ee2ef451e741ec08f8e0967d828001e2f051c20a
+  CalendarKit: 58acabf0a81e010bacfee6eee0d3459d1df0e819
+  Charts: ce0768268078eee0336f122c3c4ca248e4e204c5
   CollectionViewWaterfallLayout: 4399ba01be265fff4da1ed1d607130fe009780e4
   CountryPickerView: 6322ada32a80b0cd721b0267282a5c24f406f263
   ExpandableLabel: c2fab6d27860c572d67134b30522a5917746171d
@@ -317,6 +333,7 @@ SPEC CHECKSUMS:
   FirebaseInstallations: 8f581fca6478a50705d2bd2abd66d306e0f5736e
   FirebaseMessaging: 4d52717dd820707cc4eadec5eb981b4832ec8d5d
   FloatRatingView: bb6bdddfbeec51b1d387b4bd50abc27b4dfccd48
+  FSCalendar: 2d1d0d9398f12d439f55c1fe0f01525b151b8260
   FXExpandableLabel: 4937c766c7c5a023d2dc7734680eb7dcf7b7def1
   GoogleAppMeasurement: f3abf08495ef2cba7829f15318c373b8d9226491
   GoogleDataTransport: 6c09b596d841063d76d4288cc2d2f42cc36e1e2a
@@ -351,6 +368,7 @@ SPEC CHECKSUMS:
   Socket.IO-Client-Swift: ee4b8f80a3db18dd7f32b266ddf273310609443c
   Solar-dev: 4612dc9878b9fed2667d23b327f1d4e54e16e8d0
   Starscream: 19b5533ddb925208db698f0ac508a100b884a1b9
+  SwiftAlgorithms: 38dda4731d19027fdeee1125f973111bf3386b53
   SwiftMessages: 1a23aef303fa7bb26ad802880746cf8358e378fe
   SwiftRangeSlider: f86e3b637c961120158fa1a89277c8343845cbe4
   SwiftyJSON: f5b1bf1cd8dd53cd25887ac0eabcfd92301c6a5a
@@ -358,6 +376,6 @@ SPEC CHECKSUMS:
   Turf: a1604e74adce15c58462c9ae2acdbf049d5be35e
   VerticalSlider: 655f2bc3ed062bac13e21c174f5ff93b8308571d
 
-PODFILE CHECKSUM: ad8af962f134497470c6b94c931564b0b995b129
+PODFILE CHECKSUM: 91300de3e13c2cb36adae6cdb6eafbdac34eef78
 
 COCOAPODS: 1.16.2

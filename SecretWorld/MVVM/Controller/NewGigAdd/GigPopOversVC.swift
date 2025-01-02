@@ -52,12 +52,14 @@ class GigPopOversVC: UIViewController {
                        tblVwList.reloadData()
                    case "paymentMethod":
                        if locationType == "worldwide"{
-                           arrTitle.append("Cash")
+                           arrTitle.append("Online")
                        }else{
                            arrTitle.append("Cash")
                            arrTitle.append("Online")
                        }
-                       
+                   case "calender":
+                       arrTitle.append("Weekly")
+                       arrTitle.append("Monthly")
                    default:
                        break
                    }
@@ -115,9 +117,9 @@ extension GigPopOversVC: UITableViewDelegate,UITableViewDataSource{
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         self.dismiss(animated: false)
         if type == "category"{
-            callBack?(type ?? "", arrGetCategories[indexPath.row].name ?? "", arrGetCategories[indexPath.row].id)
+            callBack?(type ?? "", arrGetCategories[indexPath.row].name, arrGetCategories[indexPath.row].id)
         }else if type == "skills"{
-            callBack?(type ?? "", arrGetSkills[indexPath.row].name ?? "", arrGetSkills[indexPath.row].id)
+            callBack?(type ?? "", arrGetSkills[indexPath.row].name, arrGetSkills[indexPath.row].id)
         }else{
             callBack?(type ?? "", arrTitle[indexPath.row], "")
         }
