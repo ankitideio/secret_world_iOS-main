@@ -58,6 +58,7 @@ class NewGigAddVC: UIViewController {
     @IBOutlet weak var txtVwDescription: IQTextView!
     @IBOutlet weak var txtFldTitle: UITextField!
     @IBOutlet weak var lblTitle: UILabel!
+    @IBOutlet weak var btnCreate: UIButton!
     
     //MARK: - VARIABLES
     var selectGigType = "inMyLocation"
@@ -96,7 +97,7 @@ class NewGigAddVC: UIViewController {
     var arrSkillId = [String]()
     var gigId = ""
     var isDetailData = false
-    
+    var newPrice = ""
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -142,13 +143,21 @@ func uiSet(){
         getCommisionApi()
        
         lblTitle.text = "Add Task"
-
+        btnCreate.setTitle("Create", for: .normal)
     }else{
         Store.AddGigImage = nil
         Store.AddGigDetail = nil
         lblTitle.text = "Edit Task"
+        btnCreate.setTitle("Update", for: .normal)
         if self.isDetailData == false{
-            
+             newPrice = "\(userGigDetail?.gig?.price ?? 0)"
+             serviceName = userGigDetail?.gig?.title ?? ""
+             serviceDuration = userGigDetail?.gig?.serviceDuration ?? ""
+             experience = userGigDetail?.gig?.experience ?? ""
+             paymentTerm = "\(userGigDetail?.gig?.paymentTerms ?? 0)"
+             paymentMethod = "\(userGigDetail?.gig?.paymentMethod ?? 0)"
+            categoryId = userGigDetail?.gig?.category?.id ?? ""
+            isCancellation = userGigDetail?.gig?.isCancellation ?? 0
             self.txtFldTitle.text = userGigDetail?.gig?.title ?? ""
             self.txtVwDescription.text = userGigDetail?.gig?.about ?? ""
             self.btnChooseCategory.setTitle(userGigDetail?.gig?.category?.name ?? "", for: .normal)
@@ -161,7 +170,6 @@ func uiSet(){
             self.txtFldDressCode.text = userGigDetail?.gig?.dressCode ?? ""
             self.txtVwSafetyTips.text = userGigDetail?.gig?.safetyTips ?? ""
             self.txtVwInstruction.text = userGigDetail?.gig?.description ?? ""
-            self.txtFldTime.text = userGigDetail?.gig?.startTime ?? ""
             self.txtFldTimeDuration.text = userGigDetail?.gig?.serviceDuration ?? ""
             self.imgVwGig.imageLoad(imageUrl: userGigDetail?.gig?.image ?? "")
             
@@ -173,7 +181,12 @@ func uiSet(){
                 let formattedDate = displayDateFormatter.string(from: date)
                 self.txtFldDate.text = formattedDate
             }
-            
+            if let time = isoDateFormatter.date(from: userGigDetail?.gig?.startTime ?? "") {
+                let displayDateFormatter = DateFormatter()
+                displayDateFormatter.dateFormat = "hh:mm a"
+                let formattedDate = displayDateFormatter.string(from: time)
+                self.txtFldTime.text = formattedDate
+            }
             if userGigDetail?.gig?.paymentMethod == 0{
                 btnPaymentMethod.setTitle("Online", for: .normal)
                 btnPaymentMethod.setTitleColor(.black, for: .normal)
@@ -213,7 +226,14 @@ func uiSet(){
                 btnWorldwide.setTitleColor(.app, for: .normal)
             }
         }else{
-           
+            newPrice = "\(bsuinessGigDetail?.price ?? 0)"
+            isCancellation = bsuinessGigDetail?.isCancellation ?? 0
+             serviceName = bsuinessGigDetail?.title ?? ""
+             serviceDuration = bsuinessGigDetail?.serviceDuration ?? ""
+             experience = bsuinessGigDetail?.experience ?? ""
+             paymentTerm = "\(bsuinessGigDetail?.paymentTerms ?? 0)"
+             paymentMethod = "\(bsuinessGigDetail?.paymentMethod ?? 0)"
+            categoryId = bsuinessGigDetail?.category?.id ?? ""
             self.txtFldTitle.text = bsuinessGigDetail?.title ?? ""
             self.txtVwDescription.text = bsuinessGigDetail?.about ?? ""
             self.btnChooseCategory.setTitle(bsuinessGigDetail?.category?.name ?? "", for: .normal)
@@ -226,7 +246,6 @@ func uiSet(){
             self.txtFldDressCode.text = bsuinessGigDetail?.dressCode ?? ""
             self.txtVwSafetyTips.text = bsuinessGigDetail?.safetyTips ?? ""
             self.txtVwInstruction.text = bsuinessGigDetail?.description ?? ""
-            self.txtFldTime.text = bsuinessGigDetail?.startTime ?? ""
             self.txtFldTimeDuration.text = bsuinessGigDetail?.serviceDuration ?? ""
             self.imgVwGig.imageLoad(imageUrl: bsuinessGigDetail?.image ?? "")
             
@@ -237,6 +256,12 @@ func uiSet(){
                 displayDateFormatter.dateFormat = "dd-MM-yyyy"
                 let formattedDate = displayDateFormatter.string(from: date)
                 self.txtFldDate.text = formattedDate
+            }
+            if let time = isoDateFormatter.date(from: bsuinessGigDetail?.startTime ?? "") {
+                let displayDateFormatter = DateFormatter()
+                displayDateFormatter.dateFormat = "hh:mm a"
+                let formattedDate = displayDateFormatter.string(from: time)
+                self.txtFldTime.text = formattedDate
             }
             if bsuinessGigDetail?.isCancellation == 1{
                 btnTick.isSelected = true
@@ -433,18 +458,38 @@ func getCommisionApi(){
             showSwiftyAlert("", "Please select time duration", false)
         }else{
             if paymentMethods == 0{
-                self.viewModel.checAddGig(price: Int(self.txtFldAmount.text ?? "") ?? 0) { message in
-                    let vc = self.storyboard?.instantiateViewController(withIdentifier: "PlatformfeePopUpVC") as! PlatformfeePopUpVC
-                    
-                    vc.titleText = message
-                    vc.callBack = { [weak self] isPay in
-                        guard let self = self else { return }
-                        self.addUpdateGigApi()
+                if isComing == true{
+                    self.viewModel.checAddGig(price: Int(self.txtFldAmount.text ?? "") ?? 0) { message in
+                        let vc = self.storyboard?.instantiateViewController(withIdentifier: "PlatformfeePopUpVC") as! PlatformfeePopUpVC
+                        
+                        vc.titleText = message
+                        vc.callBack = { [weak self] isPay in
+                            guard let self = self else { return }
+                            self.addUpdateGigApi()
+                        }
+                        
+                        vc.modalPresentationStyle = .overFullScreen
+                        self.navigationController?.present(vc, animated: false)
                     }
-                    
-                    vc.modalPresentationStyle = .overFullScreen
-                    self.navigationController?.present(vc, animated: false)
+                }else{
+                    if newPrice == txtFldAmount.text {
+                        self.addUpdateGigApi()
+                    }else{
+                        self.viewModel.checAddGig(price: Int(self.txtFldAmount.text ?? "") ?? 0) { message in
+                            let vc = self.storyboard?.instantiateViewController(withIdentifier: "PlatformfeePopUpVC") as! PlatformfeePopUpVC
+                            
+                            vc.titleText = message
+                            vc.callBack = { [weak self] isPay in
+                                guard let self = self else { return }
+                                self.addUpdateGigApi()
+                            }
+                            
+                            vc.modalPresentationStyle = .overFullScreen
+                            self.navigationController?.present(vc, animated: false)
+                        }
+                    }
                 }
+              
             }else{
                 self.addUpdateGigApi()
             }
@@ -484,7 +529,7 @@ func getCommisionApi(){
                                    participants: txtFldNoOfPeople.text ?? "",
                                    about: txtVwDescription.text ?? "",
                                    price: Int(txtFldAmount.text ?? "") ?? 0,
-                                   gigId: "",
+                                   gigId: gigId,
                                    experience: btnChooseExperience.title(for: .normal) ?? "",
                                    address: txtVwAddress.text ?? "",
                                    paymentTerms: paymentTerms,
@@ -509,6 +554,11 @@ func getCommisionApi(){
                 
             }
         }else{
+            if txtFldAmount.text == newPrice{
+                
+            }else{
+                
+            }
             viewModel.UpdateNewGigApi(id:gigId, usertype: Store.role ?? "",
                                    image: imgVwGig,
                                    name: Store.UserDetail?["userName"] as? String ?? "",
@@ -523,7 +573,7 @@ func getCommisionApi(){
                                    participants: txtFldNoOfPeople.text ?? "",
                                    about: txtVwDescription.text ?? "",
                                    price: Int(txtFldAmount.text ?? "") ?? 0,
-                                   gigId: "",
+                                      gigId: gigId,
                                    experience: btnChooseExperience.title(for: .normal) ?? "",
                                    address: txtVwAddress.text ?? "",
                                    paymentTerms: paymentTerms,

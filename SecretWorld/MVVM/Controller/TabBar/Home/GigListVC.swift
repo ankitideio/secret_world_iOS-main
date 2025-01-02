@@ -65,11 +65,11 @@ class GigListVC: UIViewController{
             arrGigList.removeAll()
             getGigListApi(lat: lat ?? 0.0, long: long ?? 0.0, typee: selectedType)
         }else if isComing == 1{
-            lblTitle.text = "Applied Gigs"
+            lblTitle.text = "Applied Tasks"
             arrAppliedGigs.removeAll()
             getAppliedGigApi(gigtype: appliedGigType)
         }else{
-            lblTitle.text = "Upcoming Gig"
+            lblTitle.text = "Upcoming Tasks"
             arrBusinessGiglist.removeAll()
             getBusinessUserGigList(gigtype: gigType)
         }
@@ -446,7 +446,7 @@ extension GigListVC:UICollectionViewDelegate,UICollectionViewDataSource,UICollec
                 }
             }else if isComing == 2{
                 if indexPath.row == 1{
-                    lblTitle.text = "Ongoing Gigs"
+                    lblTitle.text = "Ongoing Tasks"
                     if let cell0 = collectionView.cellForItem(at: IndexPath(item: 0, section: 0)) as? GigFilterCVC {
                         cell0.isUserInteractionEnabled = true
                         print("cell0\(cell0.isUserInteractionEnabled)")
@@ -464,7 +464,7 @@ extension GigListVC:UICollectionViewDelegate,UICollectionViewDataSource,UICollec
                     arrBusinessGiglist.removeAll()
                     getBusinessUserGigList(gigtype: gigType)
                 }else if indexPath.row == 2{
-                    lblTitle.text = "Completed Gigs"
+                    lblTitle.text = "Completed Tasks"
                     if let cell0 = collectionView.cellForItem(at: IndexPath(item: 0, section: 0)) as? GigFilterCVC {
                         cell0.isUserInteractionEnabled = true
                         print("cell0\(cell0.isUserInteractionEnabled)")
@@ -482,7 +482,7 @@ extension GigListVC:UICollectionViewDelegate,UICollectionViewDataSource,UICollec
                     arrBusinessGiglist.removeAll()
                     getBusinessUserGigList(gigtype: gigType)
                 }else{
-                    lblTitle.text = "Upcoming Gigs"
+                    lblTitle.text = "Upcoming Tasks"
                     if let cell0 = collectionView.cellForItem(at: IndexPath(item: 0, section: 0)) as? GigFilterCVC {
                         cell0.isUserInteractionEnabled = false
                         print("cell0\(cell0.isUserInteractionEnabled)")

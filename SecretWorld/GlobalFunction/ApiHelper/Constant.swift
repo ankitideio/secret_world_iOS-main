@@ -9,9 +9,12 @@ import Foundation
 import UIKit
 //MARK: - URL + KEYS
 
-let commonBaseURL = "http://18.218.117.223/secretWorld/v1/"
-let imageURL = "http://18.218.117.223/secretWorld/v1/"
-let baseURL = "http://18.218.117.223/secretWorld/v1/"
+//let commonBaseURL = "http://18.218.117.223/secretWorld/v1/"
+//let imageURL = "http://18.218.117.223/secretWorld/v1/"
+//let baseURL = "http://18.218.117.223/secretWorld/v1/"
+let commonBaseURL = "https://api.secretworld.ai/v1/"
+let imageURL = "https://api.secretworld.ai/v1/"
+let baseURL = "https://api.secretworld.ai/v1/"
 
 public typealias parameters = [String:Any]
 let securityKey = ""

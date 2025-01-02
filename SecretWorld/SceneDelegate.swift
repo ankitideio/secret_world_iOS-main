@@ -37,6 +37,23 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             OnboardingFirstVCRoot()
         }
     }
+    func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
+           if userActivity.activityType == NSUserActivityTypeBrowsingWeb {
+               if let url = userActivity.webpageURL {
+                   // Handle the deep link URL here
+                   print("Deep link URL: \(url)")
+                   
+                   // For example, extracting the taskId
+                   if url.pathComponents.count > 1 {
+                       let taskId = url.pathComponents[2]  // e.g., /taskId/676982526d9ff3ef55c365bd
+                       print("Task ID: \(taskId)")
+                   }
+
+                   // Perform navigation or logic based on the URL
+                   // For example, navigate to a specific screen based on the URL path
+               }
+           }
+       }
     func sceneDidDisconnect(_ scene: UIScene) {
         // Called as the scene is being released by the system.
         // This occurs shortly after the scene enters the background, or when its session is discarded.

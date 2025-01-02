@@ -38,7 +38,6 @@ class UserApplyGigVC: UIViewController, SideMenuNavigationControllerDelegate {
     @IBOutlet var lblServiceProvider: UILabel!
     @IBOutlet var lblPlace: UILabel!
     @IBOutlet var lblTitle: UILabel!
-    @IBOutlet weak var lblAbout: UILabel!
     @IBOutlet var imgVwTitle: UIImageView!
     @IBOutlet var lblreview: UILabel!
     @IBOutlet var heightViewReviewTile: NSLayoutConstraint!
@@ -80,10 +79,14 @@ class UserApplyGigVC: UIViewController, SideMenuNavigationControllerDelegate {
     var groupId = ""
     var isReviewNil = false
     private var solar: Solar?
+    var customAnnotations: [ClusterPoint] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        uiData()
+    }
+    func uiData(){
         sideMenu = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "SideMenuNavigationController") as? SideMenuNavigationController
          sideMenu?.sideMenuDelegate = self
         let swipeRight = UISwipeGestureRecognizer(target: self, action: #selector(handleSwipe))
@@ -114,8 +117,6 @@ class UserApplyGigVC: UIViewController, SideMenuNavigationControllerDelegate {
             flowLayout1.itemSize = UICollectionViewFlowLayout.automaticSize
             //collVwSkills.semanticContentAttribute = UISemanticContentAttribute.forceRightToLeft
         }
-
-        
     }
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
@@ -125,6 +126,7 @@ class UserApplyGigVC: UIViewController, SideMenuNavigationControllerDelegate {
         self.heightCollVwSkill.constant = heightDietry
         self.view.layoutIfNeeded()
       }
+    
     @objc func handleSwipe() {
         navigationController?.popViewController(animated: true)
     }
@@ -166,8 +168,6 @@ class UserApplyGigVC: UIViewController, SideMenuNavigationControllerDelegate {
         heightviewCompleteMsg.constant = 0
         viewServiceProvider.isHidden = true
         viewSeprator.isHidden = true
-        lblAbout.numberOfLines = 5
-        addTapGestureToLabel()
         getBusinessGigDetailApi()
         getCompleteParticipants(loader: false)
     }
@@ -187,6 +187,9 @@ class UserApplyGigVC: UIViewController, SideMenuNavigationControllerDelegate {
     func getBusinessGigDetailApi(){
        
         viewModel.GetBuisnessGigDetailApi(gigId: gigId) { data in
+            let clusterManager = ClusterManager(mapView: self.mapVw)
+            clusterManager.removeClusters()
+            self.customAnnotations.removeAll()
             self.arrSkill.removeAll()
             self.arrTools.removeAll()
             self.arrCategory.removeAll()
@@ -200,30 +203,15 @@ class UserApplyGigVC: UIViewController, SideMenuNavigationControllerDelegate {
             self.arrUserReview = data?.reviews ?? []
             self.businessGigDetail = data
             self.mapVw.mapboxMap.setCamera(to: CameraOptions(center: CLLocationCoordinate2D(latitude: data?.lat ?? 0, longitude: data?.long ?? 0),zoom: 11,bearing: 0,pitch: 0))
-            let someCoordinate = CLLocationCoordinate2D(latitude: data?.lat ?? 0, longitude: data?.long ?? 0)
-            var pointAnnotation = PointAnnotation(coordinate: someCoordinate)
-            let imageName = "unseen"
             
-            let price = data?.price ?? 0
-            let width = price < 10 ? 30 :
-                        price < 100 ? 45 :
-                        price < 1000 ? 55 :
-                        price < 10000 ? 65 : 75
-
-            guard let originalImage = UIImage(named: imageName) else { return }
-            let resizedImage = self.resizeGigImage(
-                originalImage,
-                to: price,
-                withTitle: "$\(price)", // Format price as a string
-                width: width
-            )
-
-            // Create the annotation
+            self.customAnnotations.append(ClusterPoint(coordinate: CLLocationCoordinate2D(latitude: data?.lat ?? 0, longitude: data?.long ?? 0 ), price: data?.price ?? 0, seen: 2))
           
-            pointAnnotation.image = .init(image: resizedImage, name: imageName)
-            let pointAnnotationManager = self.mapVw.annotations.makePointAnnotationManager()
-            pointAnnotationManager.annotations = [pointAnnotation]
-            
+
+            // To add clusters
+            clusterManager.addClusters(with: self.customAnnotations)
+
+           
+
             self.price = data?.price ?? 0
             if self.arrUserReview.count > 0{
                 self.lblreview.isHidden = false
@@ -254,8 +242,12 @@ class UserApplyGigVC: UIViewController, SideMenuNavigationControllerDelegate {
                 let formattedDate = displayDateFormatter.string(from: date)
                 self.lblGigDate.text = formattedDate
             }
-            
-            self.lblGigTime.text = data?.startTime ?? ""
+            if let time = isoDateFormatter.date(from: data?.startTime ?? "") {
+                let displayDateFormatter = DateFormatter()
+                displayDateFormatter.dateFormat = "hh:mm a"
+                let formattedDate = displayDateFormatter.string(from: time)
+                self.lblGigTime.text = formattedDate
+            }
             self.lblGigDuration.text = data?.serviceDuration ?? ""
             self.lblGigCategory.text = data?.category?.name ?? ""
             self.lblGigExperience.text = data?.experience ?? ""
@@ -263,7 +255,6 @@ class UserApplyGigVC: UIViewController, SideMenuNavigationControllerDelegate {
             self.lblInstruction.text = data?.description ?? ""
             self.lblSafetyTips.text = data?.safetyTips ?? ""
             self.lblPrice.text = "$\(data?.price ?? 0)"
-            self.lblInstruction.text = data?.safetyTips ?? ""
             if data?.distance ?? 0 > 0{
                 let formattedNumber = String(format: "%.0f", data?.distance ?? 0.0)
                 self.lblDistance.text = "\(formattedNumber)Km away from you"
@@ -331,23 +322,23 @@ class UserApplyGigVC: UIViewController, SideMenuNavigationControllerDelegate {
 
             
             self.textAbout = data?.about ?? ""
-            self.lblAbout.numberOfLines = 2
-            self.lblAbout.appendReadmore(after: self.textAbout, trailingContent: .readmore)
-            self.lblAbout.sizeToFit()
-            
+        
             self.lblPlace.text = data?.place ?? ""
             
-            self.lblTotalParticipant.text = "\(data?.appliedParticipants ?? 0)/\(data?.totalParticipants ?? "") Participants"
-            self.lblPrticipansCount.text = "\(data?.appliedParticipants ?? 0)"
+            let participant = (Int(data?.totalParticipants ?? "") ?? 0) - (Int(data?.participants ?? "") ?? 0)
+            
+            self.lblTotalParticipant.text = "\(participant)/\(data?.totalParticipants ?? "") Participants"
+            self.lblPrticipansCount.text = "\(participant)"
+//            self.lblTotalParticipant.text = "\(data?.appliedParticipants ?? 0)/\(data?.totalParticipants ?? "") Participants"
+//            self.lblPrticipansCount.text = "\(data?.appliedParticipants ?? 0)"
             
             self.lblTitle.text = data?.title ?? ""
-            let attributedString = NSMutableAttributedString(string: "Price  ")
-            attributedString.addAttribute(.foregroundColor, value: UIColor.black, range: NSRange(location: 0, length: 6))
-            let priceString = "$\(data?.price ?? 0)"
-            let priceAttributeString = NSAttributedString(string: priceString, attributes: [.foregroundColor: UIColor.app])
-            attributedString.append(priceAttributeString)
-            self.lblPrice.attributedText = attributedString
-            
+
+            if data?.paymentTerms == 0{
+                self.lblPrice.text = "$\(data?.price ?? 0) Fixed"
+            }else{
+                self.lblPrice.text = "$\(data?.price ?? 0) Hourly"
+            }
             self.tblVwReiew.reloadData()
             self.tblVwReiew.invalidateIntrinsicContentSize()
         }
@@ -368,72 +359,8 @@ class UserApplyGigVC: UIViewController, SideMenuNavigationControllerDelegate {
         }
     }
     
-    func addTapGestureToLabel() {
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(labelTapped))
-        lblAbout.isUserInteractionEnabled = true
-        lblAbout.addGestureRecognizer(tapGesture)
-    }
-    
-    @objc func labelTapped(_ gesture: UITapGestureRecognizer) {
-        guard let text = lblAbout.text else { return }
+  
 
-              let readmore = (text as NSString).range(of: TrailingContent.readmore.text)
-              let readless = (text as NSString).range(of: TrailingContent.readless.text)
-              if gesture.didTap(label: lblAbout, inRange: readmore) {
-                  lblAbout.appendReadLess(after: textAbout, trailingContent: .readless)
-              } else if  gesture.didTap(label: lblAbout, inRange: readless) {
-                  lblAbout.appendReadmore(after: textAbout, trailingContent: .readmore)
-              } else { return }
-    }
-    
-    func resizeImage(_ image: UIImage, to size: CGSize) -> UIImage? {
-      UIGraphicsBeginImageContextWithOptions(size, false, 0.0)
-      defer { UIGraphicsEndImageContext() }
-      image.draw(in: CGRect(origin: .zero, size: size))
-      return UIGraphicsGetImageFromCurrentImageContext()
-    }
-    func resizeGigImage(_ image: UIImage, to price: Int, withTitle title: String,width:Int) -> UIImage {
-        // Set static width and height to 30
-        let size = CGSize(width: width, height: 30)
-        
-        // Resize the original image to the fixed size
-        UIGraphicsBeginImageContextWithOptions(size, false, 0.0)
-        image.draw(in: CGRect(origin: .zero, size: size))
-        
-        // Set text color based on daytime/nighttime logic
-        var textColor: UIColor = .white
-        if let solar = Solar(coordinate: CLLocationCoordinate2D(latitude: myCurrentLat, longitude: myCurrentLong)) {
-            self.solar = solar
-            let isDaytime = solar.isDaytime
-            textColor = isDaytime ? .white : .black
-        }
-        
-        // Define text attributes (font, color, alignment)
-        let textAttributes: [NSAttributedString.Key: Any] = [
-            .font: UIFont(name: "Nunito-SemiBold", size: 13) ?? UIFont.systemFont(ofSize: 13, weight: .bold),
-            .foregroundColor: textColor,
-            .backgroundColor: UIColor.clear
-        ]
-        
-        // Calculate position for the centered text within the image
-        let textSize = title.size(withAttributes: textAttributes)
-        let textRect = CGRect(
-            x: (size.width - textSize.width) / 2,
-            y: (size.height - textSize.height) / 2,
-            width: textSize.width,
-            height: textSize.height
-        )
-        
-        // Draw the text into the image
-        let titleText = NSString(string: title)
-        titleText.draw(in: textRect, withAttributes: textAttributes)
-        
-        // Get the resulting image with text overlay
-        let resultImage = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        
-        return resultImage ?? image
-    }
     
     @IBAction func actionBack(_ sender: UIButton) {
         self.navigationController?.popViewController(animated: true)
@@ -564,7 +491,7 @@ class UserApplyGigVC: UIViewController, SideMenuNavigationControllerDelegate {
                 vc.isDetailData = true
                 vc.arrTools = self.arrTools
                 vc.arrSkills = self.arrSkill
-            
+                vc.gigId = gigId
                 vc.bsuinessGigDetail = self.businessGigDetail
                 self.navigationController?.pushViewController(vc, animated: true)
             }
@@ -743,13 +670,17 @@ extension UserApplyGigVC:UICollectionViewDelegate,UICollectionViewDataSource,UIC
         if collectionView == collVwTools{
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "BusinessCategoryCVC", for: indexPath) as! BusinessCategoryCVC
             cell.lblName.text = arrTools[indexPath.row]
-            cell.vwBg.layer.cornerRadius = 18
+            cell.vwBg.layer.cornerRadius = 4
+            cell.vwBg.backgroundColor = UIColor(hex: "#C7E2C4")
+            cell.lblName.textColor = .black
             cell.widthBtnCross.constant = 0
             return cell
         }else{
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "BusinessCategoryCVC", for: indexPath) as! BusinessCategoryCVC
             cell.lblName.text = arrSkill[indexPath.row].name
-            cell.vwBg.layer.cornerRadius = 18
+            cell.vwBg.layer.cornerRadius = 4
+            cell.vwBg.backgroundColor = UIColor(hex: "#C7E2C4")
+            cell.lblName.textColor = .black
             cell.widthBtnCross.constant = 0
             
             return cell

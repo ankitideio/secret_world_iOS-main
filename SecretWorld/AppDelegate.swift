@@ -44,6 +44,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         Thread.sleep(forTimeInterval: 2.0)
         return true
     }
+   
+    // This method is called when your app is opened via a Universal Link
+     func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
+         if userActivity.activityType == NSUserActivityTypeBrowsingWeb {
+             if let url = userActivity.webpageURL {
+                 // Handle the deep link URL here
+                 print("Deep link URL: \(url)")
+              
+             }
+         }
+         return true
+     }
 
     // MARK: UISceneSession Lifecycle
 
@@ -62,7 +74,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
 
     }
- 
+  
     func configureNotification() {
         if #available(iOS 10.0, *) {
             let center = UNUserNotificationCenter.current()

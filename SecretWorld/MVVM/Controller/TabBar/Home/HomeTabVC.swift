@@ -526,11 +526,14 @@ extension HomeTabVC:UICollectionViewDelegate,UICollectionViewDataSource,UICollec
     }
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if collectionView == collVwGiglist{
-            let vc = self.storyboard?.instantiateViewController(withIdentifier: "ApplyGigVC") as! ApplyGigVC
-            Store.isUserParticipantsList = false
-            vc.isComing = 0
-            vc.gigId = arrGigs[indexPath.row].id ?? ""
+            let vc = self.storyboard?.instantiateViewController(withIdentifier: "ItineraryVC") as! ItineraryVC
             self.navigationController?.pushViewController(vc, animated: true)
+
+//            let vc = self.storyboard?.instantiateViewController(withIdentifier: "ApplyGigVC") as! ApplyGigVC
+//            Store.isUserParticipantsList = false
+//            vc.isComing = 0
+//            vc.gigId = arrGigs[indexPath.row].id ?? ""
+//            self.navigationController?.pushViewController(vc, animated: true)
         }else if collectionView == collVwBusinesses{
             let vc = self.storyboard?.instantiateViewController(withIdentifier: "AboutServicesVC") as! AboutServicesVC
             vc.businessId = arrBusiness[indexPath.row].id ?? ""

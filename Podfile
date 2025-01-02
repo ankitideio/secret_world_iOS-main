@@ -44,4 +44,7 @@ target 'SecretWorld' do
   pod "Pulsator"
   pod 'Hero'
   pod 'MaterialComponents/Slider'
+  pod 'FSCalendar'
+  pod 'CalendarKit'
+  pod 'Charts'
 end
