@@ -15,9 +15,12 @@ class SelectCityVC: UIViewController {
     //MARK: - VARIBALES
     var cityName:String?
     var shortCityName:String?
-    var callBack:((_ cityName:String?,_ lat:Double?,_ long:Double?)->())?
+    var callBack:((_ cityName:String?,_ lat:Double?,_ long:Double?,_ zipCode:String?,_ country:String?,_ placeName:String?)->())?
     var latitude = Double()
     var longitude = Double()
+    var zipcode:String?
+    var placeName:String?
+    var country:String?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -45,7 +48,7 @@ class SelectCityVC: UIViewController {
             showSwiftyAlert("", "Select city", false)
         }else{
             self.dismiss(animated: true)
-            callBack?(txtFldCity.text ?? "",latitude,longitude)
+            callBack?(cityName,latitude,longitude, zipcode,country,placeName)
         }
     }
     @IBAction func actionBack(_ sender: UIButton) {
@@ -59,8 +62,20 @@ class SelectCityVC: UIViewController {
 //MARK: - GMSAutocompleteViewControllerDelegate
 extension SelectCityVC: GMSAutocompleteViewControllerDelegate {
     
+//    func viewController(_ viewController: GMSAutocompleteViewController, didAutocompleteWith place: GMSPlace) {
+//        
+//        if place.coordinate.latitude.description.count != 0 {
+//            self.latitude = place.coordinate.latitude
+//        }
+//        if place.coordinate.longitude.description.count != 0 {
+//            self.longitude = place.coordinate.longitude
+//        }
+//        txtFldCity.text = place.formattedAddress
+//        dismiss(animated: true, completion: nil)
+//    }
     func viewController(_ viewController: GMSAutocompleteViewController, didAutocompleteWith place: GMSPlace) {
         
+        // Store latitude & longitude
         if place.coordinate.latitude.description.count != 0 {
             self.latitude = place.coordinate.latitude
         }
@@ -68,9 +83,43 @@ extension SelectCityVC: GMSAutocompleteViewControllerDelegate {
             self.longitude = place.coordinate.longitude
         }
         txtFldCity.text = place.formattedAddress
+        
+        // Extract Place Name (Primary Name)
+        let placeName = place.name
+
+        // Extract City Name, ZIP Code, and Country
+        var cityName: String?
+        var stateName: String?
+        var zipCode: String?
+        var countryName: String?
+        
+        if let addressComponents = place.addressComponents {
+            for component in addressComponents {
+                if component.types.contains("locality") {
+                    cityName = component.name // Primary way to get city
+                } else if component.types.contains("administrative_area_level_1") && cityName == nil {
+                    stateName = component.name // Fallback if 'locality' is not available
+                } else if component.types.contains("postal_code") {
+                    zipCode = component.name
+                } else if component.types.contains("country") {
+                    countryName = component.name
+                }
+            }
+        }
+        
+        // Fallback: If city is not found, use state name
+        self.cityName = cityName ?? stateName
+        self.zipcode = zipCode
+        self.country = countryName
+        self.placeName = placeName
+
+        print("Place Name: \(placeName ?? "Not Found")")
+        print("City Name: \(self.cityName ?? "Not Found")") // Ensuring it prints correctly
+        print("ZIP Code: \(zipCode ?? "Not Found")")
+        print("Country: \(countryName ?? "Not Found")")
+        
         dismiss(animated: true, completion: nil)
     }
-    
     func viewController(_ viewController: GMSAutocompleteViewController, didFailAutocompleteWithError error: Error) {
         print("Error: ", error.localizedDescription)
     }

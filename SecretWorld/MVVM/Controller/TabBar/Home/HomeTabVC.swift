@@ -484,11 +484,10 @@ extension HomeTabVC:UICollectionViewDelegate,UICollectionViewDataSource,UICollec
             cell.vwShadow.layer.shouldRasterize = true
             cell.vwShadow.layer.rasterizationScale = UIScreen.main.scale
             cell.vwShadow.layer.cornerRadius = 10
-            cell.imgVwService.layer.cornerRadius = 10
-            cell.imgVwService.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+      
             let business = arrBusiness[indexPath.row]
             cell.imgVwUser.imageLoad(imageUrl: business.profilePhoto ?? "")
-            cell.imgVwService.imageLoad(imageUrl: business.coverPhoto ?? "")
+        
             cell.lblServiceName.text = business.businessname ?? ""
             if business.status == 2{
                 cell.imgVwBlueTick.isHidden = false
@@ -498,7 +497,7 @@ extension HomeTabVC:UICollectionViewDelegate,UICollectionViewDataSource,UICollec
             let rating = business.userRating ?? 0.0
             let formattedRating = String(format: "%.1f", rating)
             cell.lblRating.text = formattedRating
-            cell.lblUserRatingCount.text = "(\(business.userRatingCount ?? 0))"
+       
             var openingHoursFound = false
             for openingHour in business.openingHours ?? [] {
                 if openingHour.day == currentDay {

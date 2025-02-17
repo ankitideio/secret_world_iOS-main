@@ -17,13 +17,20 @@ class CancelGigVC: UIViewController {
     
     var isSelect = 0
     var viewModelService = AddServiceVM()
+    var viewModelItinerary = ItineraryVM()
     var viewModelGig = AddGigVM()
     var gigId = ""
     var callBack:((_ message:String?)->())?
     var viewModelPopup = PopUpVM()
     var popupId = ""
+    var reviewId = ""
     var bankId = ""
     var viewModel = PaymentVM()
+    var date = ""
+    var itineraryId = ""
+    var viewModelDeal = DealsVM()
+    var dealId = ""
+    
     override func viewDidLoad() {
         super.viewDidLoad()
    
@@ -32,10 +39,10 @@ class CancelGigVC: UIViewController {
      func uiSet(){
          switch isSelect{
          case 0:
-             lblTitle.text = "Cancel the Gig"
+             lblTitle.text = "Cancel the Task"
              print("gigid",gigId)
-             lblSubTitle.text = "Are you sure you want to cancel this gig? This action cannot be undone."
-             imgVw.image = UIImage(named: "deleteservice")
+             lblSubTitle.text = "Are you sure you want to cancel this task? This action cannot be undone."
+             imgVw.image = UIImage(named: "cancelgig")
              heightViewBAck.constant = 264
          case 1:
              lblTitle.text = "Delete the Service"
@@ -53,6 +60,21 @@ class CancelGigVC: UIViewController {
              lblSubTitle.text = "you want to delete this bank detail."
              imgVw.image = UIImage(named: "deleteservice")
              heightViewBAck.constant = 230
+         case 4:
+             lblTitle.text = "Delete the Review"
+             lblSubTitle.text = "you want to delete this review."
+             imgVw.image = UIImage(named: "deleteservice")
+             heightViewBAck.constant = 230
+         case 5:
+             lblTitle.text = "Delete the Itinerary"
+             lblSubTitle.text = "Are you sure you want to delete this itinerary? This action cannot be undone."
+             imgVw.image = UIImage(named: "deleteservice")
+             heightViewBAck.constant = 264
+         case 6:
+             lblTitle.text = "Delete the Deal"
+             lblSubTitle.text = "Are you sure you want to delete this deal? This action cannot be undone."
+             imgVw.image = UIImage(named: "deleteservice")
+             heightViewBAck.constant = 264
          default:
              break
          }
@@ -81,6 +103,24 @@ class CancelGigVC: UIViewController {
                 self.dismiss(animated: true)
                 self.callBack?(message)
             }
+        case 4:
+        
+            viewModelPopup.deletePopupReview(reviewId: reviewId) {  message in
+                self.dismiss(animated: true)
+                self.callBack?(message)
+            }
+            
+        case 5:
+            viewModelItinerary.deleteItinerary(id: itineraryId, date: date) { message in
+                self.dismiss(animated: true)
+                self.callBack?(message)
+            }
+        case 6:
+            viewModelDeal.deleteDealsApi(dealId: dealId) { message in
+                self.dismiss(animated: true)
+                self.callBack?(message)
+            }
+            
         default:
             break
         }

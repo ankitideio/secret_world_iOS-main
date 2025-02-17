@@ -106,7 +106,7 @@ struct Gig: Codable {
     let type: String?
     let image: String?
     let participants: String?
-    let price: Int?
+    let price: Double?
     let about: String?
     let isDeleted, isCompleted: Bool?
     let createdAt, updatedAt: String?

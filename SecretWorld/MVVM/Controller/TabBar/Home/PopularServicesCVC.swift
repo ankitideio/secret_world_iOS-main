@@ -9,14 +9,14 @@ import UIKit
 import AlignedCollectionViewFlowLayout
 
 class PopularServicesCVC: UICollectionViewCell {
-    @IBOutlet var lblUserRatingCount: UILabel!
+
+    @IBOutlet weak var lblAddress: UILabel!
     @IBOutlet var imgVwBlueTick: UIImageView!
     @IBOutlet var collVwSubCategory: UICollectionView!
     @IBOutlet var lblRating: UILabel!
     @IBOutlet var lblTime: UILabel!
     @IBOutlet var lblServiceName: UILabel!
     @IBOutlet var imgVwUser: UIImageView!
-    @IBOutlet var imgVwService: UIImageView!
     @IBOutlet var vwShadow: UIView!
     
     var arrCategories = [String]()
@@ -33,9 +33,7 @@ class PopularServicesCVC: UICollectionViewCell {
             }
         collVwSubCategory.delegate = self
         collVwSubCategory.dataSource = self
-        imgVwService.layer.cornerRadius = 10
-        imgVwService.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
-
+     
     }
     func uiSet(){
         if isComing == true{
@@ -71,6 +69,7 @@ extension PopularServicesCVC:UICollectionViewDelegate,UICollectionViewDataSource
         
             cell.vwBg.layer.cornerRadius = 2
             cell.lblName.font = UIFont.systemFont(ofSize: 9)
+        cell.lblName.textColor = .black
             cell.vwBg.backgroundColor = UIColor(red: 0xEF/255.0, green: 0xEF/255.0, blue: 0xEF/255.0, alpha: 1.0)
             cell.widthBtnCross.constant = 0
         cell.lblName.text = arrCategories[indexPath.row]

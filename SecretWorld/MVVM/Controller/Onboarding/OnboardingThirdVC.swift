@@ -86,10 +86,11 @@ extension OnboardingThirdVC: ASAuthorizationControllerDelegate,ASAuthorizationCo
             let appleUserLastName = appleIDCredential.fullName?.familyName
             
             let appleUserEmail = appleIDCredential.email
+            print(appleIDCredential)
             print("Name-----",appleIDCredential.fullName?.namePrefix ?? "",appleIDCredential.fullName?.nameSuffix ?? "",appleIDCredential.fullName?.middleName ?? "",appleIDCredential.fullName?.givenName ?? "")
             DispatchQueue.main.asyncAfter(deadline: .now()){
              
-                self.viewModel.socialLoginApi(socialId: appleId, name: appleUserFullName, profile_photo: "", socialType: "apple", usertype: "", latitude: "", longitude: "", mobile: "", fcmToken: "") { data in
+                self.viewModel.socialLoginApi(socialId: appleId, name: appleUserFullName, profile_photo: "", socialType: "apple", usertype: "", latitude: "", longitude: "", mobile: "", fcmToken: Store.deviceToken ?? "") { data in
                     socialDetail = ["name":data?.user?.name ?? "","profile":data?.user?.profilePhoto ?? ""]
                     Store.authKey = data?.token ?? ""
                     if data?.user?.profileStatus == 1 || data?.user?.profileStatus == 0{

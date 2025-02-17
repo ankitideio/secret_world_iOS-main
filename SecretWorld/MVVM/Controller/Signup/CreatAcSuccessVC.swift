@@ -19,10 +19,10 @@ class CreatAcSuccessVC: UIViewController {
     }
     
     @IBAction func actionContinue(_ sender: UIButton) {
-        
-        let vc = storyboard?.instantiateViewController(withIdentifier: "TabBarVC") as! TabBarVC
-        vc.selectedButtonTag = 1
-        navigationController?.pushViewController(vc, animated: true)
+        SceneDelegate().userRoot()
+//        let vc = storyboard?.instantiateViewController(withIdentifier: "TabBarVC") as! TabBarVC
+//        vc.selectedButtonTag = 1
+//        navigationController?.pushViewController(vc, animated: true)
         
     }
    

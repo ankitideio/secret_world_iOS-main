@@ -85,20 +85,15 @@ class CustomSlider: UIView {
         thumbLabel.frame = CGRect(x: 0, y: 0, width: 50, height: 25)
       
         if type == 1{
-           thumbLabel.text = "\(Int(slider.value))Km"
+           thumbLabel.text = "\(Int(slider.value)) miles"
             
         }else if type == 2{
-            if index == 1{
-                thumbLabel.text = "\(Int(slider.value)) Hour"
-            }else{
-                thumbLabel.text = "\(Int(slider.value))Km"
-            }
+           
+            thumbLabel.text = "\(Int(slider.value)) miles"
+            
         }else{
-            if index == 0{
-                thumbLabel.text = "\(Int(slider.value))Km"
-            }else{
-                thumbLabel.text = "\(Int(slider.value)) Star"
-            }
+            thumbLabel.text = "\(Int(slider.value)) miles"
+            
         }
         addSubview(thumbLabel)
 
@@ -115,27 +110,34 @@ class CustomSlider: UIView {
     @objc private func sliderValueChanged(_ sender: MDCSlider) {
         print("valuerr",sender.value)
         if type == 1{
-           thumbLabel.text = "\(Int(sender.value))Km"
+           thumbLabel.text = "\(Int(sender.value)) miles"
             radius = Int(sender.value)
     
         }else if type == 2{
-            if index == 1{
-                endingSoon = Int(sender.value)
-                isSelectEndingSoon = true
-                thumbLabel.text = "\(Int(sender.value)) Hour"
-            }else if index == 2{
-                radius = Int(sender.value)
-                thumbLabel.text = "\(Int(sender.value))Km"
-            }
+         
+//            if index == 1{
+                popUpMiles = sender.value
+//                endingSoon = Int(sender.value)
+                isSelectPopUpDistance = true
+//                isSelectEndingSoon = true
+                thumbLabel.text = "\(Int(sender.value)) miles"
+                
+//            }else if index == 2{
+//                radius = Int(sender.value)
+//                thumbLabel.text = "\(Int(sender.value)) miles"
+//            }
         }else{
-            if index == 0{
-                radius = Int(sender.value)
-                thumbLabel.text = "\(Int(sender.value))Km"
-            }else if index == 2{
-                rating = Int(sender.value)
-                isSelectRating = true
-                thumbLabel.text = "\(Int(sender.value)) Star"
-            }
+            businessMiles = sender.value
+            isSelectBusinessDistance = true
+            thumbLabel.text = "\(Int(sender.value)) miles"
+//            if index == 0{
+//                radius = Int(sender.value)
+//                thumbLabel.text = "\(Int(sender.value)) miles"
+//            }else if index == 2{
+//                rating = Int(sender.value)
+//                isSelectRating = true
+//                thumbLabel.text = "\(Int(sender.value)) miles"
+//            }
         }
         updateThumbLabelPosition()
     }

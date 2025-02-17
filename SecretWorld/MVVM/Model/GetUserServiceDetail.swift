@@ -71,9 +71,10 @@ struct GetBusinessDetail: Codable {
     let categoryName: [String]?
     let description: String?
     let rating: Double?
-    let ratingCount: Int?
+    let typesOfCategoryDetails:[String]?
+    let ratingCount,category: Int?
     let openingHours: [OpeningHourer]?
-
+    let businessDeals:[businessDeals]?
     enum CodingKeys: String, CodingKey {
         case id = "_id"
         case userID = "user_id"
@@ -82,7 +83,7 @@ struct GetBusinessDetail: Codable {
         case businessname
         case coverPhoto = "cover_photo"
         case businessID = "business_id"
-        case place, latitude, longitude, serviceImages, description, rating, openingHours,ratingCount,categoryName,about
+        case place, latitude, longitude, serviceImages, description, rating, openingHours,ratingCount,categoryName,about,category,typesOfCategoryDetails,businessDeals
     }
 }
 

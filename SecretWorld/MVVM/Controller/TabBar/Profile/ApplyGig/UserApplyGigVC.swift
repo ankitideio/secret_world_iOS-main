@@ -65,7 +65,7 @@ class UserApplyGigVC: UIViewController, SideMenuNavigationControllerDelegate {
     var heightDescription = 0
     var reviewHeight = 0
     var paymentStatus = 0
-    var price = 0
+    var price = 0.0
     var providerUserId = ""
     var userGigDetail:GetGigDetailData?
     var arrCompleteParticipants = [GetRequestData]()
@@ -204,7 +204,7 @@ class UserApplyGigVC: UIViewController, SideMenuNavigationControllerDelegate {
             self.businessGigDetail = data
             self.mapVw.mapboxMap.setCamera(to: CameraOptions(center: CLLocationCoordinate2D(latitude: data?.lat ?? 0, longitude: data?.long ?? 0),zoom: 11,bearing: 0,pitch: 0))
             
-            self.customAnnotations.append(ClusterPoint(coordinate: CLLocationCoordinate2D(latitude: data?.lat ?? 0, longitude: data?.long ?? 0 ), price: data?.price ?? 0, seen: 2))
+            self.customAnnotations.append(ClusterPoint(coordinate: CLLocationCoordinate2D(latitude: data?.lat ?? 0, longitude: data?.long ?? 0 ), price: Int(data?.price ?? 0), seen: 2))
           
 
             // To add clusters

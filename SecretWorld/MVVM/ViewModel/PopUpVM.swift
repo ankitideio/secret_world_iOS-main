@@ -15,14 +15,15 @@ class PopUpVM {
                      storeType:Int,
                      name: String,
                      business_logo: UIImageView,
-                     image: UIImageView,
                      startDate: String,
                      endDate: String,
                      lat: Double,
                      long: Double,
+                     deals:String,
+                     availability:Int,
                      description: String,
-                     addProducts: [Products],
-                     isMarker:Bool,
+                     categoryType:Int,
+                     arrImages:[String],
                      onSuccess: @escaping ((_ message:String?) -> ())) {
         
         let formatter = DateFormatter()
@@ -31,68 +32,35 @@ class PopUpVM {
         let date = formatter.string(from: Date())
         
         let imageInfo = ImageStructInfo(fileName: "Img\(date).jpeg", type: "jpeg", data: business_logo.image?.toData() ?? Data(), key: "business_logo")
-        let markerImageInfo = ImageStructInfo(fileName: "Img\(date).jpeg", type: "jpeg", data: image.image?.toData() ?? Data(), key: "image")
         
-        var productDict = [[String: Any]]()
-        for product in addProducts {
-            let productInfo: [String: Any] = [
-                "productName": product.name ?? "",
-                "price": product.price ?? 0,
-                "image": product.images ?? []
-            ]
-            productDict.append(productInfo)
+        
+        
+        let param: [String: Any]
+        
+        param = [
+            "place": place,
+            "storeType": storeType,
+            "usertype": usertype,
+            "name": name,
+            "business_logo": imageInfo,
+            "startDate": startDate,
+            "endDate": endDate,
+            "lat": lat,
+            "deals":deals,
+            "availability":availability,
+            "long": long,
+            "images":arrImages,
+            "description": description,
+            "categoryType":categoryType]
+        
+        
+        print(param)
+        
+        WebService.service(API.addPopup, param: param, service: .post, showHud: true, is_raw_form: false) { (model: CommonModel, jsonData, jsonSer) in
+            onSuccess(model.message)
         }
         
-        do {
-            
-            let jsonData = try JSONSerialization.data(withJSONObject: productDict)
-            
-            if let jsonString = String(data: jsonData, encoding: .utf8) {
-                print(jsonString)
-                let param: [String: Any]
-                if isMarker{
-                     param = [
-                        "place": place,
-                        "storeType": storeType,
-                        "usertype": usertype,
-                        "name": name,
-                        "business_logo": imageInfo,
-                        "image": markerImageInfo,
-                        "startDate": startDate,
-                        "endDate": endDate,
-                        "lat": lat,
-                        "long": long,
-                        "description": description,
-                        "addProducts":jsonString]
-                    
-                }else{
-                     param = [
-                        "place": place,
-                        "storeType": storeType,
-                        "usertype": usertype,
-                        "name": name,
-                        "business_logo": imageInfo,
-                        "startDate": startDate,
-                        "endDate": endDate,
-                        "lat": lat,
-                        "long": long,
-                        "description": description,
-                        "addProducts":jsonString]
-                    
-                }
-                print(param)
-                
-                
-                WebService.service(API.addPopup, param: param, service: .post, showHud: true, is_raw_form: false) { (model: CommonModel, jsonData, jsonSer) in
-                    onSuccess(model.message)
-                }
-                
-            } else {
-                print("Failed to convert JSON to string.")
-            }
-        } catch {
-            print("Error: \(error)")
-        }
+        
     }
     
     func getPopupDetailApi(loader:Bool,popupId:String,onSuccess:@escaping((PopupDetailData?)->())){
@@ -110,19 +78,20 @@ class PopUpVM {
     
     
     func UpdatePopUpApi(id:String,
-                        name: String,
                         usertype: String,
-                        storeType: Int,
+                        place:String,
+                        storeType:Int,
+                        name: String,
                         business_logo: UIImageView,
-                        image: UIImageView,
                         startDate: String,
                         endDate: String,
                         lat: Double,
                         long: Double,
+                        deals:String,
+                        availability:Int,
                         description: String,
-                        addProducts: [AddProducts],
-                        place:String,
-                        isMarker:Bool,
+                        categoryType:Int,
+                        arrImages:[String],
                         onSuccess: @escaping ((_ message:String?) -> ())) {
         
         let formatter = DateFormatter()
@@ -131,68 +100,31 @@ class PopUpVM {
         let date = formatter.string(from: Date())
         
         let imageInfo = ImageStructInfo(fileName: "Img\(date).jpeg", type: "jpeg", data: business_logo.image?.toData() ?? Data(), key: "business_logo")
-        let markerImageInfo = ImageStructInfo(fileName: "Img\(date).jpeg", type: "jpeg", data: image.image?.toData() ?? Data(), key: "image")
-        
-        var productDict = [[String: Any]]()
-        for product in addProducts {
-            let productInfo: [String: Any] = [
-                "productName": product.productName ?? "",
-                "price": product.price ?? 0,
-                "image": product.image ?? []
-            ]
-            productDict.append(productInfo)
-        }
-        
-        do {
-            
-            let jsonData = try JSONSerialization.data(withJSONObject: productDict)
-            
-            if let jsonString = String(data: jsonData, encoding: .utf8) {
-                print(jsonString)
+    
                 let param: [String: Any]
-                if isMarker{
-                     param = [
-                        "id":id,
-                        "name": name,
-                        "usertype": usertype,
-                        "storeType": storeType,
-                        "business_logo": imageInfo,
-                        "image": markerImageInfo,
-                        "startDate": startDate,
-                        "endDate": endDate,
-                        "lat": lat,
-                        "long": long,
-                        "description": description,
-                        "addProducts":jsonString,
-                        "place": place]
-                   
-                }else{
-                    param = [
-                        "id":id,
-                        "name": name,
-                        "usertype": usertype,
-                        "storeType": storeType,
-                        "business_logo": imageInfo,
-                        "startDate": startDate,
-                        "endDate": endDate,
-                        "lat": lat,
-                        "long": long,
-                        "description": description,
-                        "addProducts":jsonString,
-                        "place": place]
-                    
-                }
+                
+                param = [
+                    "id":id,
+                    "place": place,
+                    "storeType": storeType,
+                    "usertype": usertype,
+                    "name": name,
+                    "business_logo": imageInfo,
+                    "startDate": startDate,
+                    "endDate": endDate,
+                    "lat": lat,
+                    "deals":deals,
+                    "availability":availability,
+                    "long": long,
+                    "images":arrImages,
+                    "description": description,
+                    "categoryType":categoryType]
                 print(param)
                 WebService.service(API.updatePopup, param: param, service: .put, showHud: true, is_raw_form: false) { (model: CommonModel, jsonData, jsonSer) in
                     onSuccess(model.message)
                 }
                 
-            } else {
-                print("Failed to convert JSON to string.")
-            }
-        } catch {
-            print("Error: \(error)")
-        }
+       
     }
     func acceptRejectPopupRequestApi(requestId:String,status:Int,onSuccess:@escaping(()->())){
         WebService.service(API.acceptRejectPopupRequests,urlAppendId: "\(requestId)/\(status)",service: .put,showHud: true,is_raw_form: true) { (model:CommonModel,jsonData,jsonSer) in
@@ -254,7 +186,7 @@ class PopUpVM {
     func searchAllApi(offset:Int,
                       limit:Int,
                       search:String,
-                        onSuccess:@escaping((GetSearchData?)->())){
+                      onSuccess:@escaping((GetSearchData?)->())){
         let param:parameters = ["offset":offset,
                                 "limit":limit,
                                 "search":search]
@@ -263,7 +195,14 @@ class PopUpVM {
             onSuccess(model.data)
         }
     }
+
     
+    func deletePopupReview(reviewId:String,onSuccess:@escaping((_ message:String?)->())){
+        let param:parameters = ["reviewId":reviewId]
+        WebService.service(API.deletePopupReview,urlAppendId:reviewId,service: .delete,showHud: true,is_raw_form: true) { (model:CommonModel,jsonData,jsonSer) in
+            onSuccess(model.message)
+        }
+    }
 }
 
 

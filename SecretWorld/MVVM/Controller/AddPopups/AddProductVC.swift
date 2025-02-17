@@ -18,7 +18,7 @@ class AddProductVC: UIViewController {
   //MARK: - variables
   var callBack:((_ productName:String,_ price:Int,_ isEdit:Bool,_ images:[String])->())?
   var isComing = false
-  var arrProducts = [Products]()
+//  var arrProducts = [Products]()
   var selectedIndex = 0
   var arrEditProducts = [AddProducts]()
   var viewModel = UploadImageVM()
@@ -39,18 +39,18 @@ class AddProductVC: UIViewController {
     }else{
       print(selectedIndex)
       lblScreenTitle.text = "Edit Product"
-      if arrEditProducts.count > 0{
-        txtFldProductName.text = arrEditProducts[selectedIndex].productName ?? ""
-        let price = arrEditProducts[selectedIndex].price ?? 0
-        txtFldPrice.text = "\(price)"
-        arrProductsImages = arrEditProducts[selectedIndex].image ?? []
-      }
-      if arrProducts.count > 0{
-        txtFldProductName.text = arrProducts[selectedIndex].name ?? ""
-        let price = arrProducts[selectedIndex].price ?? 0
-        txtFldPrice.text = "\(price)"
-        arrProductsImages = arrProducts[selectedIndex].images ?? []
-      }
+//      if arrEditProducts.count > 0{
+//        txtFldProductName.text = arrEditProducts[selectedIndex].productName ?? ""
+//        let price = arrEditProducts[selectedIndex].price ?? 0
+//        txtFldPrice.text = "\(price)"
+//        arrProductsImages = arrEditProducts[selectedIndex].image ?? []
+//      }
+//      if arrProducts.count > 0{
+//        txtFldProductName.text = arrProducts[selectedIndex].name ?? ""
+//        let price = arrProducts[selectedIndex].price ?? 0
+//        txtFldPrice.text = "\(price)"
+//        arrProductsImages = arrProducts[selectedIndex].images ?? []
+//      }
     }
     collVwProductImgs.reloadData()
   }
@@ -160,7 +160,7 @@ extension AddProductVC: UICollectionViewDataSource,UICollectionViewDelegate,UICo
       collVwProductImgs.reloadData()
   }
   func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-    return CGSize(width: collVwProductImgs.frame.size.width / 3, height: 90)
+    return CGSize(width: collVwProductImgs.frame.size.width/2, height: 90)
   }
   func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
 //    dismiss(animated: true)

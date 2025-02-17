@@ -18,27 +18,39 @@ struct GetServiceDetailUserModel: Codable {
 struct GetServiceDataaa: Codable {
     let id, serviceName, description: String?
     let price: Int?
+    let discount:Int?
     let serviceImages: [String]?
     let userCategoriesIDS, userSubcategoriesIDS: [String]?
     let userID: String?
     let status: Int?
+    let subcategories: [Subcategoryz]
     let isDeleted: Bool?
     let createdAt, updatedAt: String?
     let userCategories: UserCategoriese?
     let user: ServiceProvider?
     let reviews: [ReviewService]?
-    let rating: Double?
+    let rating,actualPrice: Double?
+   
 
     enum CodingKeys: String, CodingKey {
         case id = "_id"
-        case serviceName, description, price, serviceImages
+        case serviceName, description, price, serviceImages,discount
         case userCategoriesIDS = "userCategories_ids"
         case userSubcategoriesIDS = "userSubcategories_ids"
         case userID = "user_id"
-        case status, isDeleted, createdAt, updatedAt, userCategories, user, reviews, rating
+        case status, isDeleted, createdAt, updatedAt, userCategories, user, reviews, rating,actualPrice,subcategories
     }
 }
-
+// MARK: - Subcategory Model
+struct Subcategoryz: Codable {
+    let id: String
+    let subcategoryName: String
+    
+    enum CodingKeys: String, CodingKey {
+        case id = "_id"
+        case subcategoryName
+    }
+}
 // MARK: - Review
 struct ReviewService: Codable {
     let id: String?

@@ -29,7 +29,7 @@ class BusinessProfileVM{
        
         
     }
-    func updateBusinessProfile(name:String,dob:String,about:String,gender:String,profilePhoto:UIImageView,coverPhoto:UIImageView,services:[[String:String]],openingHour:[[String:String]],onSuccess:@escaping((_ message:String?)->())){
+    func updateBusinessProfile(name:String,category:Int,dob:String,about:String,gender:String,profilePhoto:UIImageView,coverPhoto:UIImageView,openingHour:[[String:String]],lat:Double,long:Double,place:String,feature:[String],onSuccess:@escaping((_ message:String?)->())){
         let formatter = DateFormatter()
         formatter.dateFormat = dateFormat.fullDate.rawValue
         formatter.dateFormat = "yyyy-MM-dd"
@@ -37,20 +37,11 @@ class BusinessProfileVM{
         
         do {
             
-            let outputArray = services.map { dictionary in
-                return dictionary as [String: String]
-            }
-            
+         
             let openingHourArray = openingHour.map { dictionary in
                 return dictionary as [String:String]
             }
-            if let jsonData = try? JSONSerialization.data(withJSONObject: outputArray, options: .prettyPrinted),
-               let jsonString = String(data: jsonData, encoding: .utf8) {
-                
-                serviceJson = jsonString
-            } else {
-                print("Error converting array to JSON.")
-            }
+           
             
             if let jsonHourData = try? JSONSerialization.data(withJSONObject: openingHourArray, options: .prettyPrinted),
                let jsonString = String(data: jsonHourData, encoding: .utf8) {
@@ -64,13 +55,8 @@ class BusinessProfileVM{
             
             imageInfoProfile = ImageStructInfo.init(fileName: "Img\(date).jpeg", type: "jpeg", data: profilePhoto.image?.toData() ?? Data(), key: "profile_photo")
             
-            let imageInfoCover : ImageStructInfo
-            
-            imageInfoCover = ImageStructInfo.init(fileName: "Img\(date).jpeg", type: "jpeg", data: coverPhoto.image?.toData() ?? Data(), key: "cover_photo")
-            
-            
-            
-            let param:parameters = ["name":name,"about":about,"dob":dob,"gender":gender,"profile_photo":imageInfoProfile,"cover_photo":imageInfoCover,"services":serviceJson,"openinghours":openingHourJson]
+           
+            let param:parameters = ["name":name,"category":category,"about":about,"dob":dob,"gender":gender,"profile_photo":imageInfoProfile,"openinghours":openingHourJson,"lat":lat,"long":long,"place":place,"typesOfCategoryDetails":feature]
             print(param)
             WebService.service(API.updateBusinessProfile,param: param,service: .put,is_raw_form: false) { (model:CommonModel,jsonData,jsonSer) in
                 DispatchQueue.main.async {

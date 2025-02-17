@@ -32,7 +32,7 @@ class MenuVC: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         getDidLoadData()
-//        NotificationCenter.default.addObserver(self, selector: #selector(self.methodOfReceivedNotificationMenu(notification:)), name: Notification.Name("CallMenuApi"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.methodOfReceivedNotificationMenu(notification:)), name: Notification.Name("CallMenuApi"), object: nil)
         
        
     }
@@ -112,6 +112,7 @@ class MenuVC: UIViewController {
         placesClient = GMSPlacesClient.shared()
     }
     func getServiceApi(loader:Bool){
+        arrService.removeAll()
         viewModel.getAllService(loader: loader, offSet: offSet, limit: limit) { data in
             self.arrService.append(contentsOf: data?.service ?? [])
             Store.BusinessServicesList = data
@@ -122,9 +123,12 @@ class MenuVC: UIViewController {
             }else{
                 self.lblNoData.text = "Data Not Found!"
             }
-            self.tblVwServices.reloadData()
-            self.apiCalling = true
-            self.refreshControl.endRefreshing()
+            DispatchQueue.main.async {
+                self.tblVwServices.reloadData()
+                self.apiCalling = true
+                self.refreshControl.endRefreshing()
+            }
+           
         }
     }
     
@@ -153,9 +157,14 @@ extension MenuVC: UITableViewDelegate,UITableViewDataSource{
             if arrService[indexPath.row].serviceImages?.count ?? 0 > 0{
                 cell.imgVwService.imageLoad(imageUrl: arrService[indexPath.row].serviceImages?[0] ?? "")
             }
-            cell.lblPrice.text = "$\(arrService[indexPath.row].price ?? 0)"
+            let price = Double(arrService[indexPath.row].actualPrice ?? 0)
+          
+            cell.lblPrice.text = String(format: "$%.2f", price)
+            cell.lblOff.text = "\(arrService[indexPath.row].discount ?? 0)% Off"
+            cell.lblPrevPrice.text = "$\(arrService[indexPath.row].price ?? 0)"
             cell.lblServiceName.text = arrService[indexPath.row].serviceName ?? ""
-            cell.lblUserName.text = userDetail?.user?.name ?? ""
+            cell.lblUserName.text = arrService[indexPath.row].serviceName ?? ""
+            
             let rating = arrService[indexPath.row].rating ?? 0.0
             let formattedRating = String(format: "%.1f", rating)
             cell.lblRating.text = formattedRating
@@ -165,8 +174,12 @@ extension MenuVC: UITableViewDelegate,UITableViewDataSource{
             cell.contentView.layer.shadowOffset = CGSize(width: 0, height: 0)
             cell.contentView.layer.shouldRasterize = true
             cell.contentView.layer.rasterizationScale = UIScreen.main.scale
-            cell.indexpath = indexPath.row
-            cell.uiSet()
+            
+            DispatchQueue.main.async {
+                cell.indexpath = indexPath.row
+                cell.uiSet()
+            }
+           
             
         }
         return cell
@@ -179,13 +192,16 @@ extension MenuVC: UITableViewDelegate,UITableViewDataSource{
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let vc = self.storyboard?.instantiateViewController(withIdentifier: "ServiceDetailVC") as! ServiceDetailVC
+        
         if apiCalling == true{
+            let vc = self.storyboard?.instantiateViewController(withIdentifier: "ServiceDetailVC") as! ServiceDetailVC
+            
             if arrService.count > 0{
                 vc.serviceId = arrService[indexPath.row]._id ?? ""
                 apiCalling = false
             }
-            self.navigationController?.pushViewController(vc, animated: true)
+                self.navigationController?.pushViewController(vc, animated: true)
+            
         }
     }
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {

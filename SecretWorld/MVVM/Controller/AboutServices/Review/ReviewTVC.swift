@@ -10,6 +10,7 @@ import FloatRatingView
 
 class ReviewTVC: UITableViewCell {
 
+    @IBOutlet weak var btnDelete: UIButton!
     @IBOutlet var viewShadow: UIView!
     @IBOutlet var heightImgVw: NSLayoutConstraint!
     @IBOutlet var ratingView: FloatRatingView!

@@ -9,7 +9,6 @@ import UIKit
 
 class ProfileTVC: UITableViewCell {
     @IBOutlet var imgVwTitle: UIImageView!
-    
     @IBOutlet var lbltitle: UILabel!
     override func awakeFromNib() {
         super.awakeFromNib()

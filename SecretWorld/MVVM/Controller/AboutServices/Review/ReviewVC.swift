@@ -22,16 +22,17 @@ class ReviewVC: UIViewController {
   var updateReview = false
   override func viewDidLoad() {
     super.viewDidLoad()
-    let nibNearBy = UINib(nibName: "ReviewTVC", bundle: nil)
-    tblVwReview.register(nibNearBy, forCellReuseIdentifier: "ReviewTVC")
-    tblVwReview.estimatedRowHeight = 100
-    tblVwReview.rowHeight = UITableView.automaticDimension
-    btnAddReview.isHidden = false
-    lblReview.isHidden = false
-    NotificationCenter.default.addObserver(self, selector: #selector(self.methodOfReceivedNotification(notification:)), name: Notification.Name("GetStoreServiceData"), object: nil)
-    NotificationCenter.default.addObserver(self, selector: #selector(self.methodOfReceivedNotificationUser(notification:)), name: Notification.Name("GetStoreUserServices"), object: nil)
+   
   }
   override func viewWillAppear(_ animated: Bool) {
+      let nibNearBy = UINib(nibName: "ReviewTVC", bundle: nil)
+      tblVwReview.register(nibNearBy, forCellReuseIdentifier: "ReviewTVC")
+      tblVwReview.estimatedRowHeight = 100
+      tblVwReview.rowHeight = UITableView.automaticDimension
+      btnAddReview.isHidden = false
+      lblReview.isHidden = false
+      NotificationCenter.default.addObserver(self, selector: #selector(self.methodOfReceivedNotification(notification:)), name: Notification.Name("GetStoreServiceData"), object: nil)
+      NotificationCenter.default.addObserver(self, selector: #selector(self.methodOfReceivedNotificationUser(notification:)), name: Notification.Name("GetStoreUserServices"), object: nil)
     uiSet()
   }
   @objc func methodOfReceivedNotification(notification: Notification) {
@@ -98,7 +99,11 @@ class ReviewVC: UIViewController {
 //MARK: -UITableViewDelegate
 extension ReviewVC: UITableViewDelegate,UITableViewDataSource{
   func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-    return arrReviewUser.count
+      if arrReviewUser.count > 0{
+          return arrReviewUser.count
+      }else{
+          return 0
+      }
   }
   func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
     let cell = tableView.dequeueReusableCell(withIdentifier: "ReviewTVC", for: indexPath) as! ReviewTVC

@@ -544,7 +544,16 @@ extension SearchVC: UITableViewDelegate,UITableViewDataSource{
                             }
                          Store.SearchResult.insert(self.arrSearchResultes[indexPath.row].title ?? "", at: 0)
                         }
-                        let vc = self.storyboard?.instantiateViewController(withIdentifier: "ApplyGigVC") as! ApplyGigVC
+//                        let vc = self.storyboard?.instantiateViewController(withIdentifier: "ApplyGigVC") as! ApplyGigVC
+//                        vc.gigId = arrSearchResultes[indexPath.row].id ?? ""
+//                        vc.callBack = {
+//                            self.noSearchdata()
+//                        }
+//                        Store.BusinessUserIdForReview = arrSearchResultes[indexPath.row].id ?? ""
+//                        
+//                        
+//                        self.navigationController?.pushViewController(vc, animated: true)
+                        let vc = self.storyboard?.instantiateViewController(withIdentifier: "ViewTaskVC") as! ViewTaskVC
                         vc.gigId = arrSearchResultes[indexPath.row].id ?? ""
                         vc.callBack = {
                             self.noSearchdata()
@@ -600,7 +609,14 @@ extension SearchVC: UITableViewDelegate,UITableViewDataSource{
                             }
                             Store.SearchResult.insert(self.arrSearchResultes[indexPath.row].title ?? "", at: 0)
                         }
-                        let vc = self.storyboard?.instantiateViewController(withIdentifier: "ApplyGigVC") as! ApplyGigVC
+//                        let vc = self.storyboard?.instantiateViewController(withIdentifier: "ApplyGigVC") as! ApplyGigVC
+//                        vc.gigId = arrSearchResultes[indexPath.row].id ?? ""
+//                        Store.BusinessUserIdForReview = arrSearchResultes[indexPath.row].id ?? ""
+//                        vc.callBack = {
+//                            self.noSearchdata()
+//                        }
+//                        self.navigationController?.pushViewController(vc, animated: true)
+                        let vc = self.storyboard?.instantiateViewController(withIdentifier: "ViewTaskVC") as! ViewTaskVC
                         vc.gigId = arrSearchResultes[indexPath.row].id ?? ""
                         Store.BusinessUserIdForReview = arrSearchResultes[indexPath.row].id ?? ""
                         vc.callBack = {

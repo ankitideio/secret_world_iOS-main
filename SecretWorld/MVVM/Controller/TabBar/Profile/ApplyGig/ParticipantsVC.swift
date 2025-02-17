@@ -9,7 +9,9 @@ import UIKit
 
 
 class ParticipantsVC: UIViewController {
+    
     //MARK: - OUTLEST
+    
     @IBOutlet var btnRejected: UIButton!
     @IBOutlet var lblNoData: UILabel!
     @IBOutlet var heightStackVwBtns: NSLayoutConstraint!
@@ -18,6 +20,7 @@ class ParticipantsVC: UIViewController {
     @IBOutlet var tblVwList: UITableView!
     
     //MARK: - VARIABLES
+    
     var isComing = 0
     var viewModel = AddGigVM()
     var arrUserParticipants = [GetParticipantsData]()
@@ -33,6 +36,7 @@ class ParticipantsVC: UIViewController {
     var businessGigDetail:GetGigDetailData?
     var callBack: (()->())?
     var userId = ""
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         let swipeRight = UISwipeGestureRecognizer(target: self, action: #selector(handleSwipe))
@@ -127,7 +131,9 @@ class ParticipantsVC: UIViewController {
             self.tblVwList.reloadData()
         }
     }
+    
     //MARK: - Button actions
+    
     @IBAction func actionRejected(_ sender: UIButton) {
        
     }
@@ -167,7 +173,9 @@ class ParticipantsVC: UIViewController {
     
     
 }
+
 //MARK: -UITableViewDelegate
+
 extension ParticipantsVC: UITableViewDelegate,UITableViewDataSource{
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {

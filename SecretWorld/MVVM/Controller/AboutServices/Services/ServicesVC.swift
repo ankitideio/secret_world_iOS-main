@@ -12,7 +12,6 @@ class ServicesVC: UIViewController {
     //MARK: - OUTLETS
     @IBOutlet var lblNoData: UILabel!
     @IBOutlet var btnViewAll: UIButton!
-    @IBOutlet var heightTblVw: NSLayoutConstraint!
     @IBOutlet var tblVwList: UITableView!
     @IBOutlet var lblServicesCount: UILabel!
        
@@ -27,19 +26,25 @@ class ServicesVC: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(self.methodOfReceivedNotificationUser(notification:)), name: Notification.Name("GetStoreUserServices"), object: nil)
         
     }
-    
+    override func viewWillAppear(_ animated: Bool) {
+        tblVwList.reloadData()
+    }
     @objc func methodOfReceivedNotificationUser(notification: Notification) {
-        arrUserServices = Store.UserServiceDetailData
         
+        arrUserServices = Store.UserServiceDetailData
         getServiceDetail()
         tblVwList.reloadData()
+        
     }
     @objc func methodOfReceivedNotification(notification: Notification) {
         userUISet()
     }
     func userUISet(){
+        
         arrServices = Store.ServiceDetailData?.service ?? []
+        
         getServiceDetail()
+        
         tblVwList.reloadData()
     }
     func getServiceDetail(){
@@ -87,7 +92,7 @@ class ServicesVC: UIViewController {
                 lblServicesCount.text = "Service(0)"
                 lblServicesCount.isHidden = false
             }
-            if arrUserServices?.allservices?.count ?? 0 > 2{
+            if arrUserServices?.allservices?.count ?? 0 > 10{
                 btnViewAll.isHidden = false
             }else{
                 btnViewAll.isHidden = true
@@ -122,9 +127,10 @@ extension ServicesVC: UITableViewDelegate,UITableViewDataSource{
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if Store.role == "b_user"{
-            return min(arrServices.count, 2)
+            return min(arrServices.count, 10)
         }else{
-            return min(arrUserServices?.allservices?.count ?? 0, 2)
+            return min(arrUserServices?.allservices?.count ?? 0, 10)
+            
         }
     }
     
@@ -138,20 +144,21 @@ extension ServicesVC: UITableViewDelegate,UITableViewDataSource{
           cell.contentView.layer.shadowOffset = CGSize(width: 0, height: 0)
           cell.contentView.layer.shouldRasterize = true
           cell.contentView.layer.rasterizationScale = UIScreen.main.scale
-        if Store.role == "b_user"{
+//        if Store.role == "b_user"{
+//            cell.indexpath = indexPath.row
+//            cell.uiSet()
+//            cell.lblPrice.text = "$\(arrServices[indexPath.row].price ?? 0)"
+//            cell.lblUserName.text = Store.ServiceDetailData?.user?.name ?? ""
+//            cell.lblServiceName.text = Store.ServiceDetailData?.allservices?[indexPath.row].serviceName ?? ""
+//            let rating = arrServices[indexPath.row].rating ?? 0.0
+//            let formattedRating = String(format: "%.1f", rating)
+//            cell.lblRating.text = formattedRating
+//            if arrServices[indexPath.row].serviceImages?.count ?? 0 > 0{
+//                cell.imgVwService.imageLoad(imageUrl: arrServices[indexPath.row].serviceImages?[0] ?? "")
+//            }
+//        }else{
             cell.indexpath = indexPath.row
-            cell.uiSet()
-            cell.lblPrice.text = "$\(arrServices[indexPath.row].price ?? 0)"
-            cell.lblUserName.text = Store.ServiceDetailData?.user?.name ?? ""
-            cell.lblServiceName.text = Store.ServiceDetailData?.allservices?[indexPath.row].serviceName ?? ""
-            let rating = arrServices[indexPath.row].rating ?? 0.0
-            let formattedRating = String(format: "%.1f", rating)
-            cell.lblRating.text = formattedRating
-            if arrServices[indexPath.row].serviceImages?.count ?? 0 > 0{
-                cell.imgVwService.imageLoad(imageUrl: arrServices[indexPath.row].serviceImages?[0] ?? "")
-            }
-        }else{
-            cell.indexpath = indexPath.row
+            cell.arrUserSubCategories = arrUserServices?.allservices?[indexPath.row].userCategories?.userSubCategories ?? []
             cell.uiSet()
             cell.lblPrice.text = "$\(arrUserServices?.allservices?[indexPath.row].price ?? 0)"
             cell.lblUserName.text = arrUserServices?.getBusinessDetails?.name ?? ""
@@ -163,7 +170,7 @@ extension ServicesVC: UITableViewDelegate,UITableViewDataSource{
             if arrUserServices?.allservices?[indexPath.row].serviceImages?.count ?? 0 > 0{
                 cell.imgVwService.imageLoad(imageUrl: arrUserServices?.allservices?[indexPath.row].serviceImages?[0] ?? "")
             }
-        }
+       // }
         return cell
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {

@@ -11,202 +11,144 @@ import AlignedCollectionViewFlowLayout
 
 class EditServiceVC: UIViewController {
     //MARK: - OUTLETS
+    @IBOutlet var heightCollvWServiceImgs: NSLayoutConstraint!
+    @IBOutlet var collVwServiceImages: UICollectionView!
+    @IBOutlet var txtFldDiscount: UITextField!
+    @IBOutlet var txtFldSearch: UITextField!
+    @IBOutlet var heightSelectedSubCat: NSLayoutConstraint!
+    @IBOutlet var heightSuggestSubCat: NSLayoutConstraint!
+    @IBOutlet var collVwSuggestSubCate: UICollectionView!
+    @IBOutlet var collVwSubcategory: UICollectionView!
     @IBOutlet var btnAddEdit: UIButton!
-    @IBOutlet var heightCollVwSubCategories: NSLayoutConstraint!
-    @IBOutlet var collVwSubCategory: UICollectionView!
     @IBOutlet var lblTextCount: UILabel!
     @IBOutlet var lblScreenTitle: UILabel!
-    @IBOutlet var viewCategory: UIView!
     @IBOutlet var txtFldAmount: UITextField!
-    @IBOutlet var txtFldCategory: UITextField!
     @IBOutlet var txtvwDescription: IQTextView!
     @IBOutlet var txtFldServicename: UITextField!
     @IBOutlet var txtFldName: UITextField!
-    @IBOutlet var collvwImgs: UICollectionView!
     
     //MARK: - VARIABLES
-    var arrServiceDetail:Servicess?
+    var viewModelUpload = UploadImageVM()
     var editServiceDetail:GetServiceDataaa?
     var offset = 1
-    var limit = 0
+    var limit = 100
     var viewModel = AddServiceVM()
-    var arrSelectedCategories = [Userservices]()
     var isComing = false
-    var arrUploadImgs = [Any]()
-    var arrDeletedImgs = [Any]()
-    var dictSelectedSubcategory = [String:Any]()
-    var categoryIdd = String()
-    var subCategoriesIds = [String]()
-    var arrSubCategories = [Subcategorylist]()
-    var arrSelectedData = [String:Any]()
     var isUploading = true
     var serviceId = ""
     var isGetCategories = false
     var callBack:(()->())?
     var arrEdit = [Any]()
+    var arrSubCategories = [Subcategory]()
+    var arrServiceImages = [""]
+    var arrUploadImg = [UIImage]()
+    var arrSelectSubCate = [Subcategoryz]()
+    var arrDeletedImg:[String]?
     override func viewDidLoad() {
         super.viewDidLoad()
+        uiSet()
+    }
+    func uiSet(){
+        getServiceApi(text: "")
         Store.ServiceImg = nil
         let swipeRight = UISwipeGestureRecognizer(target: self, action: #selector(handleSwipe))
                   swipeRight.direction = .right
                   view.addGestureRecognizer(swipeRight)
-        print("arrUploadImgs:-\(arrUploadImgs)")
-        uiSet()
-    }
-    
-    @objc func handleSwipe() {
-        self.navigationController?.popViewController(animated: true)
-        Store.SubCategoriesId = nil
-          }
-    func uiSet(){
-        
         txtvwDescription.contentInset = UIEdgeInsets(top: 5, left: 10, bottom: 5, right: 10)
+        registedNibs()
+        setCollectionviewsLayout()
         if isComing == true{
-            getCategoryApi()
-//            if let image = UIImage(named: "add25") {
-//                arrUploadImgs.insert(image, at: 0)
-//            }
-            
-            if subCategoriesIds.count > 0{
-                heightCollVwSubCategories.constant = 36
-            }else{
-                heightCollVwSubCategories.constant = 0
-            }
-            
             lblScreenTitle.text = "Create a Service"
-            viewCategory.isHidden = false
-            collVwSubCategory.isHidden = false
             lblTextCount.text = "0/250"
-            btnAddEdit.setTitle("Create Service", for: .normal)
-            let nib = UINib(nibName: "BusinessCategoryCVC", bundle: nil)
-            collVwSubCategory.register(nib, forCellWithReuseIdentifier: "BusinessCategoryCVC")
-            
-            let alignedFlowLayoutCollVwSpecializ = AlignedCollectionViewFlowLayout(horizontalAlignment: .left, verticalAlignment: .top)
-            collVwSubCategory.collectionViewLayout = alignedFlowLayoutCollVwSpecializ
-            
-            
-            if let flowLayout = collVwSubCategory.collectionViewLayout as? UICollectionViewFlowLayout {
-                flowLayout.estimatedItemSize = CGSize(width: 0, height: 36)
-                flowLayout.itemSize = UICollectionViewFlowLayout.automaticSize
-                
-            }
+            btnAddEdit.setTitle("Save", for: .normal)
+           // getCategoryApi()
         }else{
-            
-//            if let image = UIImage(named: "add25") {
-//                arrUploadImgs.append(image)
-//            }
-            
             for i in editServiceDetail?.serviceImages ?? []{
-                arrUploadImgs.append(i)
-               
+                arrServiceImages.append(i)
             }
-            let nib = UINib(nibName: "BusinessCategoryCVC", bundle: nil)
-            collVwSubCategory.register(nib, forCellWithReuseIdentifier: "BusinessCategoryCVC")
             lblScreenTitle.text = "Edit Service"
             btnAddEdit.setTitle("Update", for: .normal)
-            viewCategory.isHidden = true
-            collVwSubCategory.isHidden = true
             txtFldServicename.text = editServiceDetail?.serviceName ?? ""
             txtFldAmount.text = "\(editServiceDetail?.price ?? 0)"
-            txtFldCategory.text = editServiceDetail?.userCategories?.categoryName ?? ""
+            txtFldDiscount.text = "\(editServiceDetail?.discount ?? 0)"
             txtvwDescription.text = editServiceDetail?.description ?? ""
             let textViewTextCount = txtvwDescription.text.count
             print("Character count: \(textViewTextCount)")
             lblTextCount.text = "\(textViewTextCount)/250"
         }
-        let alignedFlowLayoutCollVwInterst = AlignedCollectionViewFlowLayout(horizontalAlignment: .left, verticalAlignment: .top)
-        collVwSubCategory.collectionViewLayout = alignedFlowLayoutCollVwInterst
-        if let flowLayout = collVwSubCategory.collectionViewLayout as? UICollectionViewFlowLayout {
-            flowLayout.estimatedItemSize = CGSize(width: 0, height: 36)
-            flowLayout.itemSize = UICollectionViewFlowLayout.automaticSize
-            
-        }
+        collVwSubcategory.reloadData()
+        updateCollectionViewHeight(for: collVwSubcategory, heightConstraint: heightSelectedSubCat)
+        adjustCollectionViewHeight()
+
     }
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        let heightSubCat = self.collVwSubCategory.collectionViewLayout.collectionViewContentSize.height
-        self.heightCollVwSubCategories.constant = heightSubCat
+    @objc func handleSwipe() {
+        self.navigationController?.popViewController(animated: true)
+        Store.SubCategoriesId = nil
+          }
+    private func registedNibs(){
+        let nibServiceImgs = UINib(nibName: "ProductsCVC", bundle: nil)
+        collVwServiceImages.register(nibServiceImgs, forCellWithReuseIdentifier: "ProductsCVC")
+        let nibSubCat = UINib(nibName: "SubCategoriesCVC", bundle: nil)
+        collVwSubcategory.register(nibSubCat, forCellWithReuseIdentifier: "SubCategoriesCVC")
+        let nibSuggestCate = UINib(nibName: "SuggestCategoriesCVC", bundle: nil)
+        collVwSuggestSubCate.register(nibSuggestCate, forCellWithReuseIdentifier: "SuggestCategoriesCVC")
+
+    }
+    private func setCollectionviewsLayout(){
+        let alignedFlowLayoutCollVw = AlignedCollectionViewFlowLayout(horizontalAlignment: .left, verticalAlignment: .top)
+        collVwSubcategory.collectionViewLayout = alignedFlowLayoutCollVw
+        if let flowLayout = collVwSubcategory.collectionViewLayout as? UICollectionViewFlowLayout {
+               flowLayout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width - 20, height: 40)
+           }
+           
+           collVwSubcategory.isScrollEnabled = true // Ensure scrolling is enabled
+        if let flowLayout = collVwSubcategory.collectionViewLayout as? UICollectionViewFlowLayout {
+            flowLayout.estimatedItemSize = CGSize(width: 0, height: 40)
+            flowLayout.itemSize = UICollectionViewFlowLayout.automaticSize
+        }
+        let customLayout = CustomCollectionViewFlowLayout()
+        collVwSuggestSubCate.collectionViewLayout = customLayout
+    }
+    private func updateHashtagsHeight() {
+        guard let flowLayout = collVwSuggestSubCate.collectionViewLayout as? UICollectionViewFlowLayout else { return }
+        // Total number of items
+        let numberOfItems = arrSubCategories.count
+        // Assuming 2 items per row
+        let itemsPerRow: CGFloat = 2
+        // Calculate number of rows
+        let numberOfRows = ceil(CGFloat(numberOfItems) / itemsPerRow)
+        // Cell height (you may need to adjust based on design)
+        let itemHeight: CGFloat = 40 // Replace with the actual height of your cell
+        // Spacing adjustments
+        let lineSpacing = flowLayout.minimumLineSpacing
+        let sectionInsets = flowLayout.sectionInset
+
+        // Total height calculation
+        let totalHeight = (numberOfRows * itemHeight) +
+            ((numberOfRows - 1) * lineSpacing)
+        heightSuggestSubCat.constant = totalHeight
         self.view.layoutIfNeeded()
     }
-    func updateCollectionViewHeight() {
-        DispatchQueue.main.asyncAfter(deadline: .now()+0.5) {
-            let heightSubCat = self.collVwSubCategory.collectionViewLayout.collectionViewContentSize.height
-            self.heightCollVwSubCategories.constant = heightSubCat
+
+    private func getServiceApi(text:String){
+        viewModel.getSubCatories(type: 1, offset: offset, limit: limit, search:text) { data in
+            self.arrSubCategories = data?.subcategorylist ?? []
+            self.collVwSuggestSubCate.reloadData()
+            self.updateHashtagsHeight()
+        }
+
+    }
+    private func updateCollectionViewHeight(for collectionView: UICollectionView, heightConstraint: NSLayoutConstraint) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            let height = collectionView.collectionViewLayout.collectionViewContentSize.height
+            heightConstraint.constant = height
             self.view.layoutIfNeeded()
         }
     }
-    func getCategoryApi(){
-        viewModel.getSelectedeCtegoriesApi{ data in
-            self.arrSelectedCategories = data?.userservice ?? []
-            self.isGetCategories = true
-            
-        }
-    }
+
     
     //MARK: - BUTTON ACTIONS
     @IBAction func actionUploadImgs(_ sender: UIButton) {
-        let vc = self.storyboard?.instantiateViewController(withIdentifier: "UploadPhotosVC") as! UploadPhotosVC
-        if isComing == true{
-            vc.arrUploadImgs = Store.ServiceImg ?? []
-        }else{
-            vc.arrUploadImgs = arrUploadImgs
-        }
-               vc.callBack = { arrImgs in
-                   self.arrUploadImgs.removeAll()
-                   if self.isComing{
-                       self.uiSet()
-                   }
-                   self.arrUploadImgs.append(contentsOf: arrImgs)
-                   self.collvwImgs.reloadData()
-            }
-            self.navigationController?.pushViewController(vc, animated: true)
-        
-    }
-    @IBAction func actionAddCategory(_ sender: UIButton) {
-        if isGetCategories == true{
-            txtFldServicename.resignFirstResponder()
-            txtFldName.resignFirstResponder()
-            txtvwDescription.resignFirstResponder()
-            txtFldAmount.resignFirstResponder()
-            let vc = self.storyboard?.instantiateViewController(withIdentifier: "CountryOriginVC") as! CountryOriginVC
-            vc.modalPresentationStyle = .overFullScreen
-            vc.isComing = 0
-            vc.arrCategories = arrSelectedCategories
-            vc.callBack = { categoryId,categoryName,arrSubcategory in
-                
-                self.categoryIdd = categoryId ?? ""
-                self.subCategoriesIds.removeAll()
-                self.dictSelectedSubcategory.removeAll()
-                let vc = self.storyboard?.instantiateViewController(withIdentifier: "ServiceSubCategiriesVC") as! ServiceSubCategiriesVC
-                vc.modalPresentationStyle = .overFullScreen
-                vc.categoryId = categoryId ?? ""
-                vc.arrSubCategories = arrSubcategory ?? []
-                vc.arrSearchSubCategories = arrSubcategory ?? []
-                vc.selectedSubCategories = Store.SubCategoriesId ?? [:]
-                vc.categoryName = categoryName ?? ""
-                vc.callBack = { selectSubCategoryid,categoryName in
-                    self.subCategoriesIds.removeAll()
-                    self.dictSelectedSubcategory.removeAll()
-                    self.txtFldCategory.text = categoryName
-                    guard let selectCategoryid = selectSubCategoryid else {
-                        print("No selected categories")
-                        return
-                    }
-                    for (categoryId, categoryName) in selectCategoryid {
-                        self.dictSelectedSubcategory[categoryId] = categoryName
-                        print("Category ID: \(categoryId), Category Name: \(categoryName)")
-                        self.subCategoriesIds.append(categoryId)
-                        self.collVwSubCategory.reloadData()
-                        
-                    }
-                    self.updateCollectionViewHeight()
-                    print("selectCategoryid:-\(selectCategoryid)")
-                    
-                }
-                self.navigationController?.present(vc, animated: true)
-            }
-            self.navigationController?.present(vc, animated: true)
-        }
     }
     @IBAction func actionBack(_ sender: UIButton) {
         self.navigationController?.popViewController(animated: true)
@@ -215,37 +157,25 @@ class EditServiceVC: UIViewController {
     
     
     @IBAction func actionCreate(_ sender: UIButton) {
+        var arrSelectedIds = [String]()
+        for i in arrSelectSubCate{
+            arrSelectedIds.append(i.id)
+        }
         if isComing == true{
-            if arrUploadImgs.count == 1{
-                showSwiftyAlert("", "Upload service images", false)
-            }else if txtFldServicename.text == ""{
+             if txtFldServicename.text == ""{
                 showSwiftyAlert("", "Enter service name", false)
             }else if txtvwDescription.text == ""{
                 showSwiftyAlert("", "Enter service description", false)
-            }else if categoryIdd.count == 0{
+            }else if arrSelectedIds.count == 0{
                 showSwiftyAlert("", "Select service category", false)
             }else if txtFldAmount.text == ""{
                 showSwiftyAlert("", "Enter service amount", false)
             }else if Int(txtFldAmount.text ?? "0") ?? 0 <= 0 {
                 showSwiftyAlert("", "Enter valid service amount", false)
+            }else if arrUploadImg.count == 0{
+                showSwiftyAlert("", "Upload service images", false)
             }else{
-                var catSubcatArr = [[String: Any]]()
-                
-                var subcategoryArray = [[String: String]]()
-                for subcategoryId in subCategoriesIds {
-                    subcategoryArray.append(["subcategory_id": subcategoryId])
-                }
-                let categoryDict: [String: Any] = [
-                    "category_id": categoryIdd,
-                    "subcategory": subcategoryArray
-                ]
-                catSubcatArr.append(categoryDict)
-                
-                var arrImage = [Any]()
-                arrImage.append(contentsOf: arrUploadImgs)
-                arrImage.remove(at: 0)
-                
-                viewModel.AddServiceApi(serviceName: txtFldServicename.text ?? "", price: txtFldAmount.text ?? "", description: txtvwDescription.text ?? "", serviceImage: arrImage, catSubcatArr: catSubcatArr) { data ,message in
+                viewModel.addServiceApi(serviceName: txtFldServicename.text ?? "", price: txtFldAmount.text ?? "", discount: txtFldDiscount.text ?? "", description: txtvwDescription.text ?? "", serviceImages: arrUploadImg, catSubcatArr: arrSelectedIds) { data,message in
                     let vc = self.storyboard?.instantiateViewController(withIdentifier: "CommonPopUpVC") as! CommonPopUpVC
                     vc.modalPresentationStyle = .overFullScreen
                     vc.isSelect = 10
@@ -256,35 +186,33 @@ class EditServiceVC: UIViewController {
                     }
                     self.navigationController?.present(vc, animated: false)
                 }
+                
             }
         }else{
-            if arrUploadImgs.count == 1{
-                showSwiftyAlert("", "Upload service images", false)
-            }else if txtFldServicename.text == ""{
-                showSwiftyAlert("", "Enter service name", false)
-            }else if txtvwDescription.text == ""{
-                showSwiftyAlert("", "Enter service description", false)
-            }else if txtFldAmount.text == ""{
-                showSwiftyAlert("", "Enter service amount", false)
-            }else if Int(txtFldAmount.text ?? "0") ?? 0 <= 0 {
-                showSwiftyAlert("", "Enter valid service amount", false)
-            }else{
-                
-                var arrImage = [Any]()
-                arrImage.append(contentsOf: arrUploadImgs)
-                arrImage.remove(at: 0)
-                viewModel.EdiServiceApi(service_id: serviceId, serviceName: txtFldServicename.text ?? "", price: txtFldAmount.text ?? "", description: txtvwDescription.text ?? "", serviceImage: arrImage, deletedserviceImages: arrDeletedImgs) { message in
-                    let vc = self.storyboard?.instantiateViewController(withIdentifier: "CommonPopUpVC") as! CommonPopUpVC
-                    vc.modalPresentationStyle = .overFullScreen
-                    vc.isSelect = 10
-                    vc.message = message
-                    vc.callBack = {
-//                        SceneDelegate().tabBarMenuVCRoot()
-                        self.navigationController?.popViewController(animated: true)
-                        self.callBack?()
+                 if txtFldServicename.text == ""{
+                    showSwiftyAlert("", "Enter service name", false)
+                }else if txtvwDescription.text == ""{
+                    showSwiftyAlert("", "Enter service description", false)
+                }else if arrSelectedIds.count == 0{
+                    showSwiftyAlert("", "Select service category", false)
+                }else if txtFldAmount.text == ""{
+                    showSwiftyAlert("", "Enter service amount", false)
+                }else if Int(txtFldAmount.text ?? "0") ?? 0 <= 0 {
+                    showSwiftyAlert("", "Enter valid service amount", false)
+                }else if arrServiceImages.count == 1{
+                    showSwiftyAlert("", "Upload service images", false)
+                }else{
+                        self.viewModel.EdiServiceApi(service_id: self.serviceId, serviceName: self.txtFldServicename.text ?? "", price: self.txtFldAmount.text ?? "", discount: self.txtFldDiscount.text ?? "", description: self.txtvwDescription.text ?? "", catSubcatArr: arrSelectedIds, serviceImage: self.arrUploadImg, deletedserviceImages: self.arrDeletedImg ?? []) { message in
+                            let vc = self.storyboard?.instantiateViewController(withIdentifier: "CommonPopUpVC") as! CommonPopUpVC
+                            vc.modalPresentationStyle = .overFullScreen
+                            vc.isSelect = 10
+                            vc.message = message
+                            vc.callBack = {
+                                self.navigationController?.popViewController(animated: true)
+                                self.callBack?()
+                            }
+                            self.navigationController?.present(vc, animated: false)
                     }
-                    self.navigationController?.present(vc, animated: false)
-                }
             }
         }
     }
@@ -308,62 +236,144 @@ extension EditServiceVC: UITextViewDelegate{
 //MARK: - UICollectionViewDelegate
 extension EditServiceVC:UICollectionViewDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout{
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if collectionView == collvwImgs{
-            return  arrUploadImgs.count
+        if collectionView == collVwSubcategory{
+            return  arrSelectSubCate.count
+        }else if collectionView == collVwSuggestSubCate{
+            return arrSubCategories.count
         }else{
-            return dictSelectedSubcategory.count
+            if arrServiceImages.count > 0{
+                return  arrServiceImages.count
+            }else{
+                return 1
+            }
         }
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if collectionView == collvwImgs{
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "EditServiceCVC", for: indexPath) as! EditServiceCVC
-                cell.lblUpload.isHidden = true
-                cell.imgvwPlus.isHidden = true
-                cell.imgvwPlus.image = nil
-                let item = arrUploadImgs[indexPath.row]
-                   if let imageUrl = item as? String {
-                    cell.imgVwUpload.imageLoad(imageUrl: imageUrl)
-                } else if let image = item as? UIImage {
-                  cell.imgVwUpload.image = image
-                }
-                cell.btnDelete.tag = indexPath.row
-                cell.btnDelete.addTarget(self, action: #selector(actionDelete), for: .touchUpInside)
-            return cell
-        }else{
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "BusinessCategoryCVC", for: indexPath) as! BusinessCategoryCVC
-            cell.lblName.numberOfLines = 1
-            let values = Array(dictSelectedSubcategory.values)
-            cell.lblName.text = values[indexPath.item] as? String
-            cell.vwBg.layer.cornerRadius = 18
+        if collectionView == collVwSubcategory{
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "SubCategoriesCVC", for: indexPath) as! SubCategoriesCVC
+            cell.lblSubCategory.text = arrSelectSubCate[indexPath.item].subcategoryName
             cell.btnCross.tag = indexPath.row
             cell.btnCross.addTarget(self, action: #selector(actionDeleteSubCategory), for: .touchUpInside)
+
             return cell
+
+        }else if collectionView == collVwSuggestSubCate{
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "SuggestCategoriesCVC", for: indexPath) as! SuggestCategoriesCVC
+            let subCategory = arrSubCategories[indexPath.item]
+            let isSelected = arrSelectSubCate.contains { $0.id == subCategory.id }
+            cell.viewSelect.backgroundColor = isSelected ? .app : .white
+            cell.viewSelect.borderWid = isSelected ? 0 : 1
+            cell.viewSelect.borderCol = isSelected ? .clear : .app
+
+            cell.lblSubCategory.text = subCategory.name
+            return cell
+
+        }else{
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ProductsCVC", for: indexPath) as! ProductsCVC
+            if indexPath.row == 0{
+                cell.vwAddProduct.isHidden = false
+                cell.imgVwDelete.isHidden = true
+                cell.btnDelete.isHidden = true
+                cell.imgVwProduct.isHidden = true
+                cell.btnAddProduct.addTarget(self, action: #selector(addProductImg), for: .touchUpInside)
+                cell.btnAddProduct.tag = 0
+            }else{
+                cell.vwAddProduct.isHidden = true
+                cell.imgVwDelete.isHidden = false
+                cell.btnDelete.isHidden = false
+                cell.imgVwProduct.isHidden = false
+                cell.btnDelete.tag = indexPath.row
+                cell.btnDelete.addTarget(self, action: #selector(ActionDeleteProduct), for: .touchUpInside)
+                cell.imgVwProduct.imageLoad(imageUrl: arrServiceImages[indexPath.row])
+            }
+             
+            
+            return cell
+        }
+    }
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        if collectionView == collVwSuggestSubCate {
+            let selectedSubCategory = arrSubCategories[indexPath.item]
+            let isAlreadySelected = arrSelectSubCate.contains { $0.id == selectedSubCategory.id }
+            if !isAlreadySelected {
+                arrSelectSubCate.append(Subcategoryz(id: selectedSubCategory.id, subcategoryName: selectedSubCategory.name))
+                collVwSuggestSubCate.reloadData()
+                collVwSubcategory.reloadData()
+                updateCollectionViewHeight(for: collVwSubcategory, heightConstraint: heightSelectedSubCat)
+            }
+        }
+    }
+    @objc func ActionDeleteProduct(sender: UIButton) {
+        let indexToDelete = sender.tag
+        guard indexToDelete >= 0, indexToDelete < arrServiceImages.count else { return }
+        if isComing == false {
+            let deletedImage = arrServiceImages[indexToDelete]
+            arrServiceImages.remove(at: indexToDelete)
+            arrDeletedImg = arrDeletedImg ?? []
+            arrDeletedImg?.append(deletedImage)
+            adjustCollectionViewHeight()
+            collVwServiceImages.reloadData()
+        } else {
+            arrServiceImages.remove(at: indexToDelete)
+            adjustCollectionViewHeight()
+            collVwServiceImages.reloadData()
+        }
+    }
+     func adjustCollectionViewHeight() {
+        switch arrServiceImages.count {
+        case 1, 2:
+            heightCollvWServiceImgs.constant = 160
+        case 3, 4:
+            heightCollvWServiceImgs.constant = 330
+        default:
+            heightCollvWServiceImgs.constant = 500
+        }
+    }
+    @objc func addProductImg(sender:UIButton){
+        if arrServiceImages.count >= 6 {
+            showSwiftyAlert("", "You can upload a maximum of 5 images.", false)
+            return
+          }
+        
+            ImagePicker().pickImage(self) { image in
+                self.viewModelUpload.uploadProductImagesApi(Images: image) { data in
+                    self.arrUploadImg.append(image)
+                    self.arrServiceImages.insert(data?.imageUrls?[0] ?? "", at: 1)
+                    self.adjustCollectionViewHeight()
+                    self.collVwServiceImages.reloadData()
+                }
+                
+                
+            }
+            }
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        if collectionView == collVwSuggestSubCate{
+            let collectionWidth = collectionView.frame.width
+            let itemWidth = (collectionWidth / 2) - 5 // Adjust spacing here
+            let itemHeight: CGFloat = 40 // Set a fixed height for all items
+            return CGSize(width: itemWidth, height: itemHeight)
+        }else if collectionView == collVwSubcategory{
+   
+            return CGSize(width:0, height: 40)
+        }else{
+            if self.arrServiceImages.count == 1{
+                return CGSize(width: collVwServiceImages.frame.size.width/1, height: 160)
+            }else{
+                return CGSize(width: collVwServiceImages.frame.size.width/2-5 , height: 160)
+            }
+
         }
     }
     @objc func actionDeleteSubCategory(sender:UIButton){
-        let indexToRemove = sender.tag
-        let keys = Array(dictSelectedSubcategory.keys)
-        if indexToRemove < keys.count {
-            let keyToRemove = keys[indexToRemove]
-            dictSelectedSubcategory.removeValue(forKey: keyToRemove)
-            Store.SubCategoriesId?.removeValue(forKey: keyToRemove)
-            if dictSelectedSubcategory.count == 0{
-                txtFldCategory.text = ""
+            let index = sender.tag
+            
+            if index < arrSelectSubCate.count {
+                arrSelectSubCate.remove(at: index)
+                collVwSuggestSubCate.reloadData()
+                collVwSubcategory.reloadData()
+                updateCollectionViewHeight(for: collVwSubcategory, heightConstraint: heightSelectedSubCat)
             }
-            collVwSubCategory.reloadData()
-            DispatchQueue.main.async {
-                self.updateCollectionViewHeight()
-                
-            }
-        }
-    }
-    @objc func actionDelete(sender:UIButton){
-        if sender.tag < arrUploadImgs.count {
-            let deletedItem = arrUploadImgs.remove(at: sender.tag)
-            arrDeletedImgs.append(deletedItem)
-            collvwImgs.reloadData()
-        }
     }
 }
 
@@ -382,8 +392,29 @@ extension EditServiceVC: UITextFieldDelegate {
             let allowedCharacters = CharacterSet.letters.union(.whitespaces)
             let characterSet = CharacterSet(charactersIn: string)
         return allowedCharacters.isSuperset(of: characterSet)
+            }else if textField == txtFldSearch{
+                let currentText = txtFldSearch.text ?? ""
+                let newText = (currentText as NSString).replacingCharacters(in: range, with: string)
+                if newText.isEmpty {
+                    getServiceApi(text: "")
+                } else {
+                    let newString = NSString(string: textField.text!).replacingCharacters(in: range, with: string)
+                    getServiceApi(text: newString)
+                }
+                collVwSuggestSubCate.reloadData()
+            }else if textField == txtFldDiscount{
+                let allowedCharacters = CharacterSet.decimalDigits
+                let characterSet = CharacterSet(charactersIn: string)
+                if !allowedCharacters.isSuperset(of: characterSet) {
+                    return false
+                }
+                let currentText = textField.text ?? ""
+                guard let stringRange = Range(range, in: currentText) else { return true }
+                let updatedText = currentText.replacingCharacters(in: stringRange, with: string)
+                if let value = Int(updatedText) {
+                    return value >= 1 && value <= 100
+                }
             }
-        
         return true
     }
 }

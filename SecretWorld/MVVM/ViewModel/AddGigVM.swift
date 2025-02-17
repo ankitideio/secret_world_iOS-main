@@ -21,7 +21,7 @@ class AddGigVM{
             onSccess(model.data)
         }
     }
-    func createGig(gigId:String,price:Int,onSuccess:@escaping((CreateGigData?)->())){
+    func createGig(gigId:String,price:Double,onSuccess:@escaping((CreateGigData?)->())){
         let  param:parameters = ["gigId": gigId,"currency":"USD","usertype":"","price":price]
         print(param)
         WebService.service(API.addGig,param: param,service: .post,is_raw_form: true){(model:CreateGigModel,jsonData,jsonSer) in

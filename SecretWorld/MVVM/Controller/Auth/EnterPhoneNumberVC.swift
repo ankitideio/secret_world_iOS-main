@@ -305,7 +305,9 @@ class EnterPhoneNumberVC: UIViewController {
                     
                     if Store.role == "b_user"{
                         Store.BusinessUserDetail = ["userName":data?.newUser?.name ?? "",
-                                                    "profileImage":data?.newUser?.profilePhoto ?? "","userId":data?.newUser?.id ?? ""]
+                                                    "profileImage":data?.newUser?.profilePhoto ?? "","userId":data?.newUser?.id ?? "",
+                                                    "mobile":data?.newUser?.mobile ?? 0,
+                                                    "countryCode":data?.newUser?.countrycode ?? ""]
                         
                         if let profilePhoto = data?.newUser?.profilePhoto  as? UIImage {
                             Store.LogoImage = profilePhoto
@@ -314,7 +316,10 @@ class EnterPhoneNumberVC: UIViewController {
                     }else{
                         
                         Store.UserDetail = ["userName":data?.newUser?.name ?? "",
-                                            "profileImage":data?.newUser?.profilePhoto ?? "","userId":data?.newUser?.id ?? ""]
+                                            "profileImage":data?.newUser?.profilePhoto ?? "",
+                                            "userId":data?.newUser?.id ?? "",
+                                            "mobile":data?.newUser?.mobile ?? 0,
+                                            "countryCode":data?.newUser?.countrycode ?? ""]
                         
                         if let profilePhoto = data?.newUser?.profilePhoto  as? UIImage {
                             Store.LogoImage = profilePhoto

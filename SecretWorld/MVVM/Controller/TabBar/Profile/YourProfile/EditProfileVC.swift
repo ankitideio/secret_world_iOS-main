@@ -9,6 +9,12 @@ import IQKeyboardManagerSwift
 import AlignedCollectionViewFlowLayout
 class EditProfileVC: UIViewController {
     //MARK: - OUTLETS
+    @IBOutlet weak var txtFldAddress: UITextField!
+    @IBOutlet weak var vwAddress: UIView!
+    @IBOutlet weak var txtFldCity: UITextField!
+    @IBOutlet weak var vwCity: UIView!
+    @IBOutlet weak var txtFldZipCode: UITextField!
+    @IBOutlet weak var vwZipcode: UIView!
     @IBOutlet var heightCollVwDietry: NSLayoutConstraint!
     @IBOutlet var heightCollVwSpecil: NSLayoutConstraint!
     @IBOutlet var collVwSpecialization: UICollectionView!
@@ -260,10 +266,10 @@ class EditProfileVC: UIViewController {
             showSwiftyAlert("", "Enter your date of birth", false)
         }else if txtVwAbout.text == ""{
             showSwiftyAlert("", "Enter about you", false)
-        }else if arrInterstId.isEmpty{
-            showSwiftyAlert("", "Select interest", false)
-        }else if arrDietryId.isEmpty{
-            showSwiftyAlert("", "Select dietary prefrence", false)
+//        }else if arrInterstId.isEmpty{
+//            showSwiftyAlert("", "Select interest", false)
+//        }else if arrDietryId.isEmpty{
+//            showSwiftyAlert("", "Select dietary prefrence", false)
         }else if arrSpecilizeId.isEmpty{
             showSwiftyAlert("", "Select specialization", false)
         }else if txtFldPlace.text == ""{
@@ -286,10 +292,16 @@ class EditProfileVC: UIViewController {
             vc.modalPresentationStyle = .overFullScreen
             vc.cityName = cityName
             vc.shortCityName = short
-            vc.callBack = { selectCity,lat,long in
-                self.txtFldPlace.text = selectCity
+            vc.callBack = { selectCity,lat,long,zipCode,country,placeName in
+                self.txtFldPlace.text = country
                 self.lat = lat ?? 0.0
                 self.long = long ?? 0.0
+                self.vwZipcode.isHidden = false
+                self.vwAddress.isHidden = false
+                self.vwCity.isHidden = false
+                self.txtFldAddress.text = placeName
+                self.txtFldCity.text = selectCity
+                self.txtFldZipCode.text = zipCode
             }
             self.navigationController?.present(vc, animated: true)
         }

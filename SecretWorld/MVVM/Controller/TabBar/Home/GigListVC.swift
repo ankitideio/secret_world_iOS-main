@@ -20,7 +20,7 @@ class GigListVC: UIViewController{
     var isComing = 0
     var viewModel = AddGigVM()
     var arrGigList = [GigDetail]()
-    var offset = 1
+    var offset = 0
     var limit = 10
     var totalPage = 0
     var selectedType = 0
@@ -61,15 +61,15 @@ class GigListVC: UIViewController{
     func uiSet(){
         if isComing == 0{
             getLocation(type: selectedType)
-            lblTitle.text = "Gigs"
+            lblTitle.text = "Task"
             arrGigList.removeAll()
             getGigListApi(lat: lat ?? 0.0, long: long ?? 0.0, typee: selectedType)
         }else if isComing == 1{
-            lblTitle.text = "Applied Tasks"
+            lblTitle.text = "Applied Task"
             arrAppliedGigs.removeAll()
             getAppliedGigApi(gigtype: appliedGigType)
         }else{
-            lblTitle.text = "Upcoming Tasks"
+            lblTitle.text = "Upcoming Task"
             arrBusinessGiglist.removeAll()
             getBusinessUserGigList(gigtype: gigType)
         }
@@ -84,7 +84,7 @@ class GigListVC: UIViewController{
             }else{
                 self.lblNOData.text = "Data Not Found!"
             }
-            self.uploadList = false
+            self.uploadList = true
             self.collVwGiglist.reloadData()
         }
     }
@@ -98,7 +98,7 @@ class GigListVC: UIViewController{
             }else{
                 self.lblNOData.text = "Data Not Found!"
             }
-            self.uploadList = false
+            self.uploadList = true
             self.collVwGiglist.reloadData()
         }
     }
@@ -125,12 +125,12 @@ class GigListVC: UIViewController{
                 self.lblNOData.text = "Data Not Found!"
             }
             self.isLoading = false
-            self.uploadList = false
+            self.uploadList = true
             self.collVwGiglist.reloadData()
         }
     }
     @IBAction func actionBack(_ sender: UIButton) {
-        if isComing == 0 || isComing == 1 || isComing == 2{
+        if isComing == 0 || isComing == 1{
             self.navigationController?.popViewController(animated:true)
         }else{
             let mainStoryBoard = UIStoryboard(name: "Main", bundle: nil)
@@ -382,32 +382,32 @@ extension GigListVC:UICollectionViewDelegate,UICollectionViewDataSource,UICollec
     }
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if collectionView == collVwGigFilter {
-            uploadList = true
+            
             if isComing == 0{
                 if indexPath.row == 1{
                     selectedType = 1
-                    offset = 1
+                    offset = 0
                     getLocation(type: selectedType)
                     arrGigList.removeAll()
                     collVwGigFilter.reloadData()
                     getGigListApi(lat: lat ?? 0.0, long: long ?? 0.0, typee: selectedType)
                 }else  if indexPath.row == 2{
                     selectedType = 2
-                    offset = 1
+                    offset = 0
                     getLocation(type: selectedType)
                     arrGigList.removeAll()
                     collVwGigFilter.reloadData()
                     getGigListApi(lat: lat ?? 0.0, long: long ?? 0.0, typee: selectedType)
                 }else if indexPath.row == 3{
                     selectedType = 3
-                    offset = 1
+                    offset = 0
                     getLocation(type: selectedType)
                     arrGigList.removeAll()
                     collVwGigFilter.reloadData()
                     getGigListApi(lat: lat ?? 0.0, long: long ?? 0.0, typee: selectedType)
                 }else{
                     selectedType = 0
-                    offset = 1
+                    offset = 0
                     getLocation(type: selectedType)
                     arrGigList.removeAll()
                     collVwGigFilter.reloadData()
@@ -423,17 +423,17 @@ extension GigListVC:UICollectionViewDelegate,UICollectionViewDataSource,UICollec
             }else if isComing == 1{
                 if indexPath.row == 0{
                     appliedGigType = 0
-                    offset = 1
+                    offset = 0
                     arrAppliedGigs.removeAll()
                     getAppliedGigApi(gigtype: appliedGigType)
                 }else  if indexPath.row == 1{
                     appliedGigType = 1
-                    offset = 1
+                    offset = 0
                     arrAppliedGigs.removeAll()
                     getAppliedGigApi(gigtype: appliedGigType)
                 }else{
                     appliedGigType = 2
-                    offset = 1
+                    offset = 0
                     arrAppliedGigs.removeAll()
                     getAppliedGigApi(gigtype: appliedGigType)
                 }
@@ -446,7 +446,7 @@ extension GigListVC:UICollectionViewDelegate,UICollectionViewDataSource,UICollec
                 }
             }else if isComing == 2{
                 if indexPath.row == 1{
-                    lblTitle.text = "Ongoing Tasks"
+                    lblTitle.text = "Ongoing Task"
                     if let cell0 = collectionView.cellForItem(at: IndexPath(item: 0, section: 0)) as? GigFilterCVC {
                         cell0.isUserInteractionEnabled = true
                         print("cell0\(cell0.isUserInteractionEnabled)")
@@ -460,11 +460,11 @@ extension GigListVC:UICollectionViewDelegate,UICollectionViewDataSource,UICollec
                         print("cell2\(cell2.isUserInteractionEnabled)")
                     }
                     gigType = 1
-                    offset = 1
+                    offset = 0
                     arrBusinessGiglist.removeAll()
                     getBusinessUserGigList(gigtype: gigType)
                 }else if indexPath.row == 2{
-                    lblTitle.text = "Completed Tasks"
+                    lblTitle.text = "Completed Task"
                     if let cell0 = collectionView.cellForItem(at: IndexPath(item: 0, section: 0)) as? GigFilterCVC {
                         cell0.isUserInteractionEnabled = true
                         print("cell0\(cell0.isUserInteractionEnabled)")
@@ -478,11 +478,11 @@ extension GigListVC:UICollectionViewDelegate,UICollectionViewDataSource,UICollec
                         print("cell2\(cell2.isUserInteractionEnabled)")
                     }
                     gigType = 2
-                    offset = 1
+                    offset = 0
                     arrBusinessGiglist.removeAll()
                     getBusinessUserGigList(gigtype: gigType)
                 }else{
-                    lblTitle.text = "Upcoming Tasks"
+                    lblTitle.text = "Upcoming Task"
                     if let cell0 = collectionView.cellForItem(at: IndexPath(item: 0, section: 0)) as? GigFilterCVC {
                         cell0.isUserInteractionEnabled = false
                         print("cell0\(cell0.isUserInteractionEnabled)")
@@ -496,7 +496,7 @@ extension GigListVC:UICollectionViewDelegate,UICollectionViewDataSource,UICollec
                         print("cell2\(cell2.isUserInteractionEnabled)")
                     }
                     gigType = 0
-                    offset = 1
+                    offset = 0
                     arrBusinessGiglist.removeAll()
                     getBusinessUserGigList(gigtype: gigType)
                 }
@@ -535,37 +535,113 @@ extension GigListVC:UICollectionViewDelegate,UICollectionViewDataSource,UICollec
                 }
             }
         }else{
-            if uploadList == false{
+            if uploadList == true{
             if isComing == 0{
                 //see all gigs
-                    let vc = self.storyboard?.instantiateViewController(withIdentifier: "ApplyGigVC") as! ApplyGigVC
+//                    let vc = self.storyboard?.instantiateViewController(withIdentifier: "ApplyGigVC") as! ApplyGigVC
+//                    vc.isComing = 0
+//                    if arrGigList.count > 0{
+//                        vc.gigId = arrGigList[indexPath.row].id ?? ""
+//                    }
+//                    self.navigationController?.pushViewController(vc, animated: true)
+               
+                    let vc = self.storyboard?.instantiateViewController(withIdentifier: "ViewTaskVC") as! ViewTaskVC
+                    vc.gigId = arrGigList[indexPath.row].id ?? ""
                     vc.isComing = 0
-                    if arrGigList.count > 0{
-                        vc.gigId = arrGigList[indexPath.row].id ?? ""
+                    vc.callBack = {
+                    self.uploadList = false
+                    self.uiSet()
                     }
                     self.navigationController?.pushViewController(vc, animated: true)
+                
             }else  if isComing == 1{
                 //appliedgig
-                    let vc = self.storyboard?.instantiateViewController(withIdentifier: "ApplyGigVC") as! ApplyGigVC
-                    vc.isComing = 0
-                    if arrAppliedGigs.count > 0{
-                        vc.gigId = arrAppliedGigs[indexPath.row].gig?.id ?? ""
+//                    let vc = self.storyboard?.instantiateViewController(withIdentifier: "ApplyGigVC") as! ApplyGigVC
+//                    vc.isComing = 0
+//                    if arrAppliedGigs.count > 0{
+//                        vc.gigId = arrAppliedGigs[indexPath.row].gig?.id ?? ""
+//                    }
+//                    self.navigationController?.pushViewController(vc, animated: true)
+                if Store.userId == arrAppliedGigs[indexPath.row].gig?.id ?? "" {
+                   
+                    let vc = self.storyboard?.instantiateViewController(withIdentifier: "TaskDetailOwnerVC") as! TaskDetailOwnerVC
+                    vc.gigId = arrAppliedGigs[indexPath.row].gig?.id ?? ""
+                    if arrAppliedGigs[indexPath.row].status != nil{
+                        vc.isComing = 1
+                    }else{
+                        vc.isComing = 0
+                    }
+                    vc.callBack = {
+                    self.uploadList = false
+                    self.uiSet()
                     }
                     self.navigationController?.pushViewController(vc, animated: true)
+                }else{
+                    let vc = self.storyboard?.instantiateViewController(withIdentifier: "ViewTaskVC") as! ViewTaskVC
+                    vc.gigId = arrAppliedGigs[indexPath.row].gig?.id ?? ""
+                    vc.isComing = 0
+                    vc.callBack = {
+                    self.uploadList = false
+                    self.uiSet()
+                    }
+                    self.navigationController?.pushViewController(vc, animated: true)
+                }
+            
             }else{
                 if Store.role == "b_user"{
-                        let vc = self.storyboard?.instantiateViewController(withIdentifier: "ApplyGigVC") as! ApplyGigVC
+                    if Store.userId == arrBusinessGiglist[indexPath.row].user?.id {
+                        let vc = self.storyboard?.instantiateViewController(withIdentifier: "TaskDetailOwnerVC") as! TaskDetailOwnerVC
+                        vc.gigId = arrBusinessGiglist[indexPath.row].id ?? ""
+                        if arrBusinessGiglist[indexPath.row].status != nil{
+                            vc.isComing = 1
+                        }else{
+                            vc.isComing = 0
+                        }
+                        vc.callBack = {
+                        self.uploadList = false
+                        self.uiSet()
+                        }
+                        self.navigationController?.pushViewController(vc, animated: true)
+                    }else{
+                        let vc = self.storyboard?.instantiateViewController(withIdentifier: "ViewTaskVC") as! ViewTaskVC
+                        vc.gigId = arrBusinessGiglist[indexPath.row].id ?? ""
                         vc.isComing = 1
-                        if arrBusinessGiglist.count > 0{
-                            vc.gigId = arrBusinessGiglist[indexPath.row].id ?? ""
-                        }
                         self.navigationController?.pushViewController(vc, animated: true)
+                    }
+//                        let vc = self.storyboard?.instantiateViewController(withIdentifier: "ApplyGigVC") as! ApplyGigVC
+//                        vc.isComing = 1
+//                        if arrBusinessGiglist.count > 0{
+//                            vc.gigId = arrBusinessGiglist[indexPath.row].id ?? ""
+//                        }
+//                        self.navigationController?.pushViewController(vc, animated: true)
                 }else{
-                        let vc = self.storyboard?.instantiateViewController(withIdentifier: "UserApplyGigVC") as! UserApplyGigVC
-                        if arrBusinessGiglist.count > 0{
-                            vc.gigId = arrBusinessGiglist[indexPath.row].id ?? ""
+                    if Store.userId == arrBusinessGiglist[indexPath.row].user?.id {
+                        let vc = self.storyboard?.instantiateViewController(withIdentifier: "TaskDetailOwnerVC") as! TaskDetailOwnerVC
+                        vc.gigId = arrBusinessGiglist[indexPath.row].id ?? ""
+                        if arrBusinessGiglist[indexPath.row].status != nil{
+                            vc.isComing = 1
+                        }else{
+                            vc.isComing = 0
+                        }
+                        vc.callBack = {
+                        self.uploadList = false
+                        self.uiSet()
                         }
                         self.navigationController?.pushViewController(vc, animated: true)
+                    }else{
+                        let vc = self.storyboard?.instantiateViewController(withIdentifier: "ViewTaskVC") as! ViewTaskVC
+                        vc.callBack = {
+                        self.uploadList = false
+                        self.uiSet()
+                        }
+                        vc.gigId = arrBusinessGiglist[indexPath.row].id ?? ""
+                        self.navigationController?.pushViewController(vc, animated: true)
+                    }
+//                        let vc = self.storyboard?.instantiateViewController(withIdentifier: "UserApplyGigVC") as! UserApplyGigVC
+//                        if arrBusinessGiglist.count > 0{
+//                            vc.gigId = arrBusinessGiglist[indexPath.row].id ?? ""
+//                        }
+//                        self.navigationController?.pushViewController(vc, animated: true)
                 }
             }
         }

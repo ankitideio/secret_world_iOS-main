@@ -95,16 +95,18 @@ extension PopUpListVC: UITableViewDelegate,UITableViewDataSource{
         cell.viewBack.layer.rasterizationScale = UIScreen.main.scale
         cell.imgVwPopup.imageLoad(imageUrl: arrPopups[indexPath.row].businessLogo ?? "")
         cell.lblLocation.text = arrPopups[indexPath.row].place ?? ""
-        if let productCount = arrPopups[indexPath.row].addProducts?.count {
-            let countString = "List of products (\(productCount))"
-            let attributedString = NSMutableAttributedString(string: countString)
-            let countRange = (countString as NSString).range(of: "(\(productCount))")
-            attributedString.addAttribute(.foregroundColor, value: UIColor.app, range: countRange)
-            cell.lblProductCount.attributedText = attributedString
-        } else {
-            cell.lblProductCount.text = "List of products (0)"
-            cell.lblProductCount.textColor = UIColor.black
-        }
+//        if let productCount = arrPopups[indexPath.row].addProducts?.count {
+//            let countString = "\(arrPopups[indexPath.row].name ?? "") (\(productCount))"
+//            let attributedString = NSMutableAttributedString(string: countString)
+//            let countRange = (countString as NSString).range(of: "(\(productCount))")
+//            attributedString.addAttribute(.foregroundColor, value: UIColor.app, range: countRange)
+//            cell.lblProductCount.attributedText = attributedString
+//        } else {
+//            cell.lblProductCount.text = "List of products (0)"
+//            cell.lblProductCount.textColor = UIColor.black
+//        }
+        cell.lblProductCount.text = arrPopups[indexPath.row].name ?? ""
+          cell.lblProductCount.textColor = UIColor.black
         if let startDateString = arrPopups[indexPath.row].startDate,
            let convertedStartDate = convertDateString(startDateString) {
             let attributedText = NSMutableAttributedString()
@@ -196,15 +198,22 @@ extension PopUpListVC: UITableViewDelegate,UITableViewDataSource{
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath){
         if arrPopups.count > 0{
-            let vc = self.storyboard?.instantiateViewController(withIdentifier: "PopUpDeatilVC") as! PopUpDeatilVC
-            vc.modalPresentationStyle = .overFullScreen
+            
+            let vc = self.storyboard?.instantiateViewController(withIdentifier: "PopUpOwnerVC") as! PopUpOwnerVC
             vc.popupId = arrPopups[indexPath.row].id ?? ""
-            vc.isComing = true
-            vc.callBack = { [weak self] index in
-                guard let self = self else { return }
+            vc.callBack = {
                 self.GetPopupsListApi(typee: self.popupType)
             }
             self.navigationController?.pushViewController(vc, animated: true)
+//            let vc = self.storyboard?.instantiateViewController(withIdentifier: "PopUpDeatilVC") as! PopUpDeatilVC
+//            vc.modalPresentationStyle = .overFullScreen
+//            vc.popupId = arrPopups[indexPath.row].id ?? ""
+//            vc.isComing = true
+//            vc.callBack = { [weak self] index in
+//                guard let self = self else { return }
+//                self.GetPopupsListApi(typee: self.popupType)
+//            }
+//            self.navigationController?.pushViewController(vc, animated: true)
         }
     }
 //    {

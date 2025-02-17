@@ -9,6 +9,8 @@ import UIKit
 
 class ServiceTVC: UITableViewCell {
     
+    @IBOutlet var lblOff: UILabel!
+    @IBOutlet var lblPrevPrice: UILabel!
     @IBOutlet var collVwSubcat: UICollectionView!
     @IBOutlet weak var lblPrice: UILabel!
     @IBOutlet weak var lblUserName: UILabel!
@@ -25,30 +27,35 @@ class ServiceTVC: UITableViewCell {
         let nib = UINib(nibName: "BusinessCategoryCVC", bundle: nil)
         collVwSubcat.register(nib, forCellWithReuseIdentifier: "BusinessCategoryCVC")
         if let flowLayout = collVwSubcat.collectionViewLayout as? UICollectionViewFlowLayout {
-            flowLayout.estimatedItemSize = CGSize(width: 0, height: 36)
+            flowLayout.estimatedItemSize = CGSize(width: 0, height: 16)
             flowLayout.itemSize = UICollectionViewFlowLayout.automaticSize
             
         }
         collVwSubcat.delegate = self
         collVwSubcat.dataSource = self
-        
     }
     func uiSet(){
         if Store.role == "b_user"{
+            arrSubCategories.removeAll()
             let data = Store.BusinessServicesList?.service ?? []
             if data.count > 0{
-                arrSubCategories = data[indexpath].userSubCategories ?? []
-                collVwSubcat.reloadData()
+                for i in data[indexpath].userSubCategories ?? [] {
+                    arrSubCategories.append(i.name ?? "")
+                }
             }
+            collVwSubcat.reloadData() 
         }else{
+            
             let data = Store.UserServiceDetailData?.allservices ?? []
+            
             if data.count > 0 {
                 if let userSubCategories = data[indexpath].userCategories?.userSubCategories {
                     self.arrUserSubCategories = userSubCategories
+                    self.collVwSubcat.reloadData()
                 }
-                collVwSubcat.reloadData()
+                
             }
-            
+            self.collVwSubcat.reloadData()
         }
         
     }
@@ -64,6 +71,7 @@ extension ServiceTVC:UICollectionViewDelegate,UICollectionViewDataSource,UIColle
                 return 0
             }
         }else{
+            
             if arrUserSubCategories.count > 0{
                 return arrUserSubCategories.count
             }else{
@@ -86,8 +94,8 @@ extension ServiceTVC:UICollectionViewDelegate,UICollectionViewDataSource,UIColle
             cell.lblName.textColor = UIColor.app
         }else{
             cell.lblName.text = arrUserSubCategories[indexPath.row].subcategoryName ?? ""
-            cell.vwBg.backgroundColor = UIColor(red: 230/255, green: 242/255, blue: 229/255, alpha: 1.0)
-            cell.lblName.textColor = UIColor.app
+            cell.vwBg.backgroundColor = UIColor(hex: "#E6F2E5")
+            cell.lblName.textColor = UIColor.black.withAlphaComponent(0.8)
         }
         return cell
     }

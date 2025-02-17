@@ -9,24 +9,21 @@ import IQKeyboardManagerSwift
 import AlignedCollectionViewFlowLayout
 class CreateBusinessAcVC: UIViewController {
     //MARK: - OUTLETS
-    @IBOutlet var txtFldSearch: UITextField!
-    @IBOutlet var heightCollVwSearch: NSLayoutConstraint!
-    @IBOutlet var heightCollVwCategory: NSLayoutConstraint!
+    @IBOutlet weak var btnChooseCategory: UIButton!
+    @IBOutlet weak var collVwFeature: UICollectionView!
+    @IBOutlet weak var vwSpecialFeature: UIView!
     @IBOutlet var txtFldBusinesName: UITextField!
     @IBOutlet var heightTblVwTiming: NSLayoutConstraint!
     @IBOutlet var tblVwTiming: UITableView!
     @IBOutlet var txtVwAbout: IQTextView!
     @IBOutlet var viewDottedBorderCover: RectangularDashedView!
     @IBOutlet var imgVwCover: UIImageView!
-    @IBOutlet var btnAdd: UIButton!
     @IBOutlet var lblTxtCount: UILabel!
     @IBOutlet var imgVwUpload: UIImageView!
     @IBOutlet var lblUploadImg: UILabel!
     @IBOutlet var txtFldLocation: UITextField!
-    @IBOutlet var collVwSearchCate: UICollectionView!
     @IBOutlet var viewDottedBusinessid: RectangularDashedView!
-    @IBOutlet var collVwCategory: UICollectionView!
-    @IBOutlet weak var lblNoDataFound: UILabel!
+    
     //MARK: - VARIABLES
     var offset = 1
     var limit = 10
@@ -38,90 +35,69 @@ class CreateBusinessAcVC: UIViewController {
     var arrService = [Servicelist]()
     var arrSearchService = [Servicelist]()
     var selectedDay: String?
-    let dayPickerView = UIPickerView()
     var latitude:Double?
     var longitude:Double?
     var selectedLocation:LocationData?
     var selectedDayIndex: Int?
     var arrSelectedSrviceId = [String]()
-    var arrDays = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"]
     var isSelect = -1
     var businessTimingData: [[String: Any]] = [
-        ["day":"","starttime": "", "endtime": "","status": "0"],
-        ["day": "","starttime": "", "endtime": "","status": "0"],
-        ["day": "","starttime": "", "endtime": "","status": "0"],
-        ["day": "","starttime": "", "endtime": "","status": "0"],
-        ["day": "","starttime": "", "endtime": "","status": "0"],
-        ["day": "","starttime": "", "endtime": "","status": "0"],
-        ["day": "","starttime": "", "endtime": "","status": "0"]
+        ["day":"Monday","starttime": "", "endtime": "","status": "0","isSelected":false],
+        ["day": "Tuesday","starttime": "", "endtime": "","status": "0","isSelected":false],
+        ["day": "Wednesday","starttime": "", "endtime": "","status": "0","isSelected":false],
+        ["day": "Thursday","starttime": "", "endtime": "","status": "0","isSelected":false],
+        ["day": "Friday","starttime": "", "endtime": "","status": "0","isSelected":false],
+        ["day": "Saturday","starttime": "", "endtime": "","status": "0","isSelected":false],
+        ["day": "Sunday","starttime": "", "endtime": "","status": "0","isSelected":false]
     ]
+    var arrSelectFeature = [String]()
     var obj = [BusinessTimingModel]()
+    var category = 0
+    var arrSpecialFeature = ["Kid-friendly","Pet-friendly","Vegan","Vegetarian","Non-Vegetarian"]
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         let swipeRight = UISwipeGestureRecognizer(target: self, action: #selector(handleSwipe))
-                   swipeRight.direction = .right
-                   view.addGestureRecognizer(swipeRight)
-        self.obj.removeAll()
-        self.obj.append(BusinessTimingModel(day: "",starttime: "",endtime: "",status: "0"))
-        self.obj.append(BusinessTimingModel(day: "",starttime: "",endtime: "",status: "0"))
-        self.obj.append(BusinessTimingModel(day: "",starttime: "",endtime: "",status: "0"))
-        self.obj.append(BusinessTimingModel(day: "",starttime: "",endtime: "",status: "0"))
-        self.obj.append(BusinessTimingModel(day: "",starttime: "",endtime: "",status: "0"))
-        self.obj.append(BusinessTimingModel(day: "",starttime: "",endtime: "",status: "0"))
-        self.obj.append(BusinessTimingModel(day: "",starttime: "",endtime: "",status: "0"))
+        swipeRight.direction = .right
+        view.addGestureRecognizer(swipeRight)
     }
     @objc func handleSwipe() {
         let vc = self.storyboard?.instantiateViewController(withIdentifier: "BackPopPupVC") as! BackPopPupVC
         vc.modalPresentationStyle = .overFullScreen
         self.navigationController?.present(vc, animated: false)
-            }
+    }
     override func viewWillAppear(_ animated: Bool) {
         uiSet()
     }
     //MARK: - FUNCTIONS
     func uiSet(){
         Store.role = "b_user"
-        dayPickerView.delegate = self
-        dayPickerView.dataSource = self
-        let nib = UINib(nibName: "BusinessCategoryCVC", bundle: nil)
-        collVwCategory.register(nib, forCellWithReuseIdentifier: "BusinessCategoryCVC")
-        let nibNearBy = UINib(nibName: "BusinessTimingTVC", bundle: nil)
-        tblVwTiming.register(nibNearBy, forCellReuseIdentifier: "BusinessTimingTVC")
-        self.businessTimingData = []
+        let nibNearBy = UINib(nibName: "TimiingTVC", bundle: nil)
+        tblVwTiming.register(nibNearBy, forCellReuseIdentifier: "TimiingTVC")
         setTblviewHeight()
-        let alignedFlowLayoutCollVwCategory = AlignedCollectionViewFlowLayout(horizontalAlignment: .left, verticalAlignment: .top)
-        collVwCategory.collectionViewLayout = alignedFlowLayoutCollVwCategory
-        let customLayout = CustomCollectionViewFlowLayout()
-            collVwSearchCate.collectionViewLayout = customLayout
-//        let alignedFlowLayoutCollVwSearch = AlignedCollectionViewFlowLayout(horizontalAlignment: .left, verticalAlignment: .top)
-//        collVwSearchCate.collectionViewLayout = alignedFlowLayoutCollVwSearch
-        if let flowLayout2 = collVwCategory.collectionViewLayout as? UICollectionViewFlowLayout {
-            flowLayout2.estimatedItemSize = CGSize(width: 0, height: 36)
-            flowLayout2.itemSize = UICollectionViewFlowLayout.automaticSize
-        }
+        
+        
         getServiceApi(text: "")
-       btnAdd.titleLabel?.font = UIFont(name: "Nunito-Bold", size: 15)
-        print("arrSelectedSrviceId.count:-\(arrSelectedSrviceId.count)")
-        updateheightCollVwSelectedCategories()
+        //        updateheightCollVwSelectedCategories()
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboardWhileClick))
-                      tapGesture.cancelsTouchesInView = false
-                      view.addGestureRecognizer(tapGesture)
-           }
-           @objc func dismissKeyboardWhileClick() {
-                  view.endEditing(true)
-              }
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
+    }
+    @objc func dismissKeyboardWhileClick() {
+        view.endEditing(true)
+    }
     func setTblviewHeight(){
         let maxRows = 7
         let maxTableHeight = CGFloat(maxRows * 75)
-        heightTblVwTiming.constant = min(maxTableHeight, CGFloat(businessTimingData.count * 75))
+        heightTblVwTiming.constant = min(maxTableHeight, CGFloat(businessTimingData.count * 70))
         tblVwTiming.reloadData()
     }
     func getServiceApi(text:String){
         viewModel.GetServiceApi(offset: offset, limit: limit, search: text) { data in
             self.arrSearchService = data?.servicelist ?? []
             self.arrService = data?.servicelist ?? []
-            self.collVwSearchCate.reloadData()
-            self.updateheightCollVwSearchCategories()
+            
+            //            self.updateheightCollVwSearchCategories()
         }
     }
     func searchList(text: String) {
@@ -135,33 +111,28 @@ class CreateBusinessAcVC: UIViewController {
         if text == "" {
             self.arrService = self.arrSearchService
         }
-        self.collVwSearchCate.reloadData()
+        
     }
     //MARK: - BUTTON ACTIONS
-    @IBAction func actionAddTiming(_ sender: UIButton) {
-        businessTimingData.append(["day": "","starttime": "", "endtime": "", "status": 0])
-           tblVwTiming.reloadData()
-          setTblviewHeight()
-    }
     @IBAction func actionUploadCoverPic(_ sender: UIButton) {
-            if isUploadCoverImage == true{
-                let vc = self.storyboard?.instantiateViewController(withIdentifier: "ChangePhotoVC") as! ChangePhotoVC
-                vc.isComing = 2
-                vc.callBack = { [weak self] image in
-                    guard let self = self else { return }
-                    self.imgVwCover.image = image
-                    if Store.CoverImage == UIImage(named: "") || Store.CoverImage == nil{
-                        self.isUploadCoverImage = false
-                    }
-                }
-                self.navigationController?.pushViewController(vc, animated: true)
-            }else{
-                ImagePicker().pickImage(self) { image in
-                    self.imgVwCover.image = image
-                    self.isUploadCoverImage = true
-                    Store.CoverImage = image
+        if isUploadCoverImage == true{
+            let vc = self.storyboard?.instantiateViewController(withIdentifier: "ChangePhotoVC") as! ChangePhotoVC
+            vc.isComing = 2
+            vc.callBack = { [weak self] image in
+                guard let self = self else { return }
+                self.imgVwCover.image = image
+                if Store.CoverImage == UIImage(named: "") || Store.CoverImage == nil{
+                    self.isUploadCoverImage = false
                 }
             }
+            self.navigationController?.pushViewController(vc, animated: true)
+        }else{
+            ImagePicker().pickImage(self) { image in
+                self.imgVwCover.image = image
+                self.isUploadCoverImage = true
+                Store.CoverImage = image
+            }
+        }
     }
     @IBAction func actionUploadPhoto(_ sender: UIButton) {
         if isUploadBusinessIdImage == true{
@@ -182,7 +153,30 @@ class CreateBusinessAcVC: UIViewController {
                 Store.BusinessIdImage = image
             }
         }
-}
+    }
+    @IBAction func actionChooseCategory(_ sender: UIButton) {
+        let vc = storyboard?.instantiateViewController(withIdentifier: "GigPopOversVC") as! GigPopOversVC
+        vc.type = "CreateBusiness"
+        
+        vc.modalPresentationStyle = .popover
+        vc.callBackBusiness = { (name,index) in
+            self.btnChooseCategory.setTitle(name, for: .normal)
+            self.btnChooseCategory.setTitleColor(.black, for: .normal)
+            self.category = index
+            if index == 1{
+                self.vwSpecialFeature.isHidden = false
+            }else{
+                self.vwSpecialFeature.isHidden = true
+            }
+            self.arrSelectFeature.removeAll()
+        }
+        let popOver : UIPopoverPresentationController = vc.popoverPresentationController!
+        popOver.sourceView = sender
+        popOver.delegate = self
+        popOver.permittedArrowDirections = .any
+        vc.preferredContentSize = CGSize(width: btnChooseCategory.frame.size.width, height: 200)
+        self.present(vc, animated: false)
+    }
     @IBAction func actionLocation(_ sender: UIButton) {
         txtFldBusinesName.resignFirstResponder()
         txtVwAbout.resignFirstResponder()
@@ -190,6 +184,7 @@ class CreateBusinessAcVC: UIViewController {
         vc.latitude = latitude
         vc.longitude = longitude
         vc.isComing = true
+        vc.isSignUp = true
         vc.callBack = { [weak self] location in
             guard let self = self else { return }
             self.txtFldLocation.text = location.placeName ?? ""
@@ -210,57 +205,77 @@ class CreateBusinessAcVC: UIViewController {
             showSwiftyAlert("", "Select your location", false)
         }else if imgVwUpload.image == UIImage(named: ""){
             showSwiftyAlert("", "Upload business id image", false)
-        }else if imgVwCover.image == UIImage(named: ""){
-            showSwiftyAlert("", "Upload cover image", false)
         }else if txtVwAbout.text == ""{
             showSwiftyAlert("", "Enter about your business", false)
-        }else if arrSelectedSrviceId.isEmpty{
-            showSwiftyAlert("", "Select service categories", false)
-//        }else if businessTimingData.isEmpty {
-//            showSwiftyAlert("", "Select your opening hours", false)
+        }else if category == 0{
+            showSwiftyAlert("", "Choose business category", false)
         }else{
+            
             var servicesArray: [[String: String]] = []
             for serviceId in arrSelectedSrviceId {
                 let serviceDict: [String: String] = ["id": serviceId]
                 servicesArray.append(serviceDict)
             }
             print("servicesArray: \(servicesArray)")
-            var hoursArrays = [[String: String]]()
-            for businessTiming in businessTimingData {
-                let day = businessTiming["day"] as? String ?? ""
-                let startTime = businessTiming["starttime"] as? String ?? ""
-                let endTime = businessTiming["endtime"] as? String ?? ""
-                let status = businessTiming["status"] as? String ?? ""
-                let startTime24Hour = convertTo24HourFormat(timeString: startTime) ?? ""
-                let endTime24Hour = convertTo24HourFormat(timeString: endTime) ?? ""
-                if day.isEmpty{
-                               showSwiftyAlert("", "Select day", false)
-                               return
-                }else if startTime.isEmpty{
-                               showSwiftyAlert("", "Select start time", false)
-                               return
-                }else if endTime.isEmpty{
-                    showSwiftyAlert("", "Select end time", false)
+            
+            var openinghours = [[String: String]]()
+            
+            for (index, businessTiming) in businessTimingData.enumerated() {
+                var updatedTiming = businessTiming
+                
+                if let isSelected = businessTiming["isSelected"] as? Bool, isSelected {
+                    if let cell = tblVwTiming.cellForRow(at: IndexPath(row: index, section: 0)) as? TimiingTVC {
+                        let startTime = cell.txtFldStartTime.text ?? ""
+                        let endTime = cell.txtFldEndTime.text ?? ""
+                        
+                        updatedTiming["starttime"] = startTime
+                        updatedTiming["endtime"] = endTime
+                    }
+                    
+                    let day = updatedTiming["day"] as? String ?? ""
+                    let startTime = updatedTiming["starttime"] as? String ?? ""
+                    let endTime = updatedTiming["endtime"] as? String ?? ""
+                    let status = updatedTiming["status"] as? String ?? "0"
+                    let startTime24Hour = convertTo24HourFormat(timeString: startTime) ?? ""
+                    let endTime24Hour = convertTo24HourFormat(timeString: endTime) ?? ""
+
+                    if startTime.isEmpty {
+                        showSwiftyAlert("", "Please select start time", false)
+                        return
+                    }
+                    if endTime.isEmpty {
+                        showSwiftyAlert("", "Please select end time", false)
+                        return
+                    }
+                    
+                    let businessTimingDict: [String: String] = [
+                        "day": day,
+                        "starttime": startTime24Hour,
+                        "endtime": endTime24Hour,
+                        "status": status
+                    ]
+                    openinghours.append(businessTimingDict)
                 }
-                let businessTimingDict: [String: String] = [
-                    "day": day,
-                    "starttime":startTime24Hour,
-                    "endtime": endTime24Hour,
-                    "status":  "1"
-                ]
-                hoursArrays.append(businessTimingDict)
             }
-            print("businessTiming:--\(hoursArrays)")
+            
+            if openinghours.isEmpty{
+                
+                showSwiftyAlert("", "Please select a day for opening hours", false)
+                return
+            }
+            
+            print("Filtered Business Timing Data: \(openinghours)")
             print("api calling:--")
             viewModel.CreateBusinessAccountApi(about: txtVwAbout.text ?? "", deviceId: Store.deviceToken ?? "",
-                businessname: txtFldBusinesName.text ?? "",
-                place: txtFldLocation.text ?? "",
-                lat: latitude ?? 0.0,
-                long: longitude ?? 0.0,
-                business_id: imgVwUpload,
-                cover_photo: imgVwCover,
-                services: servicesArray,
-                openinghours: hoursArrays) { data in
+                                               businessname: txtFldBusinesName.text ?? "",
+                                               place: txtFldLocation.text ?? "",
+                                               lat: latitude ?? 0.0,
+                                               long: longitude ?? 0.0,
+                                               category: category,
+                                               business_id: imgVwUpload,
+                                               cover_photo: imgVwCover,
+                                               services: servicesArray,
+                                               openinghours: openinghours, feature: arrSelectFeature) { data in
                 Store.autoLogin = data?.user?.profileStatus
                 Store.userId = data?.user?.id ?? ""
                 Store.businessLatLong = ["lat":self.latitude ?? 0,"long":self.longitude ?? 0]
@@ -272,6 +287,7 @@ class CreateBusinessAcVC: UIViewController {
             }
         }
     }
+    
     func convertTo24HourFormat(timeString: String) -> String? {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "h:mm a"
@@ -283,118 +299,12 @@ class CreateBusinessAcVC: UIViewController {
         return nil
     }
 }
-//MARK: - UICollectionViewDelegate
-extension CreateBusinessAcVC:UICollectionViewDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout{
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if collectionView == collVwCategory{
-            return arrCategory.count
-        }else{
-            return min(arrSearchService.count, 10)
-        }
-    }
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if collectionView == collVwCategory{
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "BusinessCategoryCVC", for: indexPath) as! BusinessCategoryCVC
-            cell.lblName.text = arrCategory[indexPath.row]
-            cell.vwBg.layer.cornerRadius = 20
-            cell.btnCross.setImage(UIImage(named: "crossred"), for: .normal)
-            cell.btnCross.tag = indexPath.row
-            cell.btnCross.addTarget(self, action: #selector(actionDelete), for: .touchUpInside)
-            return cell
-        }else{
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "SearchCategoryCVC", for: indexPath) as! SearchCategoryCVC
-            cell.lblName.text = arrSearchService[indexPath.row].name 
-            cell.btnSelect.tag = indexPath.row
-            cell.btnSelect.addTarget(self, action: #selector(actionSelect), for: .touchUpInside)
-            if arrCategory.contains(arrSearchService[indexPath.row].name ?? "") {
-                cell.btnSelect.isSelected = true
-                cell.btnSelect.backgroundColor = UIColor.app
-            } else {
-                cell.btnSelect.isSelected = false
-                cell.btnSelect.backgroundColor = UIColor.white
-            }
-            return cell
-        }
-    }
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        let width = (collVwSearchCate.frame.size.width - 16) / 2
-        return CGSize(width: width, height: 36)
-    }
-    @objc func actionDelete(sender: UIButton) {
-        let removedServiceId = arrSelectedSrviceId[sender.tag]
-        arrCategory.remove(at: sender.tag)
-        collVwCategory.reloadData()
-        updateheightCollVwSelectedCategories()
-        if let deselectedIndex = arrSearchService.firstIndex(where: { $0.id == removedServiceId }) {
-            let indexPath = IndexPath(item: deselectedIndex, section: 0)
-            if let cell = collVwSearchCate.cellForItem(at: indexPath) as? SearchCategoryCVC {
-                cell.btnSelect.isSelected = false
-                cell.btnSelect.backgroundColor = .clear
-            }
-        }
-        arrSelectedSrviceId.remove(at: sender.tag)
-        updateheightCollVwSelectedCategories()
-    }
-    @objc func actionSelect(sender:UIButton){
-        sender.isSelected = !sender.isSelected
-        if sender.isSelected == true{
-            let selectedServiceName = arrSearchService[sender.tag].name ?? ""
-            let selectedSrviceId = arrSearchService[sender.tag].id ?? ""
-            print("index:--\(sender.tag) \(selectedServiceName)")
-                    if !arrCategory.contains(selectedServiceName) {
-                        arrCategory.append(selectedServiceName)
-                        arrSelectedSrviceId.append(selectedSrviceId)
-                        print("arrCategoryId:--\(arrSelectedSrviceId)")
-                        print("selectedServiceName:--\(arrCategory)")
-                        sender.backgroundColor = UIColor.app
-                        collVwCategory.reloadData()
-                        updateheightCollVwSelectedCategories()
-                    }
-        }else{
-                   let deselectedServiceName = arrSearchService[sender.tag].name ?? ""
-                   let deselectedServiceId = arrSearchService[sender.tag].id ?? ""
-            print("index:--\(sender.tag) \(deselectedServiceName)")
-                   if let index = arrCategory.firstIndex(of: deselectedServiceName),
-                      let index2 = arrSelectedSrviceId.firstIndex(of: deselectedServiceId) {
-                       arrCategory.remove(at: index)
-                       arrSelectedSrviceId.remove(at: index2)
-                       print("deselectedServiceName:--\(arrCategory)")
-                       print("deselectedServiceId:--\(arrSelectedSrviceId)")
-                       sender.backgroundColor = UIColor.clear
-                       collVwCategory.reloadData()
-                       updateheightCollVwSelectedCategories()
-                   }
-               }
-           }
-    func updateheightCollVwSelectedCategories() {
-        if arrSelectedSrviceId.isEmpty{
-            heightCollVwCategory.constant = 0
-        }else{
-            let rowsSpeciliz = ceil(CGFloat(arrSelectedSrviceId.count) / 2)
-            let newHeightSpeciliz = rowsSpeciliz * 37 + max(0, rowsSpeciliz - 1) * 8
-            heightCollVwCategory.constant = newHeightSpeciliz
-            collVwSearchCate.layoutIfNeeded()
-        }
-    }
-    func updateheightCollVwSearchCategories() {
-        if arrSearchService.count > 0 {
-            let rowsSpeciliz = ceil(CGFloat(arrSearchService.count) / 2)
-            let newHeightSpeciliz = rowsSpeciliz * 38 + max(0, rowsSpeciliz - 1) * 8
-            heightCollVwSearch.constant = newHeightSpeciliz
-            collVwSearchCate.layoutIfNeeded()
-            self.lblNoDataFound.text = ""
-        }else{
-            heightCollVwSearch.constant = 70
-            collVwSearchCate.layoutIfNeeded()
-            self.lblNoDataFound.text = "Data not found!"
-        }
-    }
-}
+
 //MARK: - UITextViewDelegate
 extension CreateBusinessAcVC: UITextViewDelegate{
     func textViewDidChange(_ textView: UITextView) {
         let characterCount = textView.text.count
-                lblTxtCount.text = "\(characterCount)/250"
+        lblTxtCount.text = "\(characterCount)/250"
     }
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
         let newText = (textView.text as NSString).replacingCharacters(in: range, with: text)
@@ -403,73 +313,80 @@ extension CreateBusinessAcVC: UITextViewDelegate{
 }
 // MARK: - Popup
 extension CreateBusinessAcVC: UIPopoverPresentationControllerDelegate {
-  func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
-    return .none
-  }
-  //UIPopoverPresentationControllerDelegate
-  func popoverPresentationControllerDidDismissPopover(_ popoverPresentationController: UIPopoverPresentationController) {
-  }
-}
-extension CreateBusinessAcVC: UIPickerViewDelegate,UIPickerViewDataSource {
-    func numberOfComponents(in pickerView: UIPickerView) -> Int {
-            return 1
-        }
-        func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-            return arrDays.count
-        }
-        // MARK: - UIPickerViewDelegate
-        func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-            return arrDays[row]
-        }
-    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        let selectedValue = arrDays[row]
-        guard isSelect >= 0, isSelect < businessTimingData.count else {
-            return
-        }
-        let isDayAlreadySelected = businessTimingData.enumerated().contains { index, data in
-                index != isSelect && (data["day"] as? String == selectedValue)
-            }
-            if isDayAlreadySelected {
-                showSwiftyAlert("", "\(selectedValue) already selected", false)
-                return
-            }
-        let indexPath = IndexPath(row: isSelect, section: 0)
-        businessTimingData[isSelect]["day"] = selectedValue
-            if let cell = tblVwTiming.cellForRow(at: indexPath) as? BusinessTimingTVC {
-                cell.txtFldDay.text = selectedValue
-            }
-        print("Selected: \(selectedValue)")
+    func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
+        return .none
+    }
+    //UIPopoverPresentationControllerDelegate
+    func popoverPresentationControllerDidDismissPopover(_ popoverPresentationController: UIPopoverPresentationController) {
     }
 }
-//MARK: -UITextFieldDelegate
-extension CreateBusinessAcVC: UITextFieldDelegate {
-    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        if textField == txtFldSearch{
-            let currentText = txtFldSearch.text ?? ""
-            let newText = (currentText as NSString).replacingCharacters(in: range, with: string)
-            if newText.isEmpty {
-                getServiceApi(text: "")
+
+extension CreateBusinessAcVC:UICollectionViewDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout{
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return arrSpecialFeature.count
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "FeatureCVC", for: indexPath) as! FeatureCVC
+        cell.lblName.text = arrSpecialFeature[indexPath.row]
+        cell.btnTick.addTarget(self, action: #selector(tickUntick), for: .touchUpInside)
+        cell.btnTick.tag = indexPath.row
+        if arrSelectFeature.contains(arrSpecialFeature[indexPath.row]){
+            cell.btnTick.isSelected = true
+        }else{
+            cell.btnTick.isSelected = false
+        }
+        return cell
+    }
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        return CGSize(width: collVwFeature.frame.width/2-0, height: 32)
+    }
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        return 0
+    }
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
+        return 0
+    }
+    
+    @objc func tickUntick(sender: UIButton) {
+        sender.isSelected.toggle()
+        print(sender.tag, sender.isSelected)
+        
+        // Ensure sender.tag is within the valid range
+        if sender.tag < arrSpecialFeature.count {
+            let feature = arrSpecialFeature[sender.tag]
+            if sender.isSelected {
+                arrSelectFeature.append(feature)
             } else {
-                let newString = NSString(string: textField.text!).replacingCharacters(in: range, with: string)
-                searchList(text: newString)
-                getServiceApi(text: newString)
+                if let index = arrSelectFeature.firstIndex(of: feature) {
+                    arrSelectFeature.remove(at: index)
+                }
             }
-            collVwSearchCate.reloadData()
+        } else {
+            print("Error: sender.tag (\(sender.tag)) is out of range.")
         }
-        return true
+        
+        print(arrSelectFeature)
     }
 }
+
 //MARK: - UITableViewDelegate
 extension CreateBusinessAcVC: UITableViewDelegate,UITableViewDataSource{
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return businessTimingData.count
     }
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-           let cell = tableView.dequeueReusableCell(withIdentifier: "BusinessTimingTVC", for: indexPath) as! BusinessTimingTVC
-           let sectionData = businessTimingData[indexPath.row]
-           let startTime = sectionData["starttime"] as? String ?? ""
-           let endTime = sectionData["endtime"] as? String ?? ""
-           let day = sectionData["day"] as? String ?? ""
+        let cell = tableView.dequeueReusableCell(withIdentifier: "TimiingTVC", for: indexPath) as! TimiingTVC
+        cell.uiSet()
+        let sectionData = businessTimingData[indexPath.row]
+        let startTime = sectionData["starttime"] as? String ?? ""
+        let endTime = sectionData["endtime"] as? String ?? ""
+        let day = sectionData["day"] as? String ?? ""
+        let isSelected = sectionData["isSelected"] as? Bool ?? false
+        let imageName = isSelected ? "select1" : "unSelect1"
+        cell.btnSelect.setImage(UIImage(named: imageName), for: .normal)
+        
         var toolBar = UIToolbar()
         toolBar.barStyle = UIBarStyle.default
         toolBar.isTranslucent = true
@@ -478,204 +395,195 @@ extension CreateBusinessAcVC: UITableViewDelegate,UITableViewDataSource{
         let flexibleSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
         let doneButton = UIBarButtonItem(title: "Done", style: .done, target: self, action: #selector(donePicker(sender:)))
         toolBar.setItems([flexibleSpace, doneButton], animated: false)
-            toolBar.isUserInteractionEnabled = true
-           cell.txtFldStartTime.text = startTime
-           cell.txtFldEndTime.text = endTime
-           cell.txtFldDay.text = day
-           cell.btnDelete.tag = indexPath.row
-           cell.btnDelete.addTarget(self, action: #selector(actionDeleteTime), for: .touchUpInside)
-           cell.txtFldDay.inputView = dayPickerView
-           cell.txtFldDay.tag = indexPath.row
-        cell.txtFldDay.inputAccessoryView = toolBar
-        cell.txtFldDay.tag = indexPath.row
-           cell.txtFldStartTime.setInputViewDatePickerAccount(target: self, selector: #selector(actionStartTimee), isSelectType: "startTime")
-           cell.txtFldEndTime.setInputViewDatePickerAccount(target: self, selector: #selector(actionEndTimee), isSelectType: "endTime")
-           cell.indexxPathh = indexPath.row
-           cell.uiSet()
-           cell.callBack = { [weak self] indexPath in
-               guard let self = self else { return }
-               self.isSelect = indexPath
-           }
-           return cell
-       }
-    @objc func donePicker(sender: UIBarButtonItem) {
-        let selectedRow = dayPickerView.selectedRow(inComponent: 0)
-        let selectedValue = arrDays[selectedRow]
-        let isDayAlreadySelected = businessTimingData.enumerated().contains { index, data in
-            index != isSelect && (data["day"] as! String == selectedValue)
+        toolBar.isUserInteractionEnabled = true
+        cell.txtFldStartTime.text = startTime
+        cell.txtFldEndTime.text = endTime
+        cell.lblDay.text = day
+        cell.btnSelect.tag = indexPath.row
+        cell.btnSelect.addTarget(self, action: #selector(actionSelect), for: .touchUpInside)
+        cell.lblDay.tag = indexPath.row
+        configureDatePicker(for: cell.txtFldStartTime, tag: indexPath.row)
+        configureDatePicker(for: cell.txtFldEndTime, tag: indexPath.row)
+        cell.indexxPathh = indexPath.row
+        
+        cell.callBack = { [weak self] indexPath in
+            guard let self = self else { return }
+            self.isSelect = indexPath
         }
-        if isDayAlreadySelected {
-            showSwiftyAlert("", "\(selectedValue) already selected", false)
-            view.endEditing(true)
+        return cell
+    }
+    
+    @objc func actionSelect(sender: UIButton) {
+        let index = sender.tag
+        var sectionData = businessTimingData[index]
+        
+        let currentState = sectionData["isSelected"] as? Bool ?? false
+        let newState = !currentState
+        sectionData["isSelected"] = newState
+        sectionData["status"] = newState ? "1" : "0"
+        
+        let indexPath = IndexPath(row: index, section: 0)
+        
+        if let cell = tblVwTiming.cellForRow(at: indexPath) as? TimiingTVC {
+            let startTime = cell.txtFldStartTime.text ?? ""
+            let endTime = cell.txtFldEndTime.text ?? ""
+            let day = cell.lblDay.text ?? ""
+            
+            sectionData["starttime"] = startTime
+            sectionData["endtime"] = endTime
+            sectionData["day"] = day
+            
+            print("Selected Day: \(day), Start Time: \(startTime), End Time: \(endTime)")
+        }
+        businessTimingData[index] = sectionData
+        tblVwTiming.reloadRows(at: [indexPath], with: .none)
+        
+        print("Select tapped at row: \(index), status: \(sectionData["status"] ?? ""), isSelected: \(sectionData["isSelected"] ?? false)")
+        print(businessTimingData)
+    }
+    @objc func donePicker(sender: UIBarButtonItem) {
+        view.endEditing(true)
+    }
+    @objc func actionStartTimee(sender: UITextField) {
+        let index = isSelect
+        let indexPath = IndexPath(row: index, section: 0)
+        
+        guard let cell = tblVwTiming.cellForRow(at: indexPath) as? TimiingTVC,
+              let datePicker = cell.txtFldStartTime.inputView as? UIDatePicker else { return }
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "hh:mm a"
+        
+        let newStartTime = dateFormatter.string(from: datePicker.date)
+        businessTimingData[index]["starttime"] = newStartTime
+        businessTimingData[index]["status"] = "1"
+        
+        if let endTime = businessTimingData[index]["endtime"] as? String,
+           let start = dateFormatter.date(from: newStartTime),
+           let end = dateFormatter.date(from: endTime),
+           start >= end {
+            showSwiftyAlert("", "Start time must be earlier than the end time.", false)
             return
         }
-        let indexPath = IndexPath(row: isSelect, section: 0)
-        businessTimingData[isSelect]["day"] = selectedValue
-        if let cell = tblVwTiming.cellForRow(at: indexPath) as? BusinessTimingTVC {
-            cell.txtFldDay.text = selectedValue
-            view.endEditing(true)
+        
+        cell.txtFldStartTime.text = newStartTime
+        cell.txtFldStartTime.resignFirstResponder()
+        cell.txtFldEndTime.becomeFirstResponder()
+        
+        let updatedModel = BusinessTimingModel(
+            day: businessTimingData[index]["day"] as? String ?? "",
+            starttime: newStartTime,
+            endtime: businessTimingData[index]["endtime"] as? String ?? "",
+            status: "1"
+        )
+        
+        if index < obj.count {
+            obj[index] = updatedModel
         }
-        print("Selected: \(selectedValue)")
+        
+        tblVwTiming.reloadData()
     }
-    @objc func actionStartTimee(sender: UITextField){
-        let indexx = isSelect
-        print("Selected index: \(indexx)")
-        let indexPath = IndexPath(row: indexx, section: 0)
-        if let cell = tblVwTiming.cellForRow(at: indexPath) as? BusinessTimingTVC {
-            if let datePicker = cell.txtFldStartTime.inputView as? UIDatePicker {
-                let dateFormatter = DateFormatter()
-                dateFormatter.dateFormat = "hh:mm a"
-                businessTimingData[indexx]["starttime"] = dateFormatter.string(from: datePicker.date)
-                businessTimingData[indexx]["status"] = 1
-            }
-            if let startTime = businessTimingData[indexx]["starttime"] as? String,
-               let endTime = businessTimingData[indexx]["endtime"] as? String,
-               !startTime.isEmpty && !endTime.isEmpty {
-                let dateFormatter = DateFormatter()
-                dateFormatter.dateFormat = "hh:mm a"
-                if let start = dateFormatter.date(from: startTime),
-                   let end = dateFormatter.date(from: endTime),
-                   start >= end {
-                    showSwiftyAlert("", "Start time not greater then the end time", false)
-                }
-                else{
-                    cell.txtFldStartTime.resignFirstResponder()
-                    cell.txtFldEndTime.becomeFirstResponder()
-                    if indexx == 0{
-                        self.obj.remove(at: 0)
-                        self.obj.insert(BusinessTimingModel(day: businessTimingData[indexx]["day"] as? String ?? "",starttime: businessTimingData[indexx]["starttime"] as? String ?? "",endtime: businessTimingData[indexx]["endtime"] as? String ?? "",status: "1"), at: 0)
-                    }else if indexx == 1{
-                        self.obj.remove(at: 1)
-                        self.obj.insert(BusinessTimingModel(day: businessTimingData[indexx]["day"] as? String ?? "",starttime: businessTimingData[indexx]["starttime"] as? String ?? "",endtime: businessTimingData[indexx]["endtime"] as? String ?? "",status: "1"), at: 1)
-                    }else if indexx == 2{
-                        self.obj.remove(at: 2)
-                        self.obj.insert(BusinessTimingModel(day: businessTimingData[indexx]["day"] as? String ?? "",starttime: businessTimingData[indexx]["starttime"] as? String ?? "",endtime: businessTimingData[indexx]["endtime"] as? String ?? "",status: "1"), at: 2)
-                    }else if indexx == 3{
-                        self.obj.remove(at: 3)
-                        self.obj.insert(BusinessTimingModel(day: businessTimingData[indexx]["day"] as? String ?? "",starttime: businessTimingData[indexx]["starttime"] as? String ?? "",endtime: businessTimingData[indexx]["endtime"]  as? String ?? "",status: "1"), at: 3)
-                    }else if indexx == 4{
-                        self.obj.remove(at: 4)
-                        self.obj.insert(BusinessTimingModel(day: businessTimingData[indexx]["day"] as? String ?? "",starttime: businessTimingData[indexx]["starttime"] as? String ?? "",endtime: businessTimingData[indexx]["endtime"]  as? String ?? "",status: "1"), at: 4)
-                    }else if indexx == 5{
-                        self.obj.remove(at: 5)
-                        self.obj.insert(BusinessTimingModel(day: businessTimingData[indexx]["day"] as? String ?? "",starttime: businessTimingData[indexx]["starttime"] as? String ?? "",endtime: businessTimingData[indexx]["endtime"] as? String ?? "",status: "1"), at: 5)
-                    }else{
-                        self.obj.remove(at: 6)
-                        self.obj.insert(BusinessTimingModel(day: businessTimingData[indexx]["day"] as? String ?? "",starttime: businessTimingData[indexx]["starttime"] as? String ?? "",endtime: businessTimingData[indexx]["endtime"] as? String ?? "",status: "1"), at: 6)
-                    }
-                    tblVwTiming.reloadData()
-                }
-            }else{
-                cell.txtFldStartTime.resignFirstResponder()
-                cell.txtFldEndTime.becomeFirstResponder()
-                if indexx == 0{
-                    self.obj.remove(at: 0)
-                    self.obj.insert(BusinessTimingModel(day: businessTimingData[indexx]["day"] as? String ?? "",starttime: businessTimingData[indexx]["starttime"] as? String ?? "",endtime: businessTimingData[indexx]["endtime"] as? String ?? "",status: "1"), at: 0)
-                }else if indexx == 1{
-                    self.obj.remove(at: 1)
-                    self.obj.insert(BusinessTimingModel(day: businessTimingData[indexx]["day"] as? String ?? "",starttime: businessTimingData[indexx]["starttime"] as? String ?? "",endtime: businessTimingData[indexx]["endtime"] as? String ?? "",status: "1"), at: 1)
-                }else if indexx == 2{
-                    self.obj.remove(at: 2)
-                    self.obj.insert(BusinessTimingModel(day: businessTimingData[indexx]["day"] as? String ?? "",starttime: businessTimingData[indexx]["starttime"] as? String ?? "",endtime: businessTimingData[indexx]["endtime"] as? String ?? "",status: "1"), at: 2)
-                }else if indexx == 3{
-                    self.obj.remove(at: 3)
-                    self.obj.insert(BusinessTimingModel(day: businessTimingData[indexx]["day"] as? String ?? "",starttime: businessTimingData[indexx]["starttime"] as? String ?? "",endtime: businessTimingData[indexx]["endTime"]  as? String ?? "",status: "1"), at: 3)
-                }else if indexx == 4{
-                    self.obj.remove(at: 4)
-                    self.obj.insert(BusinessTimingModel(day: businessTimingData[indexx]["day"] as? String ?? "",starttime: businessTimingData[indexx]["starttime"] as? String ?? "",endtime: businessTimingData[indexx]["endtime"]  as? String ?? "",status: "1"), at: 4)
-                }else if indexx == 5{
-                    self.obj.remove(at: 5)
-                    self.obj.insert(BusinessTimingModel(day: businessTimingData[indexx]["day"] as? String ?? "",starttime: businessTimingData[indexx]["starttime"] as? String ?? "",endtime: businessTimingData[indexx]["endtime"] as? String ?? "",status: "1"), at: 5)
-                }else{
-                    self.obj.remove(at: 6)
-                    self.obj.insert(BusinessTimingModel(day: businessTimingData[indexx]["day"] as? String ?? "",starttime: businessTimingData[indexx]["starttime"] as? String ?? "",endtime: businessTimingData[indexx]["endtime"] as? String ?? "",status: "1"), at: 6)
-                }
-                tblVwTiming.reloadData()
-            }
+    @objc func actionEndTimee(sender: UITextField) {
+        let index = isSelect
+        let indexPath = IndexPath(row: index, section: 0)
+        
+        guard let cell = tblVwTiming.cellForRow(at: indexPath) as? TimiingTVC,
+              let datePicker = cell.txtFldEndTime.inputView as? UIDatePicker else { return }
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "hh:mm a"
+        
+        let newEndTime = dateFormatter.string(from: datePicker.date)
+        businessTimingData[index]["endtime"] = newEndTime
+        businessTimingData[index]["status"] = "1"
+        
+        if let startTime = businessTimingData[index]["starttime"] as? String,
+           let start = dateFormatter.date(from: startTime),
+           let end = dateFormatter.date(from: newEndTime),
+           start >= end {
+            showSwiftyAlert("", "End time must be later than the start time.", false)
+            return
         }
-   }
-    @objc func actionEndTimee(sender: UITextField){
-        let indexx = isSelect
-        let indexPath = IndexPath(row: indexx, section: 0)
-        if let cell = tblVwTiming.cellForRow(at: indexPath) as? BusinessTimingTVC {
-            if let datePicker = cell.txtFldEndTime.inputView as? UIDatePicker {
-                let dateFormatter = DateFormatter()
-                dateFormatter.dateFormat = "hh:mm a"
-                businessTimingData[indexx]["endtime"] = dateFormatter.string(from: datePicker.date)
-                businessTimingData[indexx]["status"] = 1
-            }
-            if let startTime = businessTimingData[indexx]["starttime"] as? String,
-               let endTime = businessTimingData[indexx]["endtime"] as? String,
-               !startTime.isEmpty && !endTime.isEmpty {
-                let dateFormatter = DateFormatter()
-                dateFormatter.dateFormat = "hh:mm a"
-                if let start = dateFormatter.date(from: startTime),
-                   let end = dateFormatter.date(from: endTime),
-                   start >= end {
-                    showSwiftyAlert("", "End time not less then the start time", false)
-                }
-                else{
-                    cell.txtFldEndTime.resignFirstResponder()
-                    if indexx == 0{
-                        self.obj.remove(at: 0)
-                        self.obj.insert(BusinessTimingModel(day: businessTimingData[indexx]["day"] as? String ?? "",starttime: businessTimingData[indexx]["starttime"] as? String ?? "",endtime: businessTimingData[indexx]["endtime"] as? String ?? "",status: "1"), at: 0)
-                    }else if indexx == 1{
-                        self.obj.remove(at: 1)
-                        self.obj.insert(BusinessTimingModel(day: businessTimingData[indexx]["day"] as? String ?? "",starttime: businessTimingData[indexx]["starttime"] as? String ?? "",endtime: businessTimingData[indexx]["endtime"] as? String ?? "",status: "1"), at: 1)
-                    }else if indexx == 2{
-                        self.obj.remove(at: 2)
-                        self.obj.insert(BusinessTimingModel(day: businessTimingData[indexx]["day"] as? String ?? "",starttime: businessTimingData[indexx]["starttime"] as? String ?? "",endtime: businessTimingData[indexx]["endTime"] as? String ?? "",status: "1"), at: 2)
-                    }else if indexx == 3{
-                        self.obj.remove(at: 3)
-                        self.obj.insert(BusinessTimingModel(day: businessTimingData[indexx]["day"] as? String ?? "",starttime: businessTimingData[indexx]["starttime"] as? String ?? "",endtime: businessTimingData[indexx]["endtime"]  as? String ?? "",status: "1"), at: 3)
-                    }else if indexx == 4{
-                        self.obj.remove(at: 4)
-                        self.obj.insert(BusinessTimingModel(day: businessTimingData[indexx]["day"] as? String ?? "",starttime: businessTimingData[indexx]["starttime"] as? String ?? "",endtime: businessTimingData[indexx]["endtime"]  as? String ?? "",status: "1"), at: 4)
-                    }else if indexx == 5{
-                        self.obj.remove(at: 5)
-                        self.obj.insert(BusinessTimingModel(day: businessTimingData[indexx]["day"] as? String ?? "",starttime: businessTimingData[indexx]["starttime"] as? String ?? "",endtime: businessTimingData[indexx]["endtime"] as? String ?? "",status: "1"), at: 5)
-                    }else{
-                        self.obj.remove(at: 6)
-                        self.obj.insert(BusinessTimingModel(day: businessTimingData[indexx]["day"] as? String ?? "",starttime: businessTimingData[indexx]["starttime"] as? String ?? "",endtime: businessTimingData[indexx]["endtime"] as? String ?? "",status: "1"), at: 6)
-                    }
-                    tblVwTiming.reloadData()
-                }
-            }else{
-                cell.txtFldEndTime.resignFirstResponder()
-                if indexx == 0{
-                    self.obj.remove(at: 0)
-                    self.obj.insert(BusinessTimingModel(day: businessTimingData[indexx]["day"] as? String ?? "",starttime: businessTimingData[indexx]["starttime"] as? String ?? "",endtime: businessTimingData[indexx]["endtime"] as? String ?? "",status: "1"), at: 0)
-                }else if indexx == 1{
-                    self.obj.remove(at: 1)
-                    self.obj.insert(BusinessTimingModel(day: businessTimingData[indexx]["day"] as? String ?? "",starttime: businessTimingData[indexx]["starttime"] as? String ?? "",endtime: businessTimingData[indexx]["endtime"] as? String ?? "",status: "1"), at: 1)
-                }else if indexx == 2{
-                    self.obj.remove(at: 2)
-                    self.obj.insert(BusinessTimingModel(day: businessTimingData[indexx]["day"] as? String ?? "",starttime: businessTimingData[indexx]["starttime"] as? String ?? "",endtime: businessTimingData[indexx]["endtime"] as? String ?? "",status: "1"), at: 2)
-                }else if indexx == 3{
-                    self.obj.remove(at: 3)
-                    self.obj.insert(BusinessTimingModel(day: businessTimingData[indexx]["day"] as? String ?? "",starttime: businessTimingData[indexx]["starttime"] as? String ?? "",endtime: businessTimingData[indexx]["endtime"]  as? String ?? "",status: "1"), at: 3)
-                }else if indexx == 4{
-                    self.obj.remove(at: 4)
-                    self.obj.insert(BusinessTimingModel(day: businessTimingData[indexx]["day"] as? String ?? "",starttime: businessTimingData[indexx]["starttime"] as? String ?? "",endtime: businessTimingData[indexx]["endtime"]  as? String ?? "",status: "1"), at: 4)
-                }else if indexx == 5{
-                    self.obj.remove(at: 5)
-                    self.obj.insert(BusinessTimingModel(day: businessTimingData[indexx]["day"] as? String ?? "",starttime: businessTimingData[indexx]["starttime"] as? String ?? "",endtime: businessTimingData[indexx]["endtime"] as? String ?? "",status: "1"), at: 5)
-                }else{
-                    self.obj.remove(at: 6)
-                    self.obj.insert(BusinessTimingModel(day: businessTimingData[indexx]["day"] as? String ?? "",starttime: businessTimingData[indexx]["starttime"] as? String ?? "",endtime: businessTimingData[indexx]["endtime"] as? String ?? "",status: "1"), at: 6)
-                }
-                tblVwTiming.reloadData()
-            }
+        
+        cell.txtFldEndTime.text = newEndTime
+        cell.txtFldEndTime.resignFirstResponder()
+        
+        let updatedModel = BusinessTimingModel(
+            day: businessTimingData[index]["day"] as? String ?? "",
+            starttime: businessTimingData[index]["starttime"] as? String ?? "",
+            endtime: newEndTime,
+            status: "1"
+        )
+        
+        if index < obj.count {
+            obj[index] = updatedModel
         }
-      }
-    @objc func actionDeleteTime(sender:UIButton){
-        isSelect = sender.tag
-        print("isSelect:--\(isSelect)")
-        businessTimingData.remove(at: isSelect)
-        setTblviewHeight()
+        
+        tblVwTiming.reloadData()
     }
+    func configureDatePicker(for textField: UITextField, tag: Int) {
+        let datePicker = UIDatePicker()
+        datePicker.datePickerMode = .time
+        datePicker.preferredDatePickerStyle = .wheels
+        datePicker.tag = tag
+        datePicker.addTarget(self, action: #selector(dateChanged(_:)), for: .valueChanged)
+        
+        // Toolbar
+        let toolBar = UIToolbar()
+        toolBar.barStyle = .default
+        toolBar.isTranslucent = true
+        toolBar.tintColor = UIColor.app
+        toolBar.sizeToFit()
+        
+        let flexibleSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        let doneButton = UIBarButtonItem(title: "Done", style: .done, target: self, action: #selector(donePicker))
+        
+        toolBar.setItems([flexibleSpace, doneButton], animated: false)
+        toolBar.isUserInteractionEnabled = true
+        
+        textField.inputView = datePicker
+        textField.inputAccessoryView = toolBar
+        textField.tag = tag
+    }
+    @objc func dateChanged(_ sender: UIDatePicker) {
+        let indexPath = IndexPath(row: sender.tag, section: 0)
+        
+        guard let cell = tblVwTiming.cellForRow(at: indexPath) as? TimiingTVC else { return }
+        
+        let formatter = DateFormatter()
+        formatter.dateFormat = "hh:mm a" // Customize as needed
+        let timeString = formatter.string(from: sender.date)
+        
+        if cell.txtFldStartTime.isFirstResponder {
+            // Updating start time
+            if let endTime = businessTimingData[sender.tag]["endtime"] as? String,
+               let start = formatter.date(from: timeString),
+               let end = formatter.date(from: endTime),
+               start >= end {
+                showSwiftyAlert("", "Start time must be earlier than the end time.", false)
+                return
+            }
+            
+            businessTimingData[sender.tag]["starttime"] = timeString
+            cell.txtFldStartTime.text = timeString
+            
+        } else if cell.txtFldEndTime.isFirstResponder {
+            // Updating end time
+            if let startTime = businessTimingData[sender.tag]["starttime"] as? String,
+               let start = formatter.date(from: startTime),
+               let end = formatter.date(from: timeString),
+               start >= end {
+                showSwiftyAlert("", "End time must be later than the start time.", false)
+                return
+            }
+            
+            businessTimingData[sender.tag]["endtime"] = timeString
+            cell.txtFldEndTime.text = timeString
+        }
+    }
+    
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-          return  75
+        return  70
     }
 }
 class CustomCollectionViewFlowLayout: UICollectionViewFlowLayout {

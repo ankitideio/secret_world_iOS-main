@@ -53,7 +53,9 @@ struct WebService {
                 
                 if let param = param {
                     if let paramString = param as? String {
+                      
                         let postData = NSMutableData(data: paramString.data(using: .utf8)!)
+                      
                         request.httpBody = postData as Data
                     } else if let paramDict = param as? [String: Any] {
                         var paramStr = self.getString(from: paramDict)

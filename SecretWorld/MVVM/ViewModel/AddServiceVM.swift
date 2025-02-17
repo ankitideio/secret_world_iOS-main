@@ -74,83 +74,61 @@ class AddServiceVM{
         }
         
     }
+    func getSubCatories(type:Int,
+                        offset:Int,
+                        limit:Int,
+                        search:String,
+                        onSccess:@escaping((SubCategoryData?)->())){
+        let param: parameters = ["offset": offset,
+                                 "limit": limit,
+                                 "search": search]
+        
+        WebService.service(API.getSubcategory,param: param,service: .get,showHud: false,is_raw_form: true) { (model:SubCategoryModel,jsonData,jsonSer) in
+            
+            onSccess(model.data)
+        }
+    }
     
-    func AddServiceApi(serviceName: String,
+    func addServiceApi(serviceName: String,
                        price: String,
+                       discount: String,
                        description: String,
-                       serviceImage: [Any],
-                       catSubcatArr: [[String: Any]],
-                       onSuccess: @escaping((GetUserData?,_ message:String?) -> ())) {
-        
-        var subCategoryIdArray: [String] = []
-        
-        for subcat in catSubcatArr {
-            guard let categoryId = subcat["category_id"] as? String,
-                  let subcategories = subcat["subcategory"] as? [[String: String]] else {
-                continue
-            }
-            for subcategory in subcategories {
-                if let subCategoryId = subcategory["subcategory_id"] {
-                    subCategoryIdArray.append(subCategoryId)
-                }
-            }
+                       serviceImages: [UIImage],
+                       catSubcatArr: [String], // Changed type to [String]
+                       onSuccess: @escaping ((GetUserData?,String) -> Void)) {
+
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = dateFormat.fullDate.rawValue
+        let currentDate = dateFormatter.string(from: Date())
+
+        let imageStructArr: [ImageStructInfo] = serviceImages.enumerated().map { index, image in
+            ImageStructInfo(
+                fileName: "\(index).png",
+                type: "image/png",
+                data: image.toData() ?? Data(),
+                key: "media"
+            )
         }
-        
-        let formatter = DateFormatter()
-        formatter.dateFormat = dateFormat.fullDate.rawValue
-        let date = formatter.string(from: Date())
+
      
-        var imageStructArr = [ImageStructInfo]()
-        for (index, mediaItem) in serviceImage.enumerated() {
-            if let image = mediaItem as? UIImage {
-                // Handle UIImage (Image)
-                let imgStruct = ImageStructInfo(
-                    fileName: "\(index).png",
-                    type: "image/png",
-                    data: image.toData() ?? Data() ,
-                    key: "media"
-                )
-                imageStructArr.append(imgStruct)
-                
-            }
+        let params: [String: Any] = [
+            "serviceName": serviceName,
+            "price": price,
+            "discount": discount,
+            "description": description,
+            "serviceImage": imageStructArr,
+            "catSubcatArr": catSubcatArr // Sending as JSON string
+        ]
+        print(params)
+        WebService.service(API.addService, param: params, service: .post, is_raw_form: false) { (model: CreateAccountModel, _, _) in
+            onSuccess(model.data, model.message ?? "")
         }
-
-        do {
-
-            let outputArray = catSubcatArr.map { dictionary in
-                return dictionary as [String: Any]
-            }
-
-            if let jsonData = try? JSONSerialization.data(withJSONObject: outputArray, options: .prettyPrinted),
-               let jsonString = String(data: jsonData, encoding: .utf8) {
-                print("data===",jsonString)
-                let json: [String: Any] = [
-                    "serviceName": serviceName,
-                    "price": price,
-                    "description": description,
-                    "serviceImage": imageStructArr,
-                    "catSubcatArr": jsonString
-                ]
-                print(json)
-                WebService.service(API.addService, param: json, service: .post, is_raw_form: false) { (model: CreateAccountModel, jsonData, jsonSer) in
-                    onSuccess(model.data,model.message)
-                }
-//                serviceJson = jsonString
-            } else {
-                print("Error converting array to JSON.")
-            }
-          
-         
-        } catch {
-            print("Error converting dictionary to JSON: \(error)")
-        }
-        
     }
     
     func getAllService(loader:Bool,offSet:Int,limit:Int,onSuccess:@escaping((GetBusinessServiceData?)->())){
       
-        let param:parameters = ["offset":offSet,"limit":limit]
-        WebService.service(API.getAllBusinessService,param: param,service: .get, showHud: loader,is_raw_form: true) { (model:GetBusinessServiceModel,jsonData,jsonSer)in
+//        let param:parameters = ["offset":offSet,"limit":limit]
+        WebService.service(API.getAllBusinessService,service: .get, showHud: loader,is_raw_form: true) { (model:GetBusinessServiceModel,jsonData,jsonSer)in
            
             onSuccess(model.data)
         }
@@ -158,7 +136,9 @@ class AddServiceVM{
     func EdiServiceApi(service_id: String,
                        serviceName: String,
                        price: String,
+                       discount: String,
                        description: String,
+                       catSubcatArr:[String],
                        serviceImage: [Any],
                        deletedserviceImages: [Any],
                        onSuccess: @escaping((_ message:String?) -> ())) {
@@ -185,8 +165,10 @@ class AddServiceVM{
                 let param: [String: Any] = ["service_id":service_id,
                                            "serviceName": serviceName,
                                            "price": price,
+                                            "discount": discount,
                                            "description": description,
                                            "serviceImage": imageStructArr,
+                                            "catSubcatArr": catSubcatArr,
                                            "deletedserviceImages": deletedserviceImages
                 ]
           print(param)

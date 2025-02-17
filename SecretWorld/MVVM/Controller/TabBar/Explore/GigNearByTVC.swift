@@ -8,6 +8,9 @@
 import UIKit
 
 class GigNearByTVC: UITableViewCell {
+    @IBOutlet weak var lblDate: UILabel!
+    @IBOutlet weak var lblAddress: UILabel!
+    @IBOutlet weak var lblTime: UILabel!
     @IBOutlet var lblPrice: UILabel!
     @IBOutlet var lblName: UILabel!
     @IBOutlet var imgVwGig: UIImageView!

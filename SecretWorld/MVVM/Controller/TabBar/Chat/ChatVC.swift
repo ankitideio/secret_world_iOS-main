@@ -10,6 +10,7 @@ class ChatVC: UIViewController {
     
     //MARK: - OUTLETS
     //leftSidebtn
+    @IBOutlet weak var bottomTblVw: NSLayoutConstraint!
     @IBOutlet var leftSideViewDot: UIView!
     @IBOutlet var btnLeftSideNotification: UIButton!
     //rightSidebtn
@@ -24,6 +25,7 @@ class ChatVC: UIViewController {
     
     var arrChatList = [MessageListModel]()
     var isGroup = false
+    let deviceHasNotch = UIApplication.shared.hasNotch
     
     //MARK: - LIFE CYCLE METHOD
     
@@ -34,7 +36,15 @@ class ChatVC: UIViewController {
 //        configureSocket()
     }
     override func viewWillAppear(_ animated: Bool) {
-       
+        if deviceHasNotch{
+            if UIDevice.current.hasDynamicIsland {
+                bottomTblVw.constant = 58
+            }else{
+                bottomTblVw.constant = 48
+            }
+        }else{
+            bottomTblVw.constant = 80
+        }
     }
     
     //MARK: - FUNCTIONS

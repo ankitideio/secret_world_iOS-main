@@ -118,8 +118,9 @@ class ProfileViewVC: UIViewController,UIGestureRecognizerDelegate {
             self.arrInterst.append(contentsOf: data?.userProfile?.Interests ?? [])
             self.arrSpecialize.append(contentsOf: data?.userProfile?.Specialization ?? [])
             if self.isComingChat == false{
+               
                 Store.UserDetail = ["userName":data?.userProfile?.name ?? "",
-                                    "profileImage":data?.userProfile?.profilePhoto ?? "","userId":data?.userProfile?.id ?? ""]
+                                    "profileImage":data?.userProfile?.profilePhoto ?? "","userId":data?.userProfile?.id ?? "","mobile":data?.userProfile?.mobile ?? 0,"countryCode":Store.UserDetail?["countryCode"] as? String ?? ""]
                 NotificationCenter.default.post(name: Notification.Name("UpdateUserName"), object: nil)
             }
             self.collVwDitary.reloadData()

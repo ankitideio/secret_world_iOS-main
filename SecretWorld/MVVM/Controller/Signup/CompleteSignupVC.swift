@@ -12,6 +12,12 @@ import AlignedCollectionViewFlowLayout
 
 class CompleteSignupVC: UIViewController {
     //MARK: - Outlets
+    @IBOutlet weak var txtFldAddress: UITextField!
+    @IBOutlet weak var vwLocation: UIView!
+    @IBOutlet weak var txtFldCity: UITextField!
+    @IBOutlet weak var vwCity: UIView!
+    @IBOutlet weak var txtFldZipcode: UITextField!
+    @IBOutlet weak var vwZipCode: UIView!
     @IBOutlet var heightCollVwSpecialize: NSLayoutConstraint!
     @IBOutlet var collVwSpecializ: UICollectionView!
     @IBOutlet var heightCollVwDietry: NSLayoutConstraint!
@@ -208,11 +214,16 @@ class CompleteSignupVC: UIViewController {
             let vc = self.storyboard?.instantiateViewController(withIdentifier: "SelectCityVC") as! SelectCityVC
             vc.modalPresentationStyle = .overFullScreen
             vc.shortCityName = shortname
-            vc.callBack = { selectCity,lat,long in
+            vc.callBack = { selectCity,lat,long,zipCode,country,placeName in
                 self.latitude = lat ?? 0.0
                 self.longitude = long ?? 0.0
-                self.txtFldPlace.text = "\(selectCity ?? "")"
-                
+                self.txtFldZipcode.text = zipCode
+                self.txtFldPlace.text = country
+                self.txtFldCity.text = selectCity
+                self.txtFldAddress.text = placeName
+                self.vwZipCode.isHidden = false
+                self.vwCity.isHidden = false
+                self.vwLocation.isHidden = false
             }
             self.navigationController?.present(vc, animated: true)
         }
@@ -252,23 +263,26 @@ class CompleteSignupVC: UIViewController {
     @IBAction func actionSignup(_ sender: UIButton) {
         
         
-        if txtVwDescription.text == ""{
-            showSwiftyAlert("", "This field cannot be empty. Tell us a bit about yourself", false)
-        }else if arrInterst.isEmpty{
+//        if txtVwDescription.text == ""{
+//            showSwiftyAlert("", "This field cannot be empty. Tell us a bit about yourself", false)
+//        }else if arrInterst.isEmpty{
+//            
+//            showSwiftyAlert("", "Please select at least one interest", false)
+//            
+//        }else if arrDietry.isEmpty{
+//            
+//            showSwiftyAlert("", "Please select your dietary preferences", false)
+//            
+       if arrSpecialize.isEmpty{
             
-            showSwiftyAlert("", "Please select at least one interest", false)
-            
-        }else if arrDietry.isEmpty{
-            
-            showSwiftyAlert("", "Please select your dietary preferences", false)
-            
-        }else if arrSpecialize.isEmpty{
-            
-            showSwiftyAlert("", "Please select your specialization", false)
+            showSwiftyAlert("", "Please select your expertise.", false)
             
         }else if txtFldPlace.text == ""{
             
-            showSwiftyAlert("", "Please specify your place of origin to continue", false)
+            showSwiftyAlert("", "Please specify your place of origin to continue.", false)
+        }else if txtFldZipcode.text == ""{
+            
+            showSwiftyAlert("", "Please enter your zip code.", false)
             
         }else{
             
@@ -298,6 +312,20 @@ class CompleteSignupVC: UIViewController {
     
     
 }
+
+extension CompleteSignupVC: UITextFieldDelegate {
+    
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        if textField == txtFldZipcode {
+            let maxLength = 10
+            let currentText = textField.text ?? ""
+            let newText = (currentText as NSString).replacingCharacters(in: range, with: string)
+            return newText.count <= maxLength
+        }
+        return true
+    }
+}
+
 //MARK: - UITextViewDelegate
 extension CompleteSignupVC: UITextViewDelegate{
     

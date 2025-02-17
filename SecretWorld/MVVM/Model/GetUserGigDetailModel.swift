@@ -52,7 +52,7 @@ struct Giges: Codable {
     let image: String?
     let participants: String?
     let totalParticipants: String?
-    let price: Int?
+    let price: Double?
     let about: String?
     let createdAt: String?
     let updatedAt: String?

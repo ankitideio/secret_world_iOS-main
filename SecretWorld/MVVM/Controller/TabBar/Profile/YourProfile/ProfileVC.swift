@@ -19,10 +19,15 @@ struct ProfileData{
 }
 class ProfileVC: UIViewController {
     //MARK: - OUTLEST
+    @IBOutlet weak var lblPromo: UILabel!
+    @IBOutlet weak var imgVwPromo: UIImageView!
+    @IBOutlet weak var btmScrollVw: NSLayoutConstraint!
     @IBOutlet var lblName: UILabel!
+    @IBOutlet var lblMobilenumber: UILabel!
     @IBOutlet var heightTblvw: NSLayoutConstraint!
     @IBOutlet var imgVwProfile: UIImageView!
     @IBOutlet var tblVwProfile: UITableView!
+    @IBOutlet weak var btnChangePhone: UIButton!
     
     //MARK: - VARIABLES
     var arrProfile = [ProfileData]()
@@ -36,6 +41,7 @@ class ProfileVC: UIViewController {
     var isUserParticipantsList = false
     var viewModelBank = PaymentVM()
     var arrBank = [BankAccountDetailData]()
+    let deviceHasNotch = UIApplication.shared.hasNotch
     override func viewDidLoad() {
         super.viewDidLoad()
        
@@ -47,6 +53,15 @@ class ProfileVC: UIViewController {
         
     }
     override func viewWillAppear(_ animated: Bool) {
+        if deviceHasNotch{
+            if UIDevice.current.hasDynamicIsland {
+                btmScrollVw.constant = 58
+            }else{
+                btmScrollVw.constant = 48
+            }
+        }else{
+            btmScrollVw.constant = -80
+        }
         getBankApi()
     }
     @objc func GetBankCount(notification: Notification) {
@@ -69,54 +84,75 @@ class ProfileVC: UIViewController {
     }
     
     func uiSet(){
-        
-        
         arrProfile.removeAll()
-        
+        btnChangePhone.underline()
         print("role:--\(Store.role ?? "")")
+        print("DAta---",Store.UserDetail)
         if Store.role == "b_user"{
             lblName.text =  Store.BusinessUserDetail?["userName"] as? String ?? ""
+            lblMobilenumber.text =  "\(Store.BusinessUserDetail?["countryCode"] as? String ?? "") \(Store.BusinessUserDetail?["mobile"] as? Int ?? 0)"
             imgVwProfile.imageLoad(imageUrl: Store.BusinessUserDetail?["profileImage"] as? String ?? "")
-            arrProfile.append(ProfileData(title: "Your profile", img: "profl"))
-            arrProfile.append(ProfileData(title: "Change phone number", img: "Change phone number"))
+            arrProfile.append(ProfileData(title: "Your Task", img: "Posted Gig"))
             arrProfile.append(ProfileData(title: "Your Services", img: "YourService"))
-            arrProfile.append(ProfileData(title: "Your Task", img: "adService"))
-            arrProfile.append(ProfileData(title: "Help Center", img: "Help Center"))
-            arrProfile.append(ProfileData(title: "Verify Promo Code", img: "VerifyPromo"))
-           // arrProfile.append(ProfileData(title: "Popups", img: "popup"))
             arrProfile.append(ProfileData(title: "Analytics", img: "analysis"))
-            arrProfile.append(ProfileData(title: "Bank", img: "bank"))
-            arrProfile.append(ProfileData(title: "Transaction History", img: "history"))
-            arrProfile.append(ProfileData(title: "Wallet", img: "wallet"))
-            arrProfile.append(ProfileData(title: "Contact us", img: "Contact us"))
-            arrProfile.append(ProfileData(title: "About us", img: "About us"))
-            arrProfile.append(ProfileData(title: "Privacy Policy", img: "Privacy Policy"))
-            arrProfile.append(ProfileData(title: "Logout", img: "Logout"))
+            arrProfile.append(ProfileData(title: "Info and Support", img: "info"))
+            imgVwPromo.image = UIImage(named: "promoo")
+            lblPromo.text = "Special offers"
             heightTblvw.constant = CGFloat(arrProfile.count*70)
         }else{
             
             lblName.text =  Store.UserDetail?["userName"] as? String ?? ""
+            lblMobilenumber.text =  "\(Store.UserDetail?["countryCode"] as? String ?? "") \(Store.UserDetail?["mobile"] as? Int ?? 0)"
             imgVwProfile.imageLoad(imageUrl: Store.UserDetail?["profileImage"] as? String ?? "")
-            arrProfile.append(ProfileData(title: "Your profile", img: "profl"))
-            arrProfile.append(ProfileData(title: "Change phone number", img: "Change phone number"))
+            arrProfile.append(ProfileData(title: "Your Task", img: "Posted Gig"))
             arrProfile.append(ProfileData(title: "Applied Task", img: "adService"))
-            arrProfile.append(ProfileData(title: "Posted Task", img: "Posted Gig"))
-            arrProfile.append(ProfileData(title: "Promo Codes", img: "promoo"))
             arrProfile.append(ProfileData(title: "Popups", img: "popup"))
-            arrProfile.append(ProfileData(title: "Analytics", img: "analysis"))
-            arrProfile.append(ProfileData(title: "Bank", img: "bank"))
-            arrProfile.append(ProfileData(title: "Transaction History", img: "history"))
-            arrProfile.append(ProfileData(title: "Wallet", img: "wallet"))
-            arrProfile.append(ProfileData(title: "Help Center", img: "Help Center"))
-            arrProfile.append(ProfileData(title: "Contact us", img: "Contact us"))
-            arrProfile.append(ProfileData(title: "About us", img: "About us"))
-            arrProfile.append(ProfileData(title: "Privacy Policy", img: "Privacy Policy"))
-            arrProfile.append(ProfileData(title: "Logout", img: "Logout"))
+            arrProfile.append(ProfileData(title: "Info and Support", img: "info"))
             heightTblvw.constant = CGFloat(arrProfile.count*70)
+            imgVwPromo.image = UIImage(named: "promocode")
+            lblPromo.text = "Promo codes"
         }
         tblVwProfile.reloadData()
     }
-    
+    //MARK: - IBAction
+    @IBAction func actionProfile(_ sender: UIButton) {
+        if Store.role == "b_user"{
+            let vc = self.storyboard?.instantiateViewController(withIdentifier: "BusinessProfileVC") as! BusinessProfileVC
+            vc.isComing = true
+            self.navigationController?.pushViewController(vc, animated: true)
+
+        }else{
+            let vc = self.storyboard?.instantiateViewController(withIdentifier: "ProfileViewVC") as! ProfileViewVC
+            self.navigationController?.pushViewController(vc, animated: true)
+        }
+    }
+    @IBAction func actionLogout(_ sender: UIButton) {
+        let vc = self.storyboard?.instantiateViewController(withIdentifier: "LogOutVC") as! LogOutVC
+        vc.modalPresentationStyle = .overFullScreen
+        self.navigationController?.present(vc, animated: false)
+
+    }
+    @IBAction func actionFinance(_ sender: UIButton) {
+        let vc = self.storyboard?.instantiateViewController(withIdentifier: "InfoAndSupportVC") as! InfoAndSupportVC
+        vc.isComing = false
+        vc.arrBank = self.arrBank
+        self.navigationController?.pushViewController(vc, animated: true)
+    }
+    @IBAction func actionPromocode(_ sender: UIButton) {
+        if Store.role == "b_user"{
+            let vc = self.storyboard?.instantiateViewController(withIdentifier: "SpecialOfferVC") as! SpecialOfferVC
+            self.navigationController?.pushViewController(vc, animated: true)
+        }else{
+            let vc = self.storyboard?.instantiateViewController(withIdentifier: "PromoCodeVC") as! PromoCodeVC
+            self.navigationController?.pushViewController(vc, animated: true)
+        }
+
+    }
+    @IBAction func actionChnagephoneNumber(_ sender: UIButton) {
+        let vc = self.storyboard?.instantiateViewController(withIdentifier: "EnterPhoneNumberVC") as! EnterPhoneNumberVC
+        vc.isComing = true
+        self.navigationController?.pushViewController(vc, animated: true)
+    }
 }
 //MARK: - TABLEVIEW DELEGATE AND DATASOURCE
 
@@ -125,9 +161,7 @@ extension ProfileVC: UITableViewDelegate,UITableViewDataSource{
     
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        
         return arrProfile.count
-        
     }
     
     
@@ -142,157 +176,44 @@ extension ProfileVC: UITableViewDelegate,UITableViewDataSource{
         if Store.role == "b_user"{
             switch indexPath.row {
             case 0:
-                let vc = self.storyboard?.instantiateViewController(withIdentifier: "BusinessProfileVC") as! BusinessProfileVC
-                vc.isComing = true
-                self.navigationController?.pushViewController(vc, animated: true)
-                
-            case 1:
-                let vc = self.storyboard?.instantiateViewController(withIdentifier: "EnterPhoneNumberVC") as! EnterPhoneNumberVC
-                vc.isComing = true
-                self.navigationController?.pushViewController(vc, animated: true)
-                
-                
-            case 2:
-                
-                let vc = self.storyboard?.instantiateViewController(withIdentifier: "MyServicesVC") as! MyServicesVC
-                vc.isSelect = 1
-                self.navigationController?.pushViewController(vc, animated: true)
-                
-            case 3:
-                
                 let vc = self.storyboard?.instantiateViewController(withIdentifier: "GigListVC") as! GigListVC
                 vc.isComing = 2
                 self.navigationController?.pushViewController(vc, animated: true)
-                
-            case 4:
-                let vc = self.storyboard?.instantiateViewController(withIdentifier: "HelpCenterVC") as! HelpCenterVC
+            case 1:
+                let vc = self.storyboard?.instantiateViewController(withIdentifier: "MyServicesVC") as! MyServicesVC
+                vc.isSelect = 1
                 self.navigationController?.pushViewController(vc, animated: true)
-            case 5:
-                let vc = storyboard?.instantiateViewController(withIdentifier: "VerifyPromoVC") as! VerifyPromoVC
-                navigationController?.pushViewController(vc, animated: true)
-                
-            case 6:
+            case 2:
                 let vc = self.storyboard?.instantiateViewController(withIdentifier: "AnalysisVC") as! AnalysisVC
                 self.navigationController?.pushViewController(vc, animated: true)
-                
-            case 7:
-                if arrBank.count > 0{
-                    let vc = self.storyboard?.instantiateViewController(withIdentifier: "BankVC") as! BankVC
-                    self.navigationController?.pushViewController(vc, animated: true)
-                }else{
-                    let vc = self.storyboard?.instantiateViewController(withIdentifier: "AddBankVC") as! AddBankVC
-                    self.navigationController?.pushViewController(vc, animated: true)
-                }
-
-            case 8:
-                let vc = self.storyboard?.instantiateViewController(withIdentifier: "TransactionHistoryVC") as! TransactionHistoryVC
-                self.navigationController?.pushViewController(vc, animated: true)
-            case 9:
-                let vc = self.storyboard?.instantiateViewController(withIdentifier: "WalletVC") as! WalletVC
+            case 3:
+                let vc = self.storyboard?.instantiateViewController(withIdentifier: "InfoAndSupportVC") as! InfoAndSupportVC
                 vc.isComing = true
                 self.navigationController?.pushViewController(vc, animated: true)
-                
-            case 10:
-                let vc = self.storyboard?.instantiateViewController(withIdentifier: "ContactUsVC") as! ContactUsVC
-                self.navigationController?.pushViewController(vc, animated: true)
-                
-                
-            case 11:
-                let vc = self.storyboard?.instantiateViewController(withIdentifier: "PrivacyPolicyVC") as! PrivacyPolicyVC
-                vc.isComing = false
-                self.navigationController?.pushViewController(vc, animated: true)
-                
-                
-            case 12:
-                
-                let vc = self.storyboard?.instantiateViewController(withIdentifier: "PrivacyPolicyVC") as! PrivacyPolicyVC
-                vc.isComing = true
-                self.navigationController?.pushViewController(vc, animated: true)
-            case 13:
-                let vc = self.storyboard?.instantiateViewController(withIdentifier: "LogOutVC") as! LogOutVC
-                vc.modalPresentationStyle = .overFullScreen
-                self.navigationController?.present(vc, animated: false)
-                
             default:
-                
                 break
             }
             
         }else{
             //User
-            
             switch indexPath.row {
             case 0:
-                let vc = self.storyboard?.instantiateViewController(withIdentifier: "ProfileViewVC") as! ProfileViewVC
-                self.navigationController?.pushViewController(vc, animated: true)
-                
-            case 1:
-                let vc = self.storyboard?.instantiateViewController(withIdentifier: "EnterPhoneNumberVC") as! EnterPhoneNumberVC
-                vc.isComing = true
-                self.navigationController?.pushViewController(vc, animated: true)
-                
-                
-            case 2:
-                
-                let vc = self.storyboard?.instantiateViewController(withIdentifier: "GigListVC") as! GigListVC
-                vc.isComing = 1
-                Store.isUserParticipantsList = false
-                self.navigationController?.pushViewController(vc, animated: true)
-                
-            case 3:
-                
                 let vc = self.storyboard?.instantiateViewController(withIdentifier: "GigListVC") as! GigListVC
                 vc.isComing = 2
                 Store.isUserParticipantsList = true
                 self.navigationController?.pushViewController(vc, animated: true)
-                
-            case 4:
-                let vc = self.storyboard?.instantiateViewController(withIdentifier: "PromoCodeVC") as! PromoCodeVC
+            case 1:
+                let vc = self.storyboard?.instantiateViewController(withIdentifier: "GigListVC") as! GigListVC
+                vc.isComing = 1
+                Store.isUserParticipantsList = false
                 self.navigationController?.pushViewController(vc, animated: true)
-                
-            case 5:
+            case 2:
                 let vc = self.storyboard?.instantiateViewController(withIdentifier: "PopUpListVC") as! PopUpListVC
                 self.navigationController?.pushViewController(vc, animated: true)
-            case 6:
-                let vc = self.storyboard?.instantiateViewController(withIdentifier: "AnalysisVC") as! AnalysisVC
-                self.navigationController?.pushViewController(vc, animated: true)
-            case 7:
-                if arrBank.count > 0{
-                    let vc = self.storyboard?.instantiateViewController(withIdentifier: "BankVC") as! BankVC
-                    self.navigationController?.pushViewController(vc, animated: true)
-                }else{
-                    let vc = self.storyboard?.instantiateViewController(withIdentifier: "AddBankVC") as! AddBankVC
-                    self.navigationController?.pushViewController(vc, animated: true)
-                }
-            case 8:
-                let vc = self.storyboard?.instantiateViewController(withIdentifier: "TransactionHistoryVC") as! TransactionHistoryVC
-                self.navigationController?.pushViewController(vc, animated: true)
-            case 9:
-                let vc = self.storyboard?.instantiateViewController(withIdentifier: "WalletVC") as! WalletVC
+            case 3:
+                let vc = self.storyboard?.instantiateViewController(withIdentifier: "InfoAndSupportVC") as! InfoAndSupportVC
                 vc.isComing = true
                 self.navigationController?.pushViewController(vc, animated: true)
-            case 10:
-                let vc = self.storyboard?.instantiateViewController(withIdentifier: "HelpCenterVC") as! HelpCenterVC
-                self.navigationController?.pushViewController(vc, animated: true)
-            case 11:
-                let vc = self.storyboard?.instantiateViewController(withIdentifier: "ContactUsVC") as! ContactUsVC
-                self.navigationController?.pushViewController(vc, animated: true)
-                
-            case 12:
-                let vc = self.storyboard?.instantiateViewController(withIdentifier: "PrivacyPolicyVC") as! PrivacyPolicyVC
-                vc.isComing = false
-                self.navigationController?.pushViewController(vc, animated: true)
-                
-            case 13:
-                
-                let vc = self.storyboard?.instantiateViewController(withIdentifier: "PrivacyPolicyVC") as! PrivacyPolicyVC
-                vc.isComing = true
-                self.navigationController?.pushViewController(vc, animated: true)
-            case 14:
-                let vc = self.storyboard?.instantiateViewController(withIdentifier: "LogOutVC") as! LogOutVC
-                vc.modalPresentationStyle = .overFullScreen
-                self.navigationController?.present(vc, animated: false)
-                
             default:
                 
                 break

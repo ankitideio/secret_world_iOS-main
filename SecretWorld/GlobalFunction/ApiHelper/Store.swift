@@ -101,7 +101,7 @@ class Store {
             return Store.getUserDetails(.userDetails)
         }
     }
-    
+ 
     class var getBusinessDetail: GetBusinessDetail?{
         set{
             Store.saveUserDetails(newValue, .userDetails)
@@ -185,6 +185,13 @@ class Store {
             return Store.getValue(.searchResult) as? [String] ?? []
         }
     }
+    class var taskMiles: [Int]{
+        set{
+            Store.saveValue(newValue, .taskMiles)
+        }get{
+            return Store.getValue(.taskMiles) as? [Int] ?? []
+        }
+    }
     class var ServiceId: String?{
         set{
             Store.saveValue(newValue, .ServiceId)
@@ -197,6 +204,13 @@ class Store {
             Store.saveValue(newValue, .BusinessUserIdForReview)
         }get{
             return Store.getValue(.BusinessUserIdForReview) as? String
+        }
+    }
+    class var BusinessDetailData: ServiceDetailsData?{
+        set{
+            Store.saveBusinessDetail(newValue, .businessDetail)
+        }get{
+            return Store.getBusinessDetail(.businessDetail)
         }
     }
     class var ServiceDetailData: GetServiceDetailDataa?{
@@ -514,7 +528,29 @@ class Store {
         }
         return nil
     }
-    
+    private class func saveBusinessDetail<T: Codable>(_ value: T?, _ key: DefaultKeys) {
+        guard let value = value else { return } // Return if value is nil
+        
+        do {
+            let data = try PropertyListEncoder().encode(value)
+            Store.saveValue(data, key)
+        } catch {
+            print("Error encoding object for \(key): \(error)")
+        }
+    }
+
+    private class func getBusinessDetail<T: Codable>(_ key: DefaultKeys) -> T? {
+        if let data = self.getValue(key) as? Data {
+            do {
+                let model = try PropertyListDecoder().decode(T.self, from: data)
+                return model
+            } catch {
+                print("Error decoding object for \(key): \(error)")
+                return nil
+            }
+        }
+        return nil
+    }
     private class func getValue(_ key: DefaultKeys) -> Any {
         if let data = UserDefaults.standard.value(forKey: key.rawValue) as? Data {
             do {

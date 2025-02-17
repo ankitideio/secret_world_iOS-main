@@ -136,7 +136,8 @@ class SignupVC: UIViewController {
                     Store.autoLogin = data?.user?.profile_status
                     Store.userId = data?.user?.id ?? ""
                     Store.BusinessUserDetail = ["userName":data?.user?.name ?? "",
-                                                "profileImage":data?.user?.profilePhoto ?? "","userId":data?.user?.id ?? ""]
+                                                "profileImage":data?.user?.profilePhoto ?? "","userId":data?.user?.id ?? "","mobile":data?.user?.mobile ?? 0,
+                                                "countryCode":data?.user?.countrycode ?? ""]
                     if let profilePhoto = data?.user?.profilePhoto  as? UIImage {
                         Store.LogoImage = profilePhoto
                     }
@@ -169,7 +170,8 @@ class SignupVC: UIViewController {
                     Store.autoLogin = data?.user?.profile_status
                     Store.userId = data?.user?.id ?? ""
                     Store.UserDetail = ["userName":data?.user?.name ?? "",
-                                        "profileImage":data?.user?.profilePhoto ?? "","userId":data?.user?.id ?? ""]
+                                        "profileImage":data?.user?.profilePhoto ?? "","userId":data?.user?.id ?? "","mobile":data?.user?.mobile ?? 0,
+                                        "countryCode":data?.user?.countrycode ?? ""]
                     Store.userLatLong = ["lat":data?.user?.latitude ?? 0,"long":data?.user?.longitude ?? 0]
                     if let profilePhoto = data?.user?.profilePhoto  as? UIImage {
                         Store.LogoImage = profilePhoto

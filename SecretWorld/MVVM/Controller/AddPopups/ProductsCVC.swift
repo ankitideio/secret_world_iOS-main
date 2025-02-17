@@ -8,6 +8,8 @@
 import UIKit
 
 class ProductsCVC: UICollectionViewCell {
+    @IBOutlet weak var vwAddProduct: UIView!
+    @IBOutlet weak var btnAddProduct: UIButton!
     @IBOutlet var widthEditBtn: NSLayoutConstraint!
     @IBOutlet var widthDeleteBtn: NSLayoutConstraint!
     @IBOutlet var viewDetail: UIView!

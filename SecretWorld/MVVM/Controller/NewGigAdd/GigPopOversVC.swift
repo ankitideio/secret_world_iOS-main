@@ -21,6 +21,12 @@ class GigPopOversVC: UIViewController {
     var limit = 20
     var isWorldwide = false
     var locationType = ""
+    var arrAppliedGig = [GetAppliedData]()
+    var arrProduct = [ServiceDetail]()
+    var participantsList:[Participantzz]?
+    var businessGigDetail:GetGigDetailData?
+    var callBackBusiness:((_ name:String,_ index:Int)->())?
+    var callBackItinerary:((_ type:String,_ title:String,_ id:String,_ price:Int)->())?
     override func viewDidLoad() {
         super.viewDidLoad()
         uiSet()
@@ -58,8 +64,21 @@ class GigPopOversVC: UIViewController {
                            arrTitle.append("Online")
                        }
                    case "calender":
+                       tblVwList.reloadData()
+                   case "Product":
+                       tblVwList.reloadData()
+                   case "graphType":
                        arrTitle.append("Weekly")
                        arrTitle.append("Monthly")
+                       arrTitle.append("Yearly")
+                   case "CreateBusiness":
+                       arrTitle.append("Restaurants")
+                       arrTitle.append("Retail")
+                       arrTitle.append("Beauty & wellness")
+                       arrTitle.append("Events")
+                   case "review":
+                       participantsList = businessGigDetail?.participantsList ?? []
+                       tblVwList.reloadData()
                    default:
                        break
                    }
@@ -83,6 +102,24 @@ extension GigPopOversVC: UITableViewDelegate,UITableViewDataSource{
             }else{
                 return 0
             }
+        }else if type == "calender"{
+            if arrAppliedGig.count > 0{
+                return arrAppliedGig.count
+            }else{
+                return 0
+            }
+        }else if type == "Product"{
+            if arrProduct.count > 0{
+                return arrProduct.count
+            }else{
+                return 0
+            }
+        }else if type == "review"{
+            if participantsList?.count ?? 0 > 0{
+                return participantsList?.count ?? 0
+            }else{
+                return 0
+            }
         }else{
             if arrTitle.count > 0{
                 return arrTitle.count
@@ -98,7 +135,13 @@ extension GigPopOversVC: UITableViewDelegate,UITableViewDataSource{
         if type == "category"{
             cell.lblTitle.text = arrGetCategories[indexPath.row].name
         }else if type == "skills"{
-            cell.lblTitle.text = arrGetSkills[indexPath.row].name 
+            cell.lblTitle.text = arrGetSkills[indexPath.row].name
+        }else if type == "calender"{
+            cell.lblTitle.text = arrAppliedGig[indexPath.row].gig?.title ?? ""
+        }else if type == "review"{
+            cell.lblTitle.text = participantsList?[indexPath.row].name ?? ""
+        }else if type == "Product"{
+            cell.lblTitle.text = arrProduct[indexPath.row].serviceName ?? ""
             }else {
                 cell.lblTitle.text = arrTitle[indexPath.row]
             }
@@ -120,8 +163,15 @@ extension GigPopOversVC: UITableViewDelegate,UITableViewDataSource{
             callBack?(type ?? "", arrGetCategories[indexPath.row].name, arrGetCategories[indexPath.row].id)
         }else if type == "skills"{
             callBack?(type ?? "", arrGetSkills[indexPath.row].name, arrGetSkills[indexPath.row].id)
+        }else if type == "calender"{
+            callBackItinerary?(type ?? "", arrAppliedGig[indexPath.row].gig?.title ?? "", arrAppliedGig[indexPath.row].gig?.id ?? "", arrAppliedGig[indexPath.row].gig?.price ?? 0)
+        }else if type == "Product"{
+            callBack?(type ?? "", arrProduct[indexPath.row].serviceName ?? "", arrProduct[indexPath.row]._id ?? "")
+        }else if type == "review"{
+            callBack?(type ?? "", participantsList?[indexPath.row].name ?? "", participantsList?[indexPath.row].id ?? "")
         }else{
             callBack?(type ?? "", arrTitle[indexPath.row], "")
+            callBackBusiness?(arrTitle[indexPath.row],indexPath.row+1)
         }
       }
 }

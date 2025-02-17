@@ -54,19 +54,20 @@ struct FilteredItem: Codable,Equatable {
     let latitude, longitude: Double?
     let type: String?
     let image: String?
-    let categoryName:[String]?
+    let categoryName:String?
     let paymentStatus,userRatingCount: Int?
     let participants: String?
-    let price, status,appliedStatus,isReady: Int?
+    let status,appliedStatus,isReady: Int?
     let about: String?
     let isDeleted, isCompleted: Bool?
     let seen: Int?
+    let price:Double?
     let locationType,groupId: String?
     let myGigs: Bool?
     let profilePhoto: String?
     let businessname: String?
     let businessID, coverPhoto: String?
-    let openingHours: [OpeningHourHome]?
+//    let openingHours: [OpeningHourHome]?
     let businessLogo: String?
     let description: String?
     let addProducts: [AddProductHome]?
@@ -83,7 +84,7 @@ struct FilteredItem: Codable,Equatable {
         case businessname
         case businessID = "business_id"
         case coverPhoto = "cover_photo"
-        case openingHours = "opening_hours"
+//        case openingHours = "opening_hours"
         case businessLogo = "business_logo"
         case description, addProducts, startDate, endDate, myPopUp
       

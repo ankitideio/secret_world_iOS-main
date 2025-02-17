@@ -20,7 +20,8 @@ class HomeFilterTVC: UITableViewCell {
     @IBOutlet weak var lblTitle: UILabel!
     
     var isSelectIndex = 0
-    var arrTitle = ["Popular","Most Clicked"]
+    var arrTitle = ["Newly Opened","Most Clicked"]
+    var  callBacK:((_ selectIndex:Int)->())?
     
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -30,7 +31,8 @@ class HomeFilterTVC: UITableViewCell {
     func uiSet(){
         collVwPopular.delegate = self
         collVwPopular.dataSource = self
-      
+        collVwPopular.reloadData()
+        
     }
     
     override func setSelected(_ selected: Bool, animated: Bool) {
@@ -59,7 +61,7 @@ extension HomeFilterTVC:UICollectionViewDelegate,UICollectionViewDataSource,UICo
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: 100, height: 32)
+        return CGSize(width: 110, height: 32)
     }
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
         return 15
@@ -68,9 +70,10 @@ extension HomeFilterTVC:UICollectionViewDelegate,UICollectionViewDataSource,UICo
         return 0
     }
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        isSelectIndex = indexPath.row
+//        isSelectIndex = indexPath.row
         popularity = indexPath.row+1
         isSelectPopularity = true
-        collVwPopular.reloadData()
+        
+        callBacK?(indexPath.row)
     }
 }

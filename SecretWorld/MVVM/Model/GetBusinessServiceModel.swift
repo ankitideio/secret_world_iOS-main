@@ -25,17 +25,17 @@ struct GetBusinessServiceData: Codable {
 // MARK: - Service
 struct ServiceDetail: Codable {
     let _id, serviceName, description: String?
-    let price: Int?
-    let rating:Double?
+    let discount: Double?
+    let rating,actualPrice,price:Double?
     let serviceImages: [String]?
     let userID, categoryName: String?
-    let userSubCategories: [String]?
+    let userSubCategories: [selectedServiceCategories]?
 
     enum CodingKeys: String, CodingKey {
         case _id = "_id"
-        case serviceName, description, price, rating, serviceImages
+        case serviceName, description, price, rating, serviceImages,discount
         case userID = "user_id"
-        case categoryName, userSubCategories
+        case categoryName, userSubCategories,actualPrice
     }
 }
 
@@ -52,5 +52,18 @@ struct Userrr: Codable {
         case name
         case profilePhoto = "profile_photo"
         case mobile, place, latitude, longitude
+    }
+}
+
+struct selectedServiceCategories:Codable{
+    let id, name: String?
+    let service_id,service_name: String?
+    let status: Int?
+    let updatedAt: String?
+
+    enum CodingKeys: String, CodingKey {
+        case id = "_id"
+        case name
+        case service_id, service_name, status, updatedAt
     }
 }

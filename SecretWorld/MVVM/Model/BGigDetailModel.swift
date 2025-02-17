@@ -21,6 +21,7 @@ struct GetGigDetailData: Codable {
     let skills: [Category]?
     let tools: [String]?
     let dressCode: String?
+    let participantsList:[Participantzz]?
     let personNeeded: Int?
     let description, safetyTips: String?
     let isCancellation: Int?
@@ -30,17 +31,17 @@ struct GetGigDetailData: Codable {
     let image: String?
     let paymentStatus: Int?
     let participants, totalParticipants: String?
-    let price, status: Int?
+    let status: Int?
     let about: String?
     let user: UserDetailes?
     let appliedParticipants: Int?
     let category: Category?
-    let distance: Double?
+    let distance,price: Double?
     let reviews: [ReviewGigBuser]?
 
     enum CodingKeys: String, CodingKey {
         case id = "_id"
-        case name, title, startDate, startTime, serviceName, experience, address, paymentTerms, paymentMethod, skills, tools, dressCode, personNeeded, description, safetyTips, isCancellation, serviceDuration, place, lat, long, type, image, paymentStatus, participants, totalParticipants, price, status, about, user, appliedParticipants, category, distance, reviews
+        case name, title, startDate, startTime, serviceName, experience, address, paymentTerms, paymentMethod, skills, tools, dressCode, personNeeded, description, safetyTips, isCancellation, serviceDuration, place, lat, long, type, image, paymentStatus, participants, totalParticipants, price, status, about, user, appliedParticipants, category, distance, reviews,participantsList
     }
 }
 

@@ -14,6 +14,7 @@ import AlignedCollectionViewFlowLayout
 struct Skills {
     let id: String
     let name: String
+ 
 }
 
 

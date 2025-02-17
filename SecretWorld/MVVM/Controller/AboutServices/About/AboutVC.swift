@@ -10,8 +10,8 @@ import FXExpandableLabel
 
 class AboutVC: UIViewController, UIGestureRecognizerDelegate {
     //MARK: - OUTLETS
+    @IBOutlet var lblOpeningTime: UILabel!
     @IBOutlet var viewServiceProvider: UIView!
-    @IBOutlet var lblProviderAbout: UILabel!
     @IBOutlet var lblProviderName: UILabel!
     @IBOutlet var imgVwProvider: UIImageView!
     @IBOutlet var tblVwBusinessHour: UITableView!
@@ -24,23 +24,31 @@ class AboutVC: UIViewController, UIGestureRecognizerDelegate {
     var phoneNumber: Int?
     var textAbout = ""
     var isSeeMore = false
-
+    var getDay:String?
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        let nib2 = UINib(nibName: "BusinessHourTVC", bundle: nil)
-        tblVwBusinessHour.register(nib2, forCellReuseIdentifier: "BusinessHourTVC")
-        
         uiSet()
        
-        NotificationCenter.default.addObserver(self, selector: #selector(self.methodOfReceivedNotification(notification:)), name: Notification.Name("GetStoreServiceData"), object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.methodOfReceivedNotificationUser(notification:)), name: Notification.Name("GetUserAbout"), object: nil)
        
     }
-    
-    
-    func uiSet(){
+    private func getCurrentDay() -> String {
+        let date = Date() // Get the current date
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "EEEE" // Format to get the full day name
+        return dateFormatter.string(from: date).lowercased() // Convert to lowercase
+    }
+
+    private func uiSet(){
+        let currentDay = getCurrentDay()
+        getDay = currentDay
+        print("Current day: \(currentDay)")
         
+        let nib2 = UINib(nibName: "BusinessHourTVC", bundle: nil)
+        tblVwBusinessHour.register(nib2, forCellReuseIdentifier: "BusinessHourTVC")
+
+        NotificationCenter.default.addObserver(self, selector: #selector(self.methodOfReceivedNotification(notification:)), name: Notification.Name("GetStoreServiceData"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.methodOfReceivedNotificationUser(notification:)), name: Notification.Name("GetUserAbout"), object: nil)
         addTapGestureToLabel()
         obj = arrdays.map { day in
             BusinessTimingModel(day: day, starttime: "", endtime: "", status: "0")
@@ -75,11 +83,10 @@ class AboutVC: UIViewController, UIGestureRecognizerDelegate {
         openingHoursSetupBusiness()
         
     }
-    func openingHoursSetupBusiness() {
-        guard let openingHours = Store.ServiceDetailData?.user?.openingHours else { return }
+    private func openingHoursSetupBusiness() {
 
-        for openingHour in openingHours {
-            let lowercaseDay = (openingHour.day ?? "").lowercased() 
+        for openingHour in Store.ServiceDetailData?.user?.openingHours ?? [] {
+            let lowercaseDay = (openingHour.day ?? "").lowercased()
             if let index = arrdays.firstIndex(of: lowercaseDay) {
                 obj[index] = BusinessTimingModel(day: lowercaseDay, starttime: openingHour.starttime ?? "", endtime: openingHour.endtime ?? "", status: "1")
             }
@@ -106,11 +113,22 @@ class AboutVC: UIViewController, UIGestureRecognizerDelegate {
        
         self.lblAbout.sizeToFit()
 
-        guard let openingHours = Store.getBusinessDetail?.openingHours else { return }
         
-        for openingHour in openingHours {
+        for openingHour in Store.getBusinessDetail?.openingHours ?? [] {
             if let index = arrdays.firstIndex(of: openingHour.day ?? "") {
                 obj[index] = BusinessTimingModel(day: openingHour.day ?? "", starttime: openingHour.starttime ?? "", endtime: openingHour.endtime ?? "", status: "1")
+                
+            }
+        }
+        for businessTiming in obj {
+            if businessTiming.day == getDay {
+                if businessTiming.starttime == ""{
+                    lblOpeningTime.text = "Closed today"
+                }else{
+                    let openTime = convertTo12HourFormat(businessTiming.endtime)
+                    lblOpeningTime.text = "Open till \(openTime)"
+                }
+                break
             }
         }
         tblVwBusinessHour.reloadData()
@@ -118,7 +136,7 @@ class AboutVC: UIViewController, UIGestureRecognizerDelegate {
         
     }
     
-    func addTapGestureToLabel() {
+    private func addTapGestureToLabel() {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(labelTapped))
         lblAbout.isUserInteractionEnabled = true
         lblAbout.addGestureRecognizer(tapGesture)
@@ -166,29 +184,24 @@ class AboutVC: UIViewController, UIGestureRecognizerDelegate {
 extension AboutVC: UITableViewDelegate,UITableViewDataSource{
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-       
-            return  arrdays.count
-       
+        return  arrdays.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "BusinessHourTVC", for: indexPath) as! BusinessHourTVC
-        
-            let day = obj[indexPath.row].day
-            cell.lblday.text = day.capitalized
-            
-            if obj[indexPath.row].status == "1"{
-                let startTime24 = obj[indexPath.row].starttime
-                let endTime24 = obj[indexPath.row].endtime
-                
-                let startTime12 = convertTo12HourFormat(startTime24)
-                let endTime12 = convertTo12HourFormat(endTime24)
-                
-                cell.lblTime.text = "\(startTime12) - \(endTime12)"
-                cell.lblTime.textColor = UIColor( red: 91 / 255.0,green: 91 / 255.0,blue: 91 / 255.0,alpha: 1.0)
-            } else {
-                cell.lblTime.text = "Closed"
-                cell.lblTime.textColor = UIColor( red: CGFloat(0xFF) / 255.0,green: CGFloat(0x3B) / 255.0,blue: CGFloat(0x3B) / 255.0,alpha: 1.0)
+        let item = obj[indexPath.row]
+        let isToday = getDay == item.day
+
+        cell.lblday.text = isToday ? "Today" : item.day.capitalized
+        let textColor = isToday ? UIColor.black : UIColor(hex: "#797979")
+        cell.lblday.textColor = textColor
+        cell.lblTime.textColor = textColor
+
+        if item.status == "1" {
+            cell.lblTime.text = "\(convertTo12HourFormat(item.starttime)) - \(convertTo12HourFormat(item.endtime))"
+        } else {
+            cell.lblTime.text = "Closed"
+            cell.lblTime.textColor = UIColor(red: 1.0, green: 59.0 / 255.0, blue: 59.0 / 255.0, alpha: 1.0)
         }
         return cell
     }

@@ -53,12 +53,15 @@ class TabBarVC: UIViewController{
     var viewModel = AuthVM()
     var isStatus = 0
     var isGigType = true
-//    var isStoreType = true
-//    var isBusinessType = true
-
+    var isSelectItenery = false
+    var isPersonal = false
+    var isSelectedAddItinerary = false
+    //    var isStoreType = true
+    //    var isBusinessType = true
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-       
+        
     }
     override func viewWillAppear(_ animated: Bool) {
         uiSet()
@@ -66,24 +69,29 @@ class TabBarVC: UIViewController{
             self.isStatus = data?.verificationStatus ?? 0
             
             NotificationCenter.default.addObserver(self, selector: #selector(self.touchMap(notification:)), name: Notification.Name("touchMap"), object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(self.personalItenery(notification:)), name: Notification.Name("personal"), object: nil)
+            
+            NotificationCenter.default.addObserver(self, selector: #selector(self.professionalItenery(notification:)), name: Notification.Name("professional"), object: nil)
+            
+            NotificationCenter.default.addObserver(self, selector: #selector(self.allIteneryBtn(notification:)), name: Notification.Name("all"), object: nil)
         }
         
     }
     func uiSet(){
         let deviceHasNotch = UIApplication.shared.hasNotch
-            if deviceHasNotch{
-                if UIDevice.current.hasDynamicIsland {
-                    heightBottomVw.constant = 114
-                    topShadowView.constant = -68
-                    }else{
-                    heightBottomVw.constant = 104
-                    topShadowView.constant = -58
-                }
-            
+        if deviceHasNotch{
+            if UIDevice.current.hasDynamicIsland {
+                heightBottomVw.constant = 94
+                topShadowView.constant = -94
             }else{
-              heightBottomVw.constant = 80
-              topShadowView.constant = -80
+                heightBottomVw.constant = 104
+                topShadowView.constant = -104
             }
+            
+        }else{
+            heightBottomVw.constant = 80
+            topShadowView.constant = -80
+        }
         viewShadow.layer.cornerRadius = 15
         viewShadow.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
         viewShadow.layer.shadowColor = UIColor.black.cgColor
@@ -106,7 +114,7 @@ class TabBarVC: UIViewController{
                 self.homeSetup()
             }
         case 2:
-//            exploreSetup()
+            //            exploreSetup()
             itinerarySetup()
         case 3:
             bookmarkSetup()
@@ -126,6 +134,23 @@ class TabBarVC: UIViewController{
             break
         }
     }
+    @objc func personalItenery(notification:Notification){
+        isPersonal = true
+        isSelectItenery = true
+        btnAddService.isHidden = false
+        isSelectedAddItinerary = true
+    }
+    @objc func professionalItenery(notification:Notification){
+        isPersonal = false
+        isSelectItenery = true
+        btnAddService.isHidden = false
+        isSelectedAddItinerary = true
+    }
+    @objc func allIteneryBtn(notification:Notification){
+        isSelectItenery = false
+        btnAddService.isHidden = true
+        isSelectedAddItinerary = false
+    }
     //MARK: - BUTTON ACTIONS
     func HideStackViewBtns(){
         // Hide stack view with animation
@@ -136,7 +161,7 @@ class TabBarVC: UIViewController{
             self.stackVwBtns.isHidden = true
             self.zoomHomeIcon(isZoomedIn: false)
         })
-
+        
     }
     @IBAction func actionAddService(_ sender: UIButton) {
         sender.isEnabled = false
@@ -170,9 +195,17 @@ class TabBarVC: UIViewController{
                 self.navigationController?.present(vc, animated: false)
             }else{
                 sender.isEnabled = true
-                let vc = self.storyboard?.instantiateViewController(withIdentifier: "EditServiceVC") as! EditServiceVC
-                vc.isComing = true
-                self.navigationController?.pushViewController(vc, animated: true)
+                if self.isSelectedAddItinerary{
+                    let vc = self.storyboard?.instantiateViewController(withIdentifier: "AddItineryVC") as! AddItineryVC
+                    vc.isPersonal = self.isPersonal
+                   
+                    self.navigationController?.pushViewController(vc, animated: true)
+                }else{
+                    let vc = self.storyboard?.instantiateViewController(withIdentifier: "EditServiceVC") as! EditServiceVC
+                    vc.isComing = true
+                    self.navigationController?.pushViewController(vc, animated: true)
+                }
+             
             }
         }
     }
@@ -221,11 +254,11 @@ class TabBarVC: UIViewController{
                             vc.isComing = false
                             self.navigationController?.pushViewController(vc, animated: true)
                         }else{
-                            let vc = self.storyboard?.instantiateViewController(withIdentifier: "NewGigAddVC") as! NewGigAddVC
-                            vc.isComing = true
-                            vc.callBack = {
-                                self.uiSet()
-                            }
+                            let vc = self.storyboard?.instantiateViewController(withIdentifier: "AddTaskVC") as! AddTaskVC
+                            //                            vc.isComing = true
+                            //                            vc.callBack = {
+                            //                                self.uiSet()
+                            //                            }
                             self.navigationController?.pushViewController(vc, animated: true)
                         }
                     }
@@ -233,55 +266,56 @@ class TabBarVC: UIViewController{
             }
             self.navigationController?.present(vc, animated: true)
         }else{
-                self.viewModel.verificationStatus{ data in
-                    self.isStatus = data?.verificationStatus ?? 0
-                    if self.isStatus == 0{
-                        let vc = self.storyboard?.instantiateViewController(withIdentifier: "CommonPopUpVC") as! CommonPopUpVC
-                        vc.modalPresentationStyle = .overFullScreen
-                        vc.isSelect = 25
-                        vc.callBack = {[weak self] in
-                            
-                            guard let self = self else { return }
-                            self.viewModel.verificationStatus{ data in
-                                self.isStatus = data?.verificationStatus ?? 0
-                            }
+            self.viewModel.verificationStatus{ data in
+                self.isStatus = data?.verificationStatus ?? 0
+                if self.isStatus == 0{
+                    let vc = self.storyboard?.instantiateViewController(withIdentifier: "CommonPopUpVC") as! CommonPopUpVC
+                    vc.modalPresentationStyle = .overFullScreen
+                    vc.isSelect = 25
+                    vc.callBack = {[weak self] in
+                        
+                        guard let self = self else { return }
+                        self.viewModel.verificationStatus{ data in
+                            self.isStatus = data?.verificationStatus ?? 0
                         }
-                        self.navigationController?.present(vc, animated: false)
-                    }else if self.isStatus == 1{
-                        //gig //popup
-                        let vc = self.storyboard?.instantiateViewController(withIdentifier: "CommonPopUpVC") as! CommonPopUpVC
-                        vc.modalPresentationStyle = .overFullScreen
-                        vc.isSelect = 5
-                        vc.callBack = {[weak self] in
-                            
-                            guard let self = self else { return }
-                            self.viewModel.verificationStatus{ data in
-                                self.isStatus = data?.verificationStatus ?? 0
-                            }
-                        }
-                        self.navigationController?.present(vc, animated: false)
-                    }else{
-                            let vc = self.storyboard?.instantiateViewController(withIdentifier: "NewGigAddVC") as! NewGigAddVC
-                            vc.isComing = true
-                            self.navigationController?.pushViewController(vc, animated: true)
                     }
+                    self.navigationController?.present(vc, animated: false)
+                }else if self.isStatus == 1{
+                    //gig //popup
+                    let vc = self.storyboard?.instantiateViewController(withIdentifier: "CommonPopUpVC") as! CommonPopUpVC
+                    vc.modalPresentationStyle = .overFullScreen
+                    vc.isSelect = 5
+                    vc.callBack = {[weak self] in
+                        
+                        guard let self = self else { return }
+                        self.viewModel.verificationStatus{ data in
+                            self.isStatus = data?.verificationStatus ?? 0
+                        }
+                    }
+                    self.navigationController?.present(vc, animated: false)
+                }else{
+                    let vc = self.storyboard?.instantiateViewController(withIdentifier: "AddTaskVC") as! AddTaskVC
+                    //                            vc.isComing = true
+                    self.navigationController?.pushViewController(vc, animated: true)
                 }
+            }
         }
     }
     @IBAction func actionMenu(_ sender: UIButton) {
-//        let deviceHasNotch = UIApplication.shared.hasNotch
-//            if deviceHasNotch{
-//              heightBottomVw.constant = 104
-//              topShadowView.constant = 0
-//            }else{
-//              heightBottomVw.constant = 80
-//              topShadowView.constant = 0
-//            }
-       
+        //        let deviceHasNotch = UIApplication.shared.hasNotch
+        //            if deviceHasNotch{
+        //              heightBottomVw.constant = 104
+        //              topShadowView.constant = 0
+        //            }else{
+        //              heightBottomVw.constant = 80
+        //              topShadowView.constant = 0
+        //            }
+        
         print("\(selectedButtonTag)")
         sender.isSelected = !sender.isSelected
         if sender.isSelected == true{
             menuSetup()
+            isSelectedAddItinerary = false
             selectedButtonTag = sender.tag
             NotificationCenter.default.post(name: Notification.Name("CallMenuApi"), object: nil)
         }
@@ -306,138 +340,144 @@ class TabBarVC: UIViewController{
         btnProfile.isSelected = false
         lblItinerary.textColor = UIColor(red: 137/255, green: 137/255, blue: 137/255,alpha: 1.0)
         btnItinerary.isSelected = false
-        btnItinerary.setImage(UIImage(named: "grayItinerary"), for: .normal)
+        btnItinerary.setImage(UIImage(named: "itinerary 1"), for: .normal)
     }
     @IBAction func actionBusiness(_ sender: UIButton) {
-//        sender.isSelected = !sender.isSelected
-//        if sender.isSelected{
-            btnHome.isSelected = false
-//            btnGig.isSelected = false
-            //btnStore.isSelected = false
-
-            isGigType = true
-//            isBusinessType = false
-//            isStoreType = true
-            viewBusiness.backgroundColor = .app
-            imgVwBusiness.image = UIImage(named: "selBB")
-            lblBusiness.textColor = .white
-            viewGig.backgroundColor = .white
-            imgVwGig.image = UIImage(named: "noSelG")
-            lblGig.textColor = .black
-            
-            viewStore.backgroundColor = .white
-            imgVwStore.image = UIImage(named: "noSelP")
-            lblStore.textColor = .black
-            
-            
-            // Notify observers (optional)
-            NotificationCenter.default.post(name: Notification.Name("businessSel"), object: nil)
-            HideStackViewBtns()
-//        }else{
-//            HideStackViewBtns()
-//        }
+        //        sender.isSelected = !sender.isSelected
+        //        if sender.isSelected{
+        btnHome.isSelected = false
+        //            btnGig.isSelected = false
+        //btnStore.isSelected = false
+        
+        isGigType = true
+        //            isBusinessType = false
+        //            isStoreType = true
+        viewBusiness.backgroundColor = .app
+        imgVwBusiness.image = UIImage(named: "selBB")
+        lblBusiness.textColor = .white
+        viewGig.backgroundColor = .white
+        imgVwGig.image = UIImage(named: "noSelG")
+        lblGig.textColor = .black
+        
+        viewStore.backgroundColor = .white
+        imgVwStore.image = UIImage(named: "noSelP")
+        lblStore.textColor = .black
+        
+        
+        // Notify observers (optional)
+        NotificationCenter.default.post(name: Notification.Name("businessSel"), object: nil)
+        HideStackViewBtns()
+        //        }else{
+        //            HideStackViewBtns()
+        //        }
     }
     @IBAction func actionGig(_ sender: UIButton) {
-            Store.isSelectTab = false
-            btnHome.isSelected = false
-            isGigType = false
-//            isBusinessType = true
-//            isStoreType = true
-            viewGig.backgroundColor = .app
-            imgVwGig.image = UIImage(named: "selG")
-            lblGig.textColor = .white
-            btnBusiness.isSelected = false
-            btnStore.isSelected = false
-            viewBusiness.backgroundColor = .white
-            imgVwBusiness.image = UIImage(named: "noSelBB")
-            lblBusiness.textColor = .black
-            viewStore.backgroundColor = .white
-            imgVwStore.image = UIImage(named: "noSelP")
-            lblStore.textColor = .black
-            NotificationCenter.default.post(name: Notification.Name("gigSel"), object: nil)
-            HideStackViewBtns()
+        Store.isSelectTab = false
+        btnHome.isSelected = false
+        isGigType = false
+        //            isBusinessType = true
+        //            isStoreType = true
+        viewGig.backgroundColor = .app
+        imgVwGig.image = UIImage(named: "selG")
+        lblGig.textColor = .white
+        btnBusiness.isSelected = false
+        btnStore.isSelected = false
+        viewBusiness.backgroundColor = .white
+        imgVwBusiness.image = UIImage(named: "noSelBB")
+        lblBusiness.textColor = .black
+        viewStore.backgroundColor = .white
+        imgVwStore.image = UIImage(named: "noSelP")
+        lblStore.textColor = .black
+        NotificationCenter.default.post(name: Notification.Name("gigSel"), object: nil)
+        HideStackViewBtns()
     }
     @IBAction func actionPopup(_ sender: UIButton) {
-//        sender.isSelected = !sender.isSelected
-//        if sender.isSelected{
-            
-            isGigType = true
-//            isBusinessType = true
-//            isStoreType = false
-            viewStore.backgroundColor = .app
-            imgVwStore.image = UIImage(named: "selP")
-            lblStore.textColor = .white
+        //        sender.isSelected = !sender.isSelected
+        //        if sender.isSelected{
         
-            btnHome.isSelected = false
-//            btnBusiness.isSelected = false
-//            btnGig.isSelected = false
-            
-            viewBusiness.backgroundColor = .white
-            imgVwBusiness.image = UIImage(named: "noSelBB")
-            lblBusiness.textColor = .black
-            
-            viewGig.backgroundColor = .white
-            imgVwGig.image = UIImage(named: "noSelG")
-            lblGig.textColor = .black
-            
-            
-            NotificationCenter.default.post(name: Notification.Name("storeSel"), object: nil)
-            HideStackViewBtns()
-//        }else{
-//            HideStackViewBtns()
-//        }
+        isGigType = true
+        //            isBusinessType = true
+        //            isStoreType = false
+        viewStore.backgroundColor = .app
+        imgVwStore.image = UIImage(named: "selP")
+        lblStore.textColor = .white
+        
+        btnHome.isSelected = false
+        //            btnBusiness.isSelected = false
+        //            btnGig.isSelected = false
+        
+        viewBusiness.backgroundColor = .white
+        imgVwBusiness.image = UIImage(named: "noSelBB")
+        lblBusiness.textColor = .black
+        
+        viewGig.backgroundColor = .white
+        imgVwGig.image = UIImage(named: "noSelG")
+        lblGig.textColor = .black
+        
+        
+        NotificationCenter.default.post(name: Notification.Name("storeSel"), object: nil)
+        HideStackViewBtns()
+        //        }else{
+        //            HideStackViewBtns()
+        //        }
         
     }
-
+    
     @IBAction func actionHome(_ sender: UIButton) {
-        sender.isSelected = !sender.isSelected
+        //        sender.isSelected = !sender.isSelected
         let deviceHasNotch = UIApplication.shared.hasNotch
-      
-        if sender.isSelected {
-            // Home button is selected
-            Store.isSelectTab = true
-            DispatchQueue.main.async {
-                NotificationCenter.default.post(name: Notification.Name("TabBar"), object: nil)
-                self.homeSetup()
-                NotificationCenter.default.post(name: Notification.Name("selectHomeBtn"), object: nil)
-            }
-
-            let deviceHasNotch = UIApplication.shared.hasNotch
-                if deviceHasNotch{
-                    if UIDevice.current.hasDynamicIsland {
-                        heightBottomVw.constant = 114
-                        topShadowView.constant = -68
-                        }else{
-                        heightBottomVw.constant = 104
-                        topShadowView.constant = -58
-                    }
-                
-                }else{
-                  heightBottomVw.constant = 80
-                  topShadowView.constant = -80
-                }
-        } else {
-            // Home button is deselected
-            if deviceHasNotch {
-                if UIDevice.current.hasDynamicIsland {
-                    heightBottomVw.constant = 114
-                    topShadowView.constant = -68
-                    }else{
-                    heightBottomVw.constant = 104
-                    topShadowView.constant = -52
-                }
-            } else {
-                heightBottomVw.constant = 80
-                topShadowView.constant = -80
-            }
-            Store.isSelectTab = false
-            NotificationCenter.default.post(name: Notification.Name("deSelectHomeBtn"), object: nil)
+        //        self.vwLocalTask.isHidden = true
+        //        self.vwWorldwideTask.isHidden = true
+        DispatchQueue.main.async {
+            NotificationCenter.default.post(name: Notification.Name("TabBar"), object: nil)
+            self.homeSetup()
+            //                NotificationCenter.default.post(name: Notification.Name("selectHomeBtn"), object: nil)
         }
+        //        if sender.isSelected {
+        //            // Home button is selected
+        //            Store.isSelectTab = true
+        //            DispatchQueue.main.async {
+        //                NotificationCenter.default.post(name: Notification.Name("TabBar"), object: nil)
+        //                self.homeSetup()
+        ////                NotificationCenter.default.post(name: Notification.Name("selectHomeBtn"), object: nil)
+        //            }
+        //
+        
+        if deviceHasNotch{
+            if UIDevice.current.hasDynamicIsland {
+                heightBottomVw.constant = 104
+                topShadowView.constant = -104
+            }else{
+                heightBottomVw.constant = 104
+                topShadowView.constant = -104
+            }
+            
+        }else{
+            heightBottomVw.constant = 80
+            topShadowView.constant = -80
+        }
+        //        } else {
+        //            // Home button is deselected
+        ////            if deviceHasNotch {
+        ////                if UIDevice.current.hasDynamicIsland {
+        ////                    heightBottomVw.constant = 114
+        ////                    topShadowView.constant = -68
+        ////                    }else{
+        ////                    heightBottomVw.constant = 104
+        ////                    topShadowView.constant = -52
+        ////                }
+        ////            } else {
+        ////                heightBottomVw.constant = 80
+        ////                topShadowView.constant = -80
+        ////            }
+        //            Store.isSelectTab = false
+        ////            NotificationCenter.default.post(name: Notification.Name("deSelectHomeBtn"), object: nil)
+        //        }
         
         // Common setup for both states
         selectedButtonTag = sender.tag
-        zoomHomeIcon(isZoomedIn: sender.isSelected)
-        homeButtonsSetup(sender: sender.isSelected)
+        //        zoomHomeIcon(isZoomedIn: sender.isSelected)
+        //        homeButtonsSetup(sender: sender.isSelected)
     }
     
     func homeButtonsSetup(sender: Bool) {
@@ -480,7 +520,7 @@ class TabBarVC: UIViewController{
             }
         }
     }
-
+    
     func homeSetup(){
         scrollVw.setContentOffset(.zero, animated: false)
         btnAddService.isHidden = true
@@ -501,7 +541,7 @@ class TabBarVC: UIViewController{
         btnProfile.isSelected = false
         lblItinerary.textColor = UIColor(red: 137/255, green: 137/255, blue: 137/255,alpha: 1.0)
         btnItinerary.isSelected = false
-        btnItinerary.setImage(UIImage(named: "grayItinerary"), for: .normal)
+        btnItinerary.setImage(UIImage(named: "itinerary 1"), for: .normal)
     }
     @IBAction func actionExplore(_ sender: UIButton) {
         //isHomeBtnSelect = true
@@ -510,16 +550,16 @@ class TabBarVC: UIViewController{
         let deviceHasNotch = UIApplication.shared.hasNotch
         if deviceHasNotch{
             if UIDevice.current.hasDynamicIsland {
-                heightBottomVw.constant = 114
+                heightBottomVw.constant = 94
                 topShadowView.constant = 0
-                }else{
+            }else{
                 heightBottomVw.constant = 104
                 topShadowView.constant = 0
             }
-        
+            
         }else{
-          heightBottomVw.constant = 80
-          topShadowView.constant = 0
+            heightBottomVw.constant = 80
+            topShadowView.constant = -80
         }
         NotificationCenter.default.post(name: Notification.Name("StopTimer"), object: nil)
         NotificationCenter.default.post(name: Notification.Name("ExploreApi"), object: nil)
@@ -551,7 +591,7 @@ class TabBarVC: UIViewController{
         btnMenu.isSelected = false
         lblItinerary.textColor = UIColor(red: 137/255, green: 137/255, blue: 137/255,alpha: 1.0)
         btnItinerary.isSelected = false
-        btnItinerary.setImage(UIImage(named: "grayItinerary"), for: .normal)
+        btnItinerary.setImage(UIImage(named: "itinerary 1"), for: .normal)
     }
     func bookmarkSetup(){
         btnAddService.isHidden = true
@@ -573,27 +613,27 @@ class TabBarVC: UIViewController{
         btnMenu.isSelected = false
         lblItinerary.textColor = UIColor(red: 137/255, green: 137/255, blue: 137/255,alpha: 1.0)
         btnItinerary.isSelected = false
-        btnItinerary.setImage(UIImage(named: "grayItinerary"), for: .normal)
+        btnItinerary.setImage(UIImage(named: "itinerary 1"), for: .normal)
     }
     @IBAction func actionChat(_ sender: UIButton) {
         homeButtonsSetup(sender: false)
         self.zoomHomeIcon(isZoomedIn: false)
-     let deviceHasNotch = UIApplication.shared.hasNotch
+        let deviceHasNotch = UIApplication.shared.hasNotch
         if deviceHasNotch{
             if UIDevice.current.hasDynamicIsland {
-                heightBottomVw.constant = 114
+                heightBottomVw.constant = 94
                 topShadowView.constant = 0
-                }else{
+            }else{
                 heightBottomVw.constant = 104
                 topShadowView.constant = 0
             }
-        
+            
         }else{
-          heightBottomVw.constant = 80
-          topShadowView.constant = 0
+            heightBottomVw.constant = 80
+            topShadowView.constant = -80
         }
-    NotificationCenter.default.post(name: Notification.Name("StopTimer"), object: nil)
-     NotificationCenter.default.post(name: Notification.Name("GetMessage"), object: nil)
+        NotificationCenter.default.post(name: Notification.Name("StopTimer"), object: nil)
+        NotificationCenter.default.post(name: Notification.Name("GetMessage"), object: nil)
         sender.isSelected = !sender.isSelected
         if sender.isSelected == true{
             NotificationCenter.default.post(name: Notification.Name("SelectOther"), object: nil)
@@ -621,26 +661,26 @@ class TabBarVC: UIViewController{
         btnMenu.isSelected = false
         lblItinerary.textColor = UIColor(red: 137/255, green: 137/255, blue: 137/255,alpha: 1.0)
         btnItinerary.isSelected = false
-        btnItinerary.setImage(UIImage(named: "grayItinerary"), for: .normal)
+        btnItinerary.setImage(UIImage(named: "itinerary 1"), for: .normal)
     }
     @IBAction func actionProfile(_ sender: UIButton) {
         homeButtonsSetup(sender: false)
         self.zoomHomeIcon(isZoomedIn: false)
-
+        
         let deviceHasNotch = UIApplication.shared.hasNotch
-            if deviceHasNotch{
-                if UIDevice.current.hasDynamicIsland {
-                    heightBottomVw.constant = 114
-                    topShadowView.constant = 0
-                    }else{
-                    heightBottomVw.constant = 104
-                    topShadowView.constant = 0
-                }
-            
+        if deviceHasNotch{
+            if UIDevice.current.hasDynamicIsland {
+                heightBottomVw.constant = 94
+                topShadowView.constant = 0
             }else{
-              heightBottomVw.constant = 80
-              topShadowView.constant = 0
+                heightBottomVw.constant = 104
+                topShadowView.constant = 0
             }
+            
+        }else{
+            heightBottomVw.constant = 80
+            topShadowView.constant = -80
+        }
         print("Token:- \(Store.authKey ?? "")")
         NotificationCenter.default.post(name: Notification.Name("ForBank"), object: nil)
         NotificationCenter.default.post(name: Notification.Name("StopTimer"), object: nil)
@@ -672,57 +712,61 @@ class TabBarVC: UIViewController{
         btnChat.isSelected = false
         lblItinerary.textColor = UIColor(red: 137/255, green: 137/255, blue: 137/255,alpha: 1.0)
         btnItinerary.isSelected = false
-        btnItinerary.setImage(UIImage(named: "grayItinerary"), for: .normal)
+        btnItinerary.setImage(UIImage(named: "itinerary 1"), for: .normal)
     }
     
     @IBAction func actionItinerary(_ sender: UIButton) {
         homeButtonsSetup(sender: false)
         self.zoomHomeIcon(isZoomedIn: false)
         let deviceHasNotch = UIApplication.shared.hasNotch
-        if deviceHasNotch{
-            if UIDevice.current.hasDynamicIsland {
-                heightBottomVw.constant = 114
-                topShadowView.constant = 0
+      
+            if deviceHasNotch{
+                if UIDevice.current.hasDynamicIsland {
+                    heightBottomVw.constant = 94
+                    topShadowView.constant = 0
                 }else{
-                heightBottomVw.constant = 104
-                topShadowView.constant = 0
+                    heightBottomVw.constant = 104
+                    topShadowView.constant = 0
+                }
+                
+            }else{
+                heightBottomVw.constant = 80
+                topShadowView.constant = -80
             }
-        
-        }else{
-          heightBottomVw.constant = 80
-          topShadowView.constant = 0
+            NotificationCenter.default.post(name: Notification.Name("StopTimer"), object: nil)
+            
+            //        NotificationCenter.default.post(name: Notification.Name("ExploreApi"), object: nil)
+            NotificationCenter.default.post(name: Notification.Name("addItenery"), object: nil)
+            sender.isSelected = !sender.isSelected
+            if sender.isSelected == true{
+                NotificationCenter.default.post(name: Notification.Name("SelectOther"), object: nil)
+                itinerarySetup()
+                selectedButtonTag = sender.tag
+            }
         }
-        NotificationCenter.default.post(name: Notification.Name("StopTimer"), object: nil)
-        NotificationCenter.default.post(name: Notification.Name("ExploreApi"), object: nil)
-        sender.isSelected = !sender.isSelected
-        if sender.isSelected == true{
-            NotificationCenter.default.post(name: Notification.Name("SelectOther"), object: nil)
-            itinerarySetup()
-            selectedButtonTag = sender.tag
+        func itinerarySetup(){
+            btnAddService.isHidden = false
+            lblItinerary.textColor = .app
+            lblMenu.textColor = UIColor(red: 137/255, green: 137/255, blue: 137/255, alpha: 1.0)
+            lblHome.textColor = UIColor(red: 137/255, green: 137/255, blue: 137/255, alpha: 1.0)
+            lblChat.textColor = UIColor(red: 137/255, green: 137/255, blue: 137/255, alpha: 1.0)
+            lblProfile.textColor = UIColor(red: 137/255, green: 137/255, blue: 137/255, alpha: 1.0)
+            scrollVw.setContentOffset(.zero, animated: false)
+            scrollVw.setContentOffset(CGPoint(x: scrollVw.frame.size.width*6, y: 0), animated: false)
+            btnAddService.isHidden = true
+            btnItinerary.setImage(UIImage(named: "greenItinerary"), for: .normal)
+            btnChat.setImage(UIImage(named: "chatt"), for: .normal)
+            btnProfile.setImage(UIImage(named: "profiletab"), for: .normal)
+            btnMenu.setImage(UIImage(named: "menuunselect"), for: .normal)
+            btnItinerary.isSelected = true
+            btnHome.isSelected = false
+            btnChat.isSelected = false
+            btnProfile.isSelected = false
+            btnMenu.isSelected = false
+        }
+        @objc func touchMap(notification:Notification){
+            homeButtonsSetup(sender: false)
+            self.zoomHomeIcon(isZoomedIn: false)
         }
     }
-    func itinerarySetup(){
-        btnAddService.isHidden = false
-        lblItinerary.textColor = .app
-        lblMenu.textColor = UIColor(red: 137/255, green: 137/255, blue: 137/255, alpha: 1.0)
-        lblHome.textColor = UIColor(red: 137/255, green: 137/255, blue: 137/255, alpha: 1.0)
-        lblChat.textColor = UIColor(red: 137/255, green: 137/255, blue: 137/255, alpha: 1.0)
-        lblProfile.textColor = UIColor(red: 137/255, green: 137/255, blue: 137/255, alpha: 1.0)
-        scrollVw.setContentOffset(.zero, animated: false)
-        scrollVw.setContentOffset(CGPoint(x: scrollVw.frame.size.width*6, y: 0), animated: false)
-        btnAddService.isHidden = true
-        btnItinerary.setImage(UIImage(named: "itinerary"), for: .normal)
-        btnChat.setImage(UIImage(named: "chatt"), for: .normal)
-        btnProfile.setImage(UIImage(named: "profiletab"), for: .normal)
-        btnMenu.setImage(UIImage(named: "menuunselect"), for: .normal)
-        btnItinerary.isSelected = true
-        btnHome.isSelected = false
-        btnChat.isSelected = false
-        btnProfile.isSelected = false
-        btnMenu.isSelected = false
-    }
-    @objc func touchMap(notification:Notification){
-        homeButtonsSetup(sender: false)
-        self.zoomHomeIcon(isZoomedIn: false)
-    }
-}
+

@@ -136,10 +136,10 @@ class AuthVM{
         }
         
         let json: [String: Any] = [
-            "about": about,
-            "interests": interestsDictArray,
+//            "about": about,
+//            "interests": interestsDictArray,
             "specialization": specializationDictArray,
-            "dietary": dietaryDictArray,
+//            "dietary": dietaryDictArray,
             "place": place,
             "lat": lat,
             "long": long,
@@ -186,10 +186,12 @@ class AuthVM{
                                   place: String,
                                   lat: Double,
                                   long: Double,
+                                  category:Int,
                                   business_id: UIImageView,
                                   cover_photo: UIImageView,
                                   services: [[String:String]],
                                   openinghours: [[String:String]],
+                                  feature:[String],
                                   onSuccess: @escaping ((GetBusinessUserData?) -> ())) {
         
         let formatter = DateFormatter()
@@ -239,9 +241,10 @@ class AuthVM{
                                     "lat": lat,
                                     "long": long,
                                     "business_id": imageInfoBusinessId,
-                                    "cover_photo": imageInfoCoverPhoto,
-                                    "services": serviceJson,
-                                    "openinghours": openingHourJson]
+//                                    "cover_photo": imageInfoCoverPhoto,
+//                                    "services": "[]",
+                                    "category":category,
+                                    "openinghours": openingHourJson,"typesOfCategoryDetails":feature]
             
             //             print(services)
             print(param)

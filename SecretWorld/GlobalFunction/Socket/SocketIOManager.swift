@@ -221,10 +221,11 @@ class SocketIOManager: NSObject {
         }
         
         self.socket?.on(socketListeners.homeListener.instance) { (data, emitter) in
+           
             do {
                 let jsonData = try JSONSerialization.data(withJSONObject: data, options: .prettyPrinted)
                 let messages = try JSONDecoder().decode([HomeModel].self, from: jsonData)
-                
+             
                 self.homeData?(messages)
                 guard let firstItem = messages.first,
                          let filteredItems = firstItem.data?.filteredItems else {

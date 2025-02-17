@@ -43,7 +43,7 @@ class GallaryVC: UIViewController {
                 let serviceAttributes: [NSAttributedString.Key: Any] = [
                     .foregroundColor: UIColor.black
                 ]
-                let serviceText = NSAttributedString(string: "Gallery ", attributes: serviceAttributes)
+                let serviceText = NSAttributedString(string: "Images ", attributes: serviceAttributes)
                 let countAttributes: [NSAttributedString.Key: Any] = [
                     .foregroundColor: UIColor.app
                 ]
@@ -66,7 +66,7 @@ class GallaryVC: UIViewController {
                 let serviceAttributes: [NSAttributedString.Key: Any] = [
                     .foregroundColor: UIColor.black
                 ]
-                let serviceText = NSAttributedString(string: "Gallery ", attributes: serviceAttributes)
+                let serviceText = NSAttributedString(string: "Images ", attributes: serviceAttributes)
                 let countAttributes: [NSAttributedString.Key: Any] = [
                     .foregroundColor: UIColor.app
                 ]
@@ -81,7 +81,7 @@ class GallaryVC: UIViewController {
                 
                 lblImgCount.isHidden = true
             }
-            if arrServiceImgs.count > 2 {
+            if arrServiceImgs.count > 10{
                 btnViewAll.isHidden = false
             }else{
                 btnViewAll.isHidden = true
@@ -112,22 +112,20 @@ class GallaryVC: UIViewController {
 //MARK: - UICollectionViewDelegate
 extension GallaryVC:UICollectionViewDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout{
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        
-        return min(arrServiceImgs.count,2)
-        
+        return min(arrServiceImgs.count,10)
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "GallaryCVC", for: indexPath) as! GallaryCVC
-        cell.imgVwServic.imageLoad(imageUrl: arrServiceImgs[indexPath.row])
+            cell.imgVwServic.imageLoad(imageUrl: arrServiceImgs[indexPath.row])
             return cell
         
         
        
     }
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-            return CGSize(width: collVwGallary.frame.size.width / 2 - 10, height: 170)
+            return CGSize(width: collVwGallary.frame.size.width / 2-5, height: 110)
         
     }
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {

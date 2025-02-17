@@ -9,19 +9,14 @@ import UIKit
 
 class PopupTypeVC: UIViewController {
 
-    @IBOutlet var lblHidden: UILabel!
-    @IBOutlet var lblOngo: UILabel!
-    @IBOutlet var lblStill: UILabel!
-    @IBOutlet var imgVwHidden: UIImageView!
-    @IBOutlet var imgVwOngo: UIImageView!
-    @IBOutlet var imgVwStill: UIImageView!
-    @IBOutlet weak var btnHidden: UIButton!
-    @IBOutlet weak var btnOngo: UIButton!
-    @IBOutlet weak var btnStill: UIButton!
+    @IBOutlet weak var tblVwCategory: UITableView!
+  
+    @IBOutlet weak var heightTableVw: NSLayoutConstraint!
     @IBOutlet var viewBack: UIView!
     
-    var callBack:((_ type:Int?)->())?
-    var popUptype = 3
+    var callBack:((_ type:Int?,_ category:String?)->())?
+    var popUptype = 0
+    var arrCategory = ["Food & drinks","Services","Crafts & goods","Events"]
     override func viewDidLoad() {
         super.viewDidLoad()
         uiSet()
@@ -29,23 +24,7 @@ class PopupTypeVC: UIViewController {
     func uiSet(){
         viewBack.layer.cornerRadius = 35
         viewBack.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
-        if popUptype == 0{
-           imgVwHidden.image = UIImage(named: "selectedGender")
-           imgVwOngo.image = UIImage(named: "unSelect")
-           imgVwStill.image = UIImage(named: "unSelect")
-       }else if popUptype == 1{
-            imgVwHidden.image = UIImage(named: "unSelect")
-            imgVwOngo.image = UIImage(named: "selectedGender")
-            imgVwStill.image = UIImage(named: "unSelect")
-        }else if popUptype == 2{
-            imgVwHidden.image = UIImage(named: "unSelect")
-            imgVwOngo.image = UIImage(named: "unSelect")
-            imgVwStill.image = UIImage(named: "selectedGender")
-        }else{
-            imgVwHidden.image = UIImage(named: "unSelect")
-            imgVwOngo.image = UIImage(named: "unSelect")
-            imgVwStill.image = UIImage(named: "unSelect")
-        }
+        heightTableVw.constant = 62 * 4
         setupOverlayView()
     }
     func setupOverlayView() {
@@ -61,16 +40,30 @@ class PopupTypeVC: UIViewController {
     @IBAction func actionDismiss(_ sender: UIButton) {
         self.dismiss(animated: true)
     }
-    @IBAction func actionHidden(_ sender: UIButton) {
-        self.dismiss(animated: true)
-        callBack?(0)
+  
+}
+
+extension PopupTypeVC:UITableViewDelegate,UITableViewDataSource{
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return arrCategory.count
     }
-    @IBAction func actionOngo(_ sender: UIButton) {
-        self.dismiss(animated: true)
-        callBack?(1)
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "PopupCategoryTVC", for: indexPath) as! PopupCategoryTVC
+        cell.lblTitle.text = arrCategory[indexPath.row]
+        if popUptype == indexPath.row+1{
+            cell.imgVwSelect.image = UIImage(named: "selectedGender")
+        }else{
+            cell.imgVwSelect.image = UIImage(named: "unSelect")
+        }
+        return cell
     }
-    @IBAction func actionStills(_ sender: UIButton) {
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 62
+    }
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        popUptype = indexPath.row+1
         self.dismiss(animated: true)
-        callBack?(2)
+        callBack?(indexPath.row+1,arrCategory[indexPath.row])
     }
 }

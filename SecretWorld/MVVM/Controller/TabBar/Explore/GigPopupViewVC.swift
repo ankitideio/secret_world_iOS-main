@@ -286,7 +286,7 @@ extension GigPopupViewVC: UICollectionViewDataSource,UICollectionViewDelegate,UI
     }
  
     @objc func actionShare(sender:UIButton){
-        let deepLinkURL = URL(string: "https://api.secretworld.ai/.well-known/apple-app-site-association/\(data?.id ?? "")")!
+        let deepLinkURL = URL(string: "https://api.secretworld.ai/taskId/676982526d9ff3ef55c365bd")!
         print(deepLinkURL)
                // Initialize UIActivityViewController
                let activityViewController = UIActivityViewController(activityItems: [deepLinkURL], applicationActivities: nil)

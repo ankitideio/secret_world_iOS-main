@@ -6,7 +6,7 @@
 //
 import UIKit
 import IQKeyboardManagerSwift
-import BackgroundRemoval
+
 struct Products {
     let name: String?
     let price: Int?
@@ -19,6 +19,9 @@ struct Products {
 }
 class AddPopUpVC: UIViewController,UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     //MARK: - OUTLETS
+    @IBOutlet weak var txtFldDealingOffer: UITextField!
+    @IBOutlet weak var txtFldAvailability: UITextField!
+    @IBOutlet weak var heightCollVw: NSLayoutConstraint!
     @IBOutlet var viewNoProduct: UIView!
     @IBOutlet var txtFldPopupType: UITextField!
     @IBOutlet var btnMarkerLogo: UIButton!
@@ -42,6 +45,7 @@ class AddPopUpVC: UIViewController,UIImagePickerControllerDelegate, UINavigation
     var isUploadLogoImg = false
     var isUploadMarker = false
     var viewModel = PopUpVM()
+    var viewModelUpload = UploadImageVM()
     var lat:Double?
     var long:Double?
     var selectedStartTime:String?
@@ -52,9 +56,10 @@ class AddPopUpVC: UIViewController,UIImagePickerControllerDelegate, UINavigation
     var currentDate:String?
     var isComing = false
     var arrEditProducts = [AddProducts]()
+    var productImg = [""]
     var callBack:(()->())?
     var popupDetails:PopupDetailData?
-    var popUptype = 3
+    var popUptype = 0
     override func viewDidLoad() {
         super.viewDidLoad()
         uiSet()
@@ -78,49 +83,57 @@ class AddPopUpVC: UIViewController,UIImagePickerControllerDelegate, UINavigation
         
         if isComing == true{
             // Update promote business
-            lblScreenTitle.text = "Edit Promote Business"
+            lblScreenTitle.text = "Edit Popup"
             btnCreate.setTitle("Update", for: .normal)
             btnPopupLogo.setImage(UIImage(named: ""), for: .normal)
             imgVwPopupLogo.imageLoad(imageUrl: popupDetails?.businessLogo ?? "")
-            popUptype = popupDetails?.storeType ?? 0
-            if popupDetails?.storeType == 1{
-                txtFldPopupType.text = "One the go"
-            }else if popupDetails?.storeType == 2{
-                txtFldPopupType.text = "Still"
-            }else{
-                txtFldPopupType.text = "Hidden"
-            }
-            if popupDetails?.image == "" || popupDetails?.image == nil{
-                btnMarkerLogo.setImage(UIImage(named: "Group25"), for: .normal)
-            }else{
+            popUptype = popupDetails?.categoryType ?? 0
+            txtFldDealingOffer.text = popupDetails?.deals ?? ""
+        
+            if popupDetails?.categoryType == 1{
+                txtFldPopupType.text = "Food & drinks"
                 
-                btnMarkerLogo.setImage(UIImage(named: ""), for: .normal)
-                imgVwMarkerLogo.imageLoad(imageUrl: popupDetails?.image ?? "")
+            }else if popupDetails?.categoryType == 2{
+                txtFldPopupType.text = "Services"
+            }else if popupDetails?.categoryType == 3{
+                txtFldPopupType.text = "Crafts & goods"
+            }else{
+                txtFldPopupType.text = "Events"
             }
+
             txtFldName.text = popupDetails?.name ?? ""
             txtVwDescription.text = popupDetails?.description ?? ""
             txtFldLOcation.text = popupDetails?.place ?? ""
             arrEditProducts = popupDetails?.addProducts ?? []
+            txtFldAvailability.text = "\(popupDetails?.availability ?? 0)"
             txtFldStartDate.text = convertDateString(popupDetails?.startDate ?? "")
             txtFldEndDate.text = convertDateString(popupDetails?.endDate ?? "")
             txtFldStartTime.text = convertTimeString(popupDetails?.startDate ?? "")
             txtFldEndTime.text = convertTimeString(popupDetails?.endDate ?? "")
             lat = popupDetails?.lat ?? 0.0
             long = popupDetails?.long ?? 0.0
-            arrEditProducts = popupDetails?.addProducts  ?? []
-            if arrEditProducts.isEmpty {
-                viewNoProduct.isHidden = false
-                colVwProducts.isHidden = true
+            self.productImg.removeAll()
+            if popupDetails?.productImages?.count ?? 0 > 0{
+                
+                self.productImg = popupDetails?.productImages ?? []
+                self.productImg.insert("", at: 0)
             }else{
-                viewNoProduct.isHidden = true
-                colVwProducts.isHidden = false
-
+                self.productImg.insert("", at: 0)
             }
-
+            if self.productImg.count == 2 || self.productImg.count == 1{
+                self.heightCollVw.constant = 160
+            }else if self.productImg.count == 3 || self.productImg.count == 4{
+                self.heightCollVw.constant = 330
+            }else{
+                self.heightCollVw.constant = 490
+            }
+            colVwProducts.reloadData()
+            arrEditProducts = popupDetails?.addProducts  ?? []
+            viewNoProduct.isHidden = true
             colVwProducts.reloadData()
         }else{
             //add
-            lblScreenTitle.text = "Promote Business"
+            lblScreenTitle.text = "Add Popup"
             btnCreate.setTitle("Create", for: .normal)
 
         }
@@ -132,16 +145,10 @@ class AddPopUpVC: UIViewController,UIImagePickerControllerDelegate, UINavigation
         let vc = self.storyboard?.instantiateViewController(withIdentifier: "PopupTypeVC") as! PopupTypeVC
         vc.modalPresentationStyle = .overFullScreen
         vc.popUptype = popUptype
-        vc.callBack = {[weak self] type in
+        vc.callBack = {[weak self] (type,category) in
             guard let self = self else { return }
             self.popUptype = type ?? 0
-            if popUptype == 0{
-                txtFldPopupType.text = "Hidden"
-            }else if popUptype == 1{
-                txtFldPopupType.text = "On the go"
-            }else{
-                txtFldPopupType.text = "Still"
-            }
+            self.txtFldPopupType.text = category
         }
         self.navigationController?.present(vc, animated: true)
 
@@ -158,37 +165,7 @@ class AddPopUpVC: UIViewController,UIImagePickerControllerDelegate, UINavigation
             
         }
         self.navigationController?.pushViewController(vc, animated: true)
-//        if isUploadMarker == true{
-//            do {
-//                let processedImage = try BackgroundRemoval().removeBackground(image: imgVwMarkerLogo.image ?? UIImage())
-//                self.imgVwMarkerLogo.image = processedImage
-//                Store.MarkerLogo = processedImage
-//                let vc = self.storyboard?.instantiateViewController(withIdentifier: "ChangePhotoVC") as! ChangePhotoVC
-//                vc.isComing = 9
-//                vc.callBack = { [weak self] image in
-//                    guard let self = self else { return }
-//                    self.imgVwMarkerLogo.image = image
-//                    if Store.MarkerLogo == UIImage(named: "") || Store.MarkerLogo == nil{
-//                        self.btnMarkerLogo.setImage(UIImage(named: "Group25"), for: .normal)
-//                        self.isUploadMarker = false
-//                    }else{
-//                        self.btnMarkerLogo.setImage(UIImage(named: ""), for: .normal)
-//                    }
-//                }
-//                self.navigationController?.pushViewController(vc, animated: true)
-//            }catch{
-//                print("Error removing background: \(error.localizedDescription)")
-//            }
-//        }else{
-//
-//            openCamera()
-////            ImagePicker().pickImage(self) { image in
-////                self.imgVwMarkerLogo.image = image
-////                Store.MarkerLogo = image
-////                self.btnMarkerLogo.setImage(UIImage(named: ""), for: .normal)
-////                self.isUploadMarker = true
-////            }
-//        }
+
     }
     func openCamera() {
            if UIImagePickerController.isSourceTypeAvailable(.camera) {
@@ -202,17 +179,17 @@ class AddPopUpVC: UIViewController,UIImagePickerControllerDelegate, UINavigation
     // MARK: - UIImagePickerControllerDelegate
  func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
          if let image = info[.originalImage] as? UIImage {
-             do {
-                 let processedImage = try BackgroundRemoval().removeBackground(image: image)
-                 
-                     self.imgVwMarkerLogo.image = processedImage
-                     Store.MarkerLogo = processedImage
+//             do {
+//                 let processedImage = try BackgroundRemoval().removeBackground(image: image)
+//                 
+                    self.imgVwMarkerLogo.image = image
+                     Store.MarkerLogo = image
                      self.btnMarkerLogo.setImage(UIImage(named: ""), for: .normal)
                      self.isUploadMarker = true
-                 
-             } catch {
-                 print("Error removing background: \(error.localizedDescription)")
-             }
+//                 
+//             } catch {
+//                 print("Error removing background: \(error.localizedDescription)")
+//             }
          }
          picker.dismiss(animated: true, completion: nil)
      }
@@ -279,33 +256,39 @@ class AddPopUpVC: UIViewController,UIImagePickerControllerDelegate, UINavigation
         self.navigationController?.present(vc, animated: true)
     }
     @IBAction func actionCreate(_ sender: UIButton) {
-        
+        productImg.remove(at: 0)
         if imgVwPopupLogo.image == UIImage(named: "") || imgVwPopupLogo.image == nil{
             showSwiftyAlert("", "No logo selected. Please choose an image to upload", false)
-        }else  if imgVwMarkerLogo.image == UIImage(named: "") || imgVwMarkerLogo.image == nil{
-            showSwiftyAlert("", "No marker logo selected. Please choose an image to upload", false)
+//        }else  if imgVwMarkerLogo.image == UIImage(named: "") || imgVwMarkerLogo.image == nil{
+//            showSwiftyAlert("", "No marker logo selected. Please choose an image to upload", false)
         }else if txtFldName.text == ""{
-            showSwiftyAlert("", "This field cannot be left blank. Provide your business name", false)
+            showSwiftyAlert("", "This field cannot be left blank. Provide your pop-up title.", false)
         }else if txtVwDescription.text == ""{
-            showSwiftyAlert("", "Description of business is required", false)
-        }else if arrProducts.isEmpty && arrEditProducts.isEmpty {
-            if isComing{
-                showSwiftyAlert("", "Add product", false)
-            } else {
-                showSwiftyAlert("", "Add product", false)
-            }
+            showSwiftyAlert("", "Description of pop-up is required", false)
+        
+//        }else if arrProducts.isEmpty && arrEditProducts.isEmpty {
+//            if isComing{
+//                showSwiftyAlert("", "Add product", false)
+//            } else {
+//                showSwiftyAlert("", "Add product", false)
+//            }
+        }else if txtFldDealingOffer.text == ""{
+            showSwiftyAlert("", "Please enter your deals.", false)
         }else if txtFldPopupType.text == ""{
-            showSwiftyAlert("", "Please select your popup type", false)
+            showSwiftyAlert("", "Please select your popup type.", false)
         }else if txtFldLOcation.text == ""{
-            showSwiftyAlert("", "Please select your location", false)
+            showSwiftyAlert("", "Please choose your location.", false)
         }else if txtFldStartDate.text == ""{
-            showSwiftyAlert("", "Please select the start date", false)
+            showSwiftyAlert("", "Please select the start date.", false)
         }else if txtFldStartTime.text == ""{
-            showSwiftyAlert("", "Please select the start time", false)
+            showSwiftyAlert("", "Please select the start time.", false)
         }else if txtFldEndDate.text == ""{
-            showSwiftyAlert("", "Please select the end date", false)
+            showSwiftyAlert("", "Please select the end date.", false)
         }else if txtFldEndTime.text == ""{
-            showSwiftyAlert("", " Please select the end time", false)
+            showSwiftyAlert("", " Please select the end time.", false)
+//        }else if txtFldAvailability.text == ""{
+//            showSwiftyAlert("", "Please enter your availability.", false)
+//
         }else{
             let startDateTimeString = "\(txtFldStartDate.text ?? "") \(txtFldStartTime.text ?? "")"
             let endDateTimeString = "\(txtFldEndDate.text ?? "") \(txtFldEndTime.text ?? "")"
@@ -314,20 +297,9 @@ class AddPopUpVC: UIViewController,UIImagePickerControllerDelegate, UINavigation
             print("Start Time UTC:", startDateTimeUTC)
             print("End Time UTC:", endDateTimeUTC)
                 if isComing == true{
-                    //edit
-                    if self.imgVwMarkerLogo.image == UIImage(named: ""){
+                  
                         viewModel.UpdatePopUpApi(id: popupDetails?.id ?? "",
-                                                 name: txtFldName.text ?? "",
-                                                 usertype: "user", storeType: popUptype,
-                                                 business_logo: imgVwPopupLogo,
-                                                 image: imgVwMarkerLogo,
-                                                 startDate: startDateTimeUTC,
-                                                 endDate: endDateTimeUTC,
-                                                 lat: lat ?? 0.0,
-                                                 long: long ?? 0.0,
-                                                 description: txtVwDescription.text ?? "",
-                                                 addProducts: arrEditProducts,
-                                                 place: txtFldLOcation.text ?? "", isMarker: false){ message in
+                                                 usertype: "user", place: txtFldLOcation.text ?? "", storeType: popUptype, name: txtFldName.text ?? "", business_logo: imgVwPopupLogo, startDate: startDateTimeUTC, endDate: endDateTimeUTC, lat: lat ?? 0.0,long: long ?? 0.0,deals: txtFldDealingOffer.text ?? "", availability: Int(txtFldAvailability.text ?? "") ?? 0, description: txtVwDescription.text ?? "", categoryType: popUptype, arrImages: productImg){ message in
                             let vc = self.storyboard?.instantiateViewController(withIdentifier: "CommonPopUpVC") as! CommonPopUpVC
                             vc.isSelect = 10
                             vc.message = message
@@ -342,100 +314,25 @@ class AddPopUpVC: UIViewController,UIImagePickerControllerDelegate, UINavigation
                             self.navigationController?.present(vc, animated: true)
                         }
 
-                    }else{
-                        do {
-                            // Remove background from the image
-//                            let processedImage = try BackgroundRemoval().removeBackground(image: imgVwMarkerLogo.image ?? UIImage())
-//                            self.imgVwMarkerLogo.image = processedImage
-                            viewModel.UpdatePopUpApi(id: popupDetails?.id ?? "",
-                                                     name: txtFldName.text ?? "",
-                                                     usertype: "user", storeType: popUptype,
-                                                     business_logo: imgVwPopupLogo,
-                                                     image: imgVwMarkerLogo,
-                                                     startDate: startDateTimeUTC,
-                                                     endDate: endDateTimeUTC,
-                                                     lat: lat ?? 0.0,
-                                                     long: long ?? 0.0,
-                                                     description: txtVwDescription.text ?? "",
-                                                     addProducts: arrEditProducts,
-                                                     place: txtFldLOcation.text ?? "", isMarker: true){ message in
-                                let vc = self.storyboard?.instantiateViewController(withIdentifier: "CommonPopUpVC") as! CommonPopUpVC
-                                vc.isSelect = 10
-                                vc.message = message
-                                myPopUpLat = self.lat ?? 0
-                                myPopUpLong = self.long ?? 0
-                                addPopUp = true
-                                vc.callBack = {[weak self] in
-                                    guard let self = self else { return }
-                                    SceneDelegate().PopupListVCRoot()
-                                }
-                                vc.modalPresentationStyle = .overFullScreen
-                                self.navigationController?.present(vc, animated: true)
-                            }
-                        }catch{
-                            print("Error removing background: \(error.localizedDescription)")
-                        }
-                    }
+                  
                 }else{
                     //add
-                    if self.imgVwMarkerLogo.image == UIImage(named: ""){
-                        viewModel.AddPopUpApi(usertype: "user", place: txtFldLOcation.text ?? "", storeType: popUptype, name: txtFldName.text ?? "",
-                                              business_logo: imgVwPopupLogo,
-                                              image: imgVwMarkerLogo,
-                                              startDate: startDateTimeUTC ,
-                                              endDate: endDateTimeUTC,
-                                              lat: lat ?? 0.0,
-                                              long: long ?? 0.0,
-                                              description: txtVwDescription.text ?? "",
-                                              addProducts: arrProducts, isMarker: false) { message in
-                            let vc = self.storyboard?.instantiateViewController(withIdentifier: "CommonPopUpVC") as! CommonPopUpVC
-                            vc.isSelect = 10
-                            vc.message = message
-                            myPopUpLat = self.lat ?? 0
-                            myPopUpLong = self.long ?? 0
-                            addPopUp = true
-                            Store.tabBarNotificationPosted = false
-                            vc.callBack = {[weak self] in
-                                guard let self = self else { return }
-                                SceneDelegate().userRoot()
-                            }
-                            vc.modalPresentationStyle = .overFullScreen
-                            self.navigationController?.present(vc, animated: true)
+                    viewModel.AddPopUpApi(usertype: "user", place: txtFldLOcation.text ?? "", storeType: popUptype, name: txtFldName.text ?? "", business_logo: imgVwPopupLogo, startDate: startDateTimeUTC, endDate: endDateTimeUTC, lat: lat ?? 0.0,long: long ?? 0.0,deals: txtFldDealingOffer.text ?? "", availability: Int(txtFldAvailability.text ?? "") ?? 0, description: txtVwDescription.text ?? "", categoryType: popUptype, arrImages: productImg) { message in
+                        let vc = self.storyboard?.instantiateViewController(withIdentifier: "CommonPopUpVC") as! CommonPopUpVC
+                        vc.isSelect = 10
+                        vc.message = message
+                        myPopUpLat = self.lat ?? 0
+                        myPopUpLong = self.long ?? 0
+                        addPopUp = true
+                        Store.tabBarNotificationPosted = false
+                        vc.callBack = {[weak self] in
+                            guard let self = self else { return }
+                            SceneDelegate().userRoot()
                         }
-                    }else{
-                        do {
-                            // Remove background from the image
-                                let processedImage = try BackgroundRemoval().removeBackground(image: imgVwMarkerLogo.image ?? UIImage())
-                                self.imgVwMarkerLogo.image = processedImage
-                            viewModel.AddPopUpApi(usertype: "user", place: txtFldLOcation.text ?? "", storeType: popUptype, name: txtFldName.text ?? "",
-                                                  business_logo: imgVwPopupLogo,
-                                                  image: imgVwMarkerLogo,
-                                                  startDate: startDateTimeUTC ,
-                                                  endDate: endDateTimeUTC,
-                                                  lat: lat ?? 0.0,
-                                                  long: long ?? 0.0,
-                                                  description: txtVwDescription.text ?? "",
-                                                  addProducts: arrProducts, isMarker: true) { message in
-                                let vc = self.storyboard?.instantiateViewController(withIdentifier: "CommonPopUpVC") as! CommonPopUpVC
-                                vc.isSelect = 10
-                                vc.message = message
-                                myPopUpLat = self.lat ?? 0
-                                myPopUpLong = self.long ?? 0
-                                addPopUp = true
-                                Store.tabBarNotificationPosted = false
-                                vc.callBack = {[weak self] in
-                                    guard let self = self else { return }
-                                    SceneDelegate().userRoot()
-                                }
-                                vc.modalPresentationStyle = .overFullScreen
-                                self.navigationController?.present(vc, animated: true)
-                            }
-                        } catch {
-                            // Handle error gracefully
-                            print("Error removing background: \(error.localizedDescription)")
-                            // Optionally show an alert to the user
-                        }
+                        vc.modalPresentationStyle = .overFullScreen
+                        self.navigationController?.present(vc, animated: true)
                     }
+                      
                 }
             //}
         }
@@ -700,92 +597,58 @@ extension AddPopUpVC{
 //MARK: - UICollectionViewDataSource,UICollectionViewDelegate
 extension AddPopUpVC: UICollectionViewDataSource,UICollectionViewDelegate,UICollectionViewDelegateFlowLayout,UIScrollViewDelegate{
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if isComing == true{
-            if arrEditProducts.count > 0{
-                return  arrEditProducts.count
+       
+            if productImg.count > 0{
+                return  productImg.count
             }else{
-                return 0
+                return 1
             }
-        }else{
-            if arrProducts.count > 0{
-                return  arrProducts.count
-            }else{
-                return 0
-            }
-        }
+        
     }
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ProductsCVC", for: indexPath) as! ProductsCVC
-        cell.btnEdit.tag = indexPath.row
-        cell.btnEdit.addTarget(self, action: #selector(ActionEditProduct), for: .touchUpInside)
-        cell.btnDelete.tag = indexPath.row
-        cell.btnDelete.addTarget(self, action: #selector(ActionDeleteProduct), for: .touchUpInside)
-        if isComing == true{
-            cell.viewDetail.layer.cornerRadius = 5
-            cell.viewDetail.layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
-                let product = arrEditProducts[indexPath.row]
-                cell.lblProductName.text = arrEditProducts[indexPath.row].productName ?? ""
-                cell.lblPrice.text = "$\(arrEditProducts[indexPath.row].price ?? 0)"
-                    if let image = product.image as? UIImage {
-                        cell.imgVwProduct.contentMode = .scaleAspectFill
-                        cell.imgVwProduct.image = image
-                    } else if let imageUrls = product.image as? [String], let firstUrl = imageUrls.first {
-                        cell.imgVwProduct.contentMode = .scaleAspectFill
-                        cell.imgVwProduct.imageLoad(imageUrl: firstUrl)
-                    } else if let singleUrl = product.image as? String {
-                        cell.imgVwProduct.contentMode = .scaleAspectFill
-                        cell.imgVwProduct.imageLoad(imageUrl: singleUrl)
-                    }else{
-                        cell.imgVwProduct.contentMode = .scaleAspectFit
-                        cell.imgVwProduct.image = UIImage(named: "dummy2")
-                    }
-            
+        if indexPath.row == 0{
+            cell.vwAddProduct.isHidden = false
+        
+            cell.imgVwDelete.isHidden = true
+            cell.btnDelete.isHidden = true
+            cell.imgVwProduct.isHidden = true
+            cell.btnAddProduct.addTarget(self, action: #selector(addProductImg), for: .touchUpInside)
+            cell.btnAddProduct.tag = 0
         }else{
-                    let product = arrProducts[indexPath.row]
-                        cell.lblProductName.text = product.name ?? ""
-                        cell.lblPrice.text = "$\(product.price ?? 0)"
-                        if let image = product.images as? UIImage {
-                            cell.imgVwProduct.contentMode = .scaleAspectFill
-                            cell.imgVwProduct.image = image
-                        } else if let imageUrls = product.images as? [String], let firstUrl = imageUrls.first {
-                            cell.imgVwProduct.contentMode = .scaleAspectFill
-                            cell.imgVwProduct.imageLoad(imageUrl: firstUrl)
-                        } else if let singleUrl = product.images as? String {
-                            cell.imgVwProduct.contentMode = .scaleAspectFill
-                            cell.imgVwProduct.imageLoad(imageUrl: singleUrl)
-                        }else{
-                            cell.imgVwProduct.contentMode = .scaleAspectFit
-                            cell.imgVwProduct.image = UIImage(named: "dummy2")
-                        }
-                
+            cell.vwAddProduct.isHidden = true
+          
+            cell.imgVwDelete.isHidden = false
+            cell.btnDelete.isHidden = false
+            cell.imgVwProduct.isHidden = false
+//            cell.btnEdit.tag = indexPath.row
+//            cell.btnEdit.addTarget(self, action: #selector(ActionEditProduct), for: .touchUpInside)
+            cell.btnDelete.tag = indexPath.row
+            cell.btnDelete.addTarget(self, action: #selector(ActionDeleteProduct), for: .touchUpInside)
+            cell.imgVwProduct.imageLoad(imageUrl: productImg[indexPath.row])
+
         }
+     
     
         return cell
     }
     @objc func ActionDeleteProduct(sender: UIButton) {
         let indexToDelete = sender.tag
         if isComing == true{
-            arrEditProducts.remove(at: indexToDelete)
-            
-            if arrEditProducts.isEmpty {
-                
-                viewNoProduct.isHidden = false
-                colVwProducts.isHidden = true
-            }else{
-                viewNoProduct.isHidden = true
-                colVwProducts.isHidden = false
 
-            }
+            productImg.remove(at: indexToDelete)
+
             colVwProducts.reloadData()
         }else{
-            arrProducts.remove(at: indexToDelete)
-           
-            if arrProducts.isEmpty {
-                viewNoProduct.isHidden = false
-                colVwProducts.isHidden = true
+
+            productImg.remove(at: indexToDelete)
+
+            if self.productImg.count == 2 || self.productImg.count == 1{
+                self.heightCollVw.constant = 160
+            }else if self.productImg.count == 3 || self.productImg.count == 4{
+                self.heightCollVw.constant = 330
             }else{
-                viewNoProduct.isHidden = true
-                colVwProducts.isHidden = false
+                self.heightCollVw.constant = 490
             }
             colVwProducts.reloadData()
         }
@@ -796,7 +659,7 @@ extension AddPopUpVC: UICollectionViewDataSource,UICollectionViewDelegate,UIColl
     vc.modalPresentationStyle = .overFullScreen
     vc.isComing = false
     vc.selectedIndex = sender.tag
-    vc.arrProducts = arrProducts
+//    vc.arrProducts = arrProducts
     
     vc.callBack = { [weak self] productName, price,isEdit,productImages in
                     guard let self = self else { return }
@@ -812,69 +675,45 @@ extension AddPopUpVC: UICollectionViewDataSource,UICollectionViewDelegate,UIColl
     self.navigationController?.present(vc, animated: true)
 }
 
+    @objc func addProductImg(sender:UIButton){
+        if self.productImg.count < 6 {
+        ImagePicker().pickImage(self) { image in
+            self.viewModelUpload.uploadProductImagesApi(Images: image) { data in
+              
+                    self.productImg.insert(data?.imageUrls?[0] ?? "", at: 1)
+                    if self.productImg.count == 2 || self.productImg.count == 1{
+                        self.heightCollVw.constant = 160
+                    }else if self.productImg.count == 3 || self.productImg.count == 4{
+                        self.heightCollVw.constant = 330
+                    }else{
+                        self.heightCollVw.constant = 490
+                    }
+                    self.colVwProducts.reloadData()
+               
+            }
+           
+          
+        }
+        }else{
+            showSwiftyAlert("", "Upload maximum 5 Images", false)
+        }
+    }
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: colVwProducts.frame.size.width / 2 - 4, height: 160)
+        if self.productImg.count == 1{
+            return CGSize(width: colVwProducts.frame.size.width/1, height: 160)
+        }else{
+            return CGSize(width: colVwProducts.frame.size.width/2-5 , height: 160)
+        }
+
+    }
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        return 5
+    }
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
+        return 5
     }
 }
 
 
 
 
-
-
-//            if Store.role == "b_user"{
-//                if isComing == true{
-//                    //edit
-//
-//                    viewModel.UpdatePopUpApi(id: popupDetails?.id ?? "",
-//                                             name: txtFldName.text ?? "",
-//                                             usertype: "b_user",
-//                                             business_logo: imgVwPopupLogo,
-//                                             image: imgVwMarkerLogo,
-//                                             startDate: startDateTimeUTC,
-//                                             endDate: endDateTimeUTC,
-//                                             lat: lat ?? 0.0,
-//                                             long: long ?? 0.0,
-//                                             description: txtVwDescription.text ?? "",
-//                                             addProducts: arrEditProducts,
-//                                             place: txtFldLOcation.text ?? "", isMarker: true){ message in
-//                            let vc = self.storyboard?.instantiateViewController(withIdentifier: "CommonPopUpVC") as! CommonPopUpVC
-//                            vc.modalPresentationStyle = .overFullScreen
-//                            vc.isSelect = 10
-//                            vc.message = message
-//                            myPopUpLat = self.lat ?? 0
-//                            myPopUpLong = self.long ?? 0
-//                            addPopUp = true
-//                            vc.callBack = {[weak self] in
-//                                guard let self = self else { return }
-//                                SceneDelegate().PopupListVCRoot()
-//                            }
-//                            self.navigationController?.present(vc, animated: false)
-//                        }
-//                }else{
-//                    //add
-//                    viewModel.AddPopUpApi(usertype: "b_user", place: txtFldLOcation.text ?? "", name: txtFldName.text ?? "",
-//                                          business_logo: imgVwPopupLogo,
-//                                          image: imgVwMarkerLogo,
-//                                          startDate: startDateTimeUTC ,
-//                                          endDate: endDateTimeUTC,
-//                                          lat: lat ?? 0.0,
-//                                          long: long ?? 0.0,
-//                                          description: txtVwDescription.text ?? "",
-//                                          addProducts: arrProducts, isMarker: true) { message in
-//                        let vc = self.storyboard?.instantiateViewController(withIdentifier: "CommonPopUpVC") as! CommonPopUpVC
-//                        vc.modalPresentationStyle = .overFullScreen
-//                        vc.isSelect = 10
-//                        vc.message = message
-//                        loadHomeData = false
-//                        myPopUpLat = self.lat ?? 0
-//                        myPopUpLong = self.long ?? 0
-//                        addPopUp = true
-//                        vc.callBack = {[weak self] in
-//                            guard let self = self else { return }
-//                            SceneDelegate().tabBarHomeRoot()
-//                        }
-//                        self.navigationController?.present(vc, animated: false)
-//                    }
-//                }
-//            }else{

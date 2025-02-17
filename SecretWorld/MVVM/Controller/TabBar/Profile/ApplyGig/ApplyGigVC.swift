@@ -90,7 +90,7 @@ class ApplyGigVC: UIViewController, UIGestureRecognizerDelegate, SideMenuNavigat
     var arrCategory = [Skills]()
     var arrTools = [String]()
     var customAnnotations: [ClusterPoint] = []
-    
+    var isComingDeepLink = false
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -279,7 +279,7 @@ class ApplyGigVC: UIViewController, UIGestureRecognizerDelegate, SideMenuNavigat
             }
             
             self.mapVw.mapboxMap.setCamera(to: CameraOptions(center: CLLocationCoordinate2D(latitude: data?.gig?.lat ?? 0, longitude: data?.gig?.long ?? 0),zoom: 11,bearing: 0,pitch: 0))
-            self.customAnnotations.append(ClusterPoint(coordinate: CLLocationCoordinate2D(latitude: data?.gig?.lat ?? 0, longitude: data?.gig?.long ?? 0 ), price: data?.gig?.price ?? 0, seen: 2))
+            self.customAnnotations.append(ClusterPoint(coordinate: CLLocationCoordinate2D(latitude: data?.gig?.lat ?? 0, longitude: data?.gig?.long ?? 0 ), price: Int(data?.gig?.price ?? 0), seen: 2))
             clusterManager.addClusters(with: self.customAnnotations)
 
             self.userGigDetail = data
@@ -504,7 +504,7 @@ class ApplyGigVC: UIViewController, UIGestureRecognizerDelegate, SideMenuNavigat
             self.participantCount = data?.appliedParticipants ?? 0
             self.arrBusinessReview = data?.reviews ?? []
             self.providerUserId = data?.user?.id ?? ""
-            self.price = data?.price ?? 0
+            self.price = Int(data?.price ?? 0)
             
             self.lblTitle.text = data?.title ?? ""
             self.lblPlace.text = data?.place ?? ""
@@ -543,7 +543,7 @@ class ApplyGigVC: UIViewController, UIGestureRecognizerDelegate, SideMenuNavigat
                 self.lblGigTime.text = formattedDate
             }
             self.mapVw.mapboxMap.setCamera(to: CameraOptions(center: CLLocationCoordinate2D(latitude: data?.lat ?? 0, longitude: data?.long ?? 0),zoom: 11,bearing: 0,pitch: 0))
-            self.customAnnotations.append(ClusterPoint(coordinate: CLLocationCoordinate2D(latitude: data?.lat ?? 0, longitude: data?.long ?? 0 ), price: data?.price ?? 0, seen: 2))
+            self.customAnnotations.append(ClusterPoint(coordinate: CLLocationCoordinate2D(latitude: data?.lat ?? 0, longitude: data?.long ?? 0 ), price: Int(data?.price ?? 0), seen: 2))
             clusterManager.addClusters(with: self.customAnnotations)
             
             if data?.reviews?.count ?? 0 > 0{
@@ -896,7 +896,7 @@ class ApplyGigVC: UIViewController, UIGestureRecognizerDelegate, SideMenuNavigat
             }else{
                 print(businessGigStatus ?? 0)
                 if paymentStatus == 0{
-                    viewModel.createGig(gigId: gigId,price:price) { data in
+                    viewModel.createGig(gigId: gigId,price:Double(price)) { data in
                         let vc = self.storyboard?.instantiateViewController(withIdentifier: "WebViewVC") as! WebViewVC
                         vc.modalPresentationStyle = .overFullScreen
                         vc.paymentLink = data?.url ?? ""

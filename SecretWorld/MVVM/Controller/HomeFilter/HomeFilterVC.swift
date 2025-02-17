@@ -47,11 +47,11 @@ class HomeFilterVC: UIViewController {
             arrFilterImg.append("completion")
         }else if type == 2{
             arrGigFilter.append("Popularity")
-            arrGigFilter.append("Ending Soonest")
+//            arrGigFilter.append("Ending Soonest")
             arrGigFilter.append("Distance")
             
             arrFilterImg.append("popularity")
-            arrFilterImg.append("endingSoon")
+//            arrFilterImg.append("endingSoon")
             arrFilterImg.append("distance")
         }else{
             arrGigFilter.append("Distance")
@@ -309,6 +309,8 @@ class HomeFilterVC: UIViewController {
       
         
         tblVwFilter.reloadData()
+        dismiss(animated: false)
+        callBack?(radius)
     }
     @IBAction func actionCross(_ sender: UIButton) {
         isSelectGigTime = false
@@ -402,16 +404,20 @@ extension HomeFilterVC: UITableViewDelegate, UITableViewDataSource,RangeSeekSlid
                 cell.popularVw.isHidden = false
                 cell.isSelectIndex = (Store.filterDataPopUp?["popularity"] as? Int ?? 1) - 1
                 cell.uiSet()
-            }else if indexPath.row == 1{
-                cell.doubleThumbVw.isHidden = true
-                cell.singleThumbVw.isHidden = false
-                cell.popularVw.isHidden = true
-                cell.singleSlider.thumbLabel.text = "\(Store.filterDataPopUp?["endingSoon"] as? Int ?? 1) Hour"
-                cell.singleSlider.minimumValue = 1
-                cell.singleSlider.maximumValue = 24
-                cell.singleSlider.currentValue = (Float(CGFloat(Store.filterDataPopUp?["endingSoon"] as? Int ?? 0)))
-                cell.singleSlider.index = 1
-                cell.singleSlider.type = type
+                cell.callBacK = { index in
+                    cell.isSelectIndex = index
+                    cell.uiSet()
+                }
+//            }else if indexPath.row == 1{
+//                cell.doubleThumbVw.isHidden = true
+//                cell.singleThumbVw.isHidden = false
+//                cell.popularVw.isHidden = true
+//                cell.singleSlider.thumbLabel.text = "\(Store.filterDataPopUp?["endingSoon"] as? Int ?? 1) Hour"
+//                cell.singleSlider.minimumValue = 1
+//                cell.singleSlider.maximumValue = 24
+//                cell.singleSlider.currentValue = (Float(CGFloat(Store.filterDataPopUp?["endingSoon"] as? Int ?? 0)))
+//                cell.singleSlider.index = 1
+//                cell.singleSlider.type = type
                 
             }else{
                 cell.doubleThumbVw.isHidden = true

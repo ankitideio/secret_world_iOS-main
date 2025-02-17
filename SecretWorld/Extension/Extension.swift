@@ -123,6 +123,7 @@ extension UITextField{
 //MARK: - Button
 
 extension UIButton{
+    
     @IBInspectable var cornerRadi: CGFloat {
        get {
          return layer.cornerRadius
@@ -202,6 +203,25 @@ extension UIView{
                 layer.maskedCorners = [.layerMaxXMinYCorner, .layerMinXMinYCorner]
             }
         }
+    @IBInspectable var sbothBottomCornerRadius: CGFloat {
+        get {
+            return layer.cornerRadius
+        }
+        set {
+            layer.cornerRadius = newValue
+            layer.maskedCorners = [.layerMaxXMaxYCorner, .layerMinXMaxYCorner]
+        }
+    }
+    @IBInspectable var sRightBottomCornerRadius: CGFloat {
+        get {
+            return layer.cornerRadius
+        }
+        set {
+            layer.cornerRadius = newValue
+            layer.maskedCorners = [.layerMaxXMaxYCorner]
+            clipsToBounds = true  // Ensure the content doesn't exceed the rounded corners
+        }
+    }
     @IBInspectable var cornerRadiusView: CGFloat {
        get {
          return layer.cornerRadius
@@ -254,8 +274,8 @@ class GradientView: UIView {
                gradientLayer.colors = [startColor.cgColor, endColor.cgColor]
                
                // Set the startPoint and endPoint for a horizontal gradient
-               gradientLayer.startPoint = CGPoint(x: 0.0, y: 0.5)
-               gradientLayer.endPoint = CGPoint(x: 1.0, y: 0.5)
+        gradientLayer.startPoint = CGPoint(x: 0.5, y: 0.0)
+          gradientLayer.endPoint = CGPoint(x: 0.5, y: 1.0)
     }
 }
 
@@ -483,6 +503,8 @@ extension CALayer {
         return image!
     }
 }
+
+
 //MARK: - UISegmentedControl
 extension UISegmentedControl{
     func removeBorder(){
@@ -532,6 +554,8 @@ extension UIImage{
         return rectangleImage!
     }
 }
+
+
 //MARK: - Textfield MaxLenth
 private var kAssociationKeyMaxLength: Int = 0
 extension UITextField {
@@ -912,7 +936,7 @@ extension UILabel {
 
     func appendReadmore(after text: String, trailingContent: TrailingContent) {
         self.numberOfLines = minimumLines
-        let fourLineText = "\n\n"
+        let fourLineText = "\n\n\n"
         let fourlineHeight = requiredHeight(for: fourLineText)
         let sentenceText = NSString(string: text)
         let sentenceRange = NSRange(location: 0, length: sentenceText.length)
@@ -972,3 +996,4 @@ extension UITapGestureRecognizer {
     }
 
 }
+

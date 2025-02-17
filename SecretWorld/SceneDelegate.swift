@@ -14,8 +14,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
         // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
+        
         guard let _ = (scene as? UIWindowScene) else { return }
-        print(Store.GigType ?? 0 )
+        // Check for incoming deep link URL
         if Store.autoLogin == 1{
             accountTypeVCRoot()
         }else if Store.autoLogin == 2{
@@ -36,24 +37,37 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             
             OnboardingFirstVCRoot()
         }
+//        
+        if let userActivity = connectionOptions.userActivities.first,
+           userActivity.activityType == NSUserActivityTypeBrowsingWeb,
+           let urlinfo = userActivity.webpageURL {
+            print ("Universial Link Open at SceneDelegate on App Start ::::::: \(urlinfo)")
+            openLink(url: urlinfo)
+        }
+        
+        if connectionOptions.urlContexts.first?.url != nil {
+            if let urlinfo = connectionOptions.urlContexts.first?.url {
+                openLink(url: urlinfo)
+            }
+        }
+        print(Store.GigType ?? 0 )
+     
     }
-    func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
-           if userActivity.activityType == NSUserActivityTypeBrowsingWeb {
-               if let url = userActivity.webpageURL {
-                   // Handle the deep link URL here
-                   print("Deep link URL: \(url)")
-                   
-                   // For example, extracting the taskId
-                   if url.pathComponents.count > 1 {
-                       let taskId = url.pathComponents[2]  // e.g., /taskId/676982526d9ff3ef55c365bd
-                       print("Task ID: \(taskId)")
-                   }
 
-                   // Perform navigation or logic based on the URL
-                   // For example, navigate to a specific screen based on the URL path
-               }
-           }
-       }
+  
+    func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
+        if userActivity.activityType == NSUserActivityTypeBrowsingWeb {
+            if let url = userActivity.webpageURL {
+                // Handle the URL
+                print("App opened with URL: \(url.absoluteString)")
+                if let url = URL(string: url.absoluteString) {
+                    openLink(url: url)
+                }
+            }
+        }
+    }
+  
+//
     func sceneDidDisconnect(_ scene: UIScene) {
         // Called as the scene is being released by the system.
         // This occurs shortly after the scene enters the background, or when its session is discarded.
@@ -70,9 +84,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 //                    NotificationCenter.default.post(name: Notification.Name("locationDenied"), object: nil)
 //                case .authorizedWhenInUse, .authorizedAlways:
 //                    print("Location permission allowed")
-//                    
+//
 //                    NotificationCenter.default.post(name: Notification.Name("locationAllow"), object: nil)
-//                    
+//
 //                default:
 //                    print("Location permission not determined")
 //                }
@@ -241,7 +255,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func GigListVCRoot(){
         let mainStoryBoard = UIStoryboard(name: "Main", bundle: nil)
         let nextVC = mainStoryBoard.instantiateViewController(withIdentifier: "GigListVC") as! GigListVC
-        nextVC.isComing = 3
+        nextVC.isComing = 2
+        Store.isUserParticipantsList = true
         let nav = UINavigationController.init(rootViewController: nextVC)
         nav.isNavigationBarHidden = true
         UIApplication.shared.windows.first?.rootViewController = nav
@@ -421,8 +436,56 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         nav.isNavigationBarHidden = true
         UIApplication.shared.windows.first?.rootViewController = nav
     }
+   
 }
 
 
-
+//MARK: EXTENSION
+extension SceneDelegate {
+    func openLink(url: URL?) {
+        guard let url = url else { return }
+        
+        // Ensure the scheme and host match the expected values
+        if url.scheme?.localizedCaseInsensitiveCompare("https") == .orderedSame,
+           url.host?.localizedCaseInsensitiveCompare("api.secretworld.ai") == .orderedSame {
+            
+            // Extract the path and parse the taskId
+            let pathComponents = url.pathComponents
+            if let taskIdIndex = pathComponents.firstIndex(of: "taskId"),
+               taskIdIndex + 1 < pathComponents.count {
+                let taskId = pathComponents[taskIdIndex + 1]
+                print("URL: \(url.absoluteString)")
+                print("Task ID: \(taskId)")
+                
+                // Check if the user is authenticated
+                if let authKey = Store.authKey, !authKey.isEmpty {
+                    let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
+                    
+                    // Home screen (TabBarVC)
+                    let userHome = storyboard.instantiateViewController(withIdentifier: "TabBarVC") as! TabBarVC
+                    let navigationController = UINavigationController(rootViewController: userHome)
+                    navigationController.navigationBar.isHidden = true
+                    
+                    // Details screen (ApplyGigVC)
+                    let bookDetailsVC = storyboard.instantiateViewController(withIdentifier: "ApplyGigVC") as! ApplyGigVC
+                    bookDetailsVC.gigId = taskId
+                    bookDetailsVC.isComingDeepLink = true
+                    navigationController.pushViewController(bookDetailsVC, animated: false)
+                    
+                    // Set as rootViewController
+                    if let window = UIApplication.shared.windows.first {
+                        window.rootViewController = navigationController
+                        window.makeKeyAndVisible()
+                    }
+                } else {
+                    print("User not authenticated")
+                }
+            } else {
+                print("Invalid URL path or missing taskId")
+            }
+        } else {
+            print("Invalid URL scheme or host")
+        }
+    }
+}
 

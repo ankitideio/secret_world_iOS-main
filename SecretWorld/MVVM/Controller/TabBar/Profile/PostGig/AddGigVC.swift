@@ -42,7 +42,7 @@ class AddGigVC: UIViewController {
     var gigDetail:GetGigDetailData?
     var walletViewModel = PaymentVM()
     var walletAmount = 0
-    var gigFees:Int?
+    var gigFees:Double?
     var gigLocationType = 2
     var selectedStartDate = ""
     var usergigDetail:GetUserGigData?
@@ -779,7 +779,7 @@ class AddGigVC: UIViewController {
                                 let vc = self.storyboard?.instantiateViewController(withIdentifier: "PlatformfeePopUpVC") as! PlatformfeePopUpVC
                                 if let gigFees = self.gigFees,
                                    let feeValue = Int(self.txtFldfee.text ?? ""),
-                                   gigFees > feeValue {
+                                   Int(gigFees) > feeValue {
                                     vc.isAmountLess = true
                                 }else{
                                     vc.isAmountLess = false

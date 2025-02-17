@@ -1,5 +1,4 @@
 import UIKit
-import BackgroundRemoval
 import Messages
 import Pulsator
 import JJFloatingActionButton
@@ -125,6 +124,8 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
     var isCustomAnnotationViewVisible = false
     var customButton = UIButton(type: .system)
     var mapRadius:Double = 10
+    var minDitance = 0.0
+    var maxDistance = 8046.72
     var restrictedRegion: MKCoordinateRegion?
     var gigAppliedStatus = 0
     var isReadyChat = 0
@@ -157,12 +158,13 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
     var isSelectGigList = false
     var isSelectTask = false
     var lastZoomUpdateTime: TimeInterval = 0
-    
+
+
     override func viewDidLoad() {
         super.viewDidLoad()
         
         locationdata()
-        
+        bottomPopUpHeight()
     }
     
     func locationdata(){
@@ -180,38 +182,8 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
         }
     }
     override func viewWillAppear(_ animated: Bool){
-        if Store.role == "user"{
-            if self.deviceHasNotch{
-             
-                if UIDevice.current.hasDynamicIsland {
-                    self.topMapVw.constant = -69
-                    self.bottomCollVw.constant = 83
-                    }else{
-                    self.topMapVw.constant = -59
-                    self.bottomCollVw.constant = 63
-                }
-            }else{
-                self.topMapVw.constant = 0
-                self.bottomCollVw.constant = 88
-                
-            }
-            
-        }else{
-            if self.deviceHasNotch{
-                if UIDevice.current.hasDynamicIsland {
-                    self.topMapVw.constant = -69
-                    self.bottomCollVw.constant = 73
-                    }else{
-                    self.topMapVw.constant = -59
-                    self.bottomCollVw.constant = 63
-                }
-            }else{
-                self.topMapVw.constant = 0
-                self.bottomCollVw.constant = 88
-            }
-            
-        }
-
+      
+    
         Store.isSelectTab = false
         willAppear()
     }
@@ -246,9 +218,24 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
         }
     }
    
-    
+    func bottomPopUpHeight(){
+        if self.deviceHasNotch{
+         
+            if UIDevice.current.hasDynamicIsland {
+                self.topMapVw.constant = -69
+                self.bottomCollVw.constant = 83
+                }else{
+                self.topMapVw.constant = -59
+                self.bottomCollVw.constant = 63
+            }
+        }else{
+            self.topMapVw.constant = 0
+            self.bottomCollVw.constant = 88
+            
+        }
+    }
     func getWillApearAllData(){
-        
+        print("Token------",Store.authKey ?? "")
         homeListenerCall = false
         if Store.role == "b_user"{
             arrData.removeAll()
@@ -303,9 +290,9 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
         self.viewInMyLocation.isHidden = true
         if deviceHasNotch{
             if UIDevice.current.hasDynamicIsland {
-            bottomCollVw.constant = 68
+            bottomCollVw.constant = 58
             }else{
-            bottomCollVw.constant = 68
+            bottomCollVw.constant = 58
             }
         }else{
             bottomCollVw.constant = 80
@@ -319,7 +306,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
             
             self.dismiss(animated: false)
             self.btnUpArrow.setImage(UIImage(named:"uparrow"), for: .normal)
-            self.tblVwList.isScrollEnabled = false
+           
         default:
             
             print("Location permission not determined")
@@ -389,6 +376,9 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
     }
     
     @objc func SelectBusiness(notification:Notification){
+    
+        type = 3
+        isSelectType = 2
         self.viewBusinessList.isHidden = false
             getBusinessData()
         if deviceHasNotch{
@@ -419,6 +409,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
         
     }
     @objc func methodOfReceiveddeSelectHome(notification:Notification){
+        
         if isSelectType == 3{
             viewStoreList.isHidden = false
             bottomStackVwRefreshAndRecenter.constant = 10
@@ -453,6 +444,9 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
      
     }
     @objc func selectGig(notification:Notification){
+        homeListenerCall = false
+             type = 1
+            isSelectType = 1
             viewGigList.isHidden = false
             viewInMyLocation.isHidden = false
             viewWorldwide.isHidden = false
@@ -475,7 +469,10 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
         
     }
     @objc func selectStore(notification:Notification){
-        
+      
+        homeListenerCall = false
+        type = 2
+        isSelectType = 3
         self.viewStoreList.isHidden = false
         self.bottomStackVwRefreshAndRecenter.constant = 10
         self.getStoreData()
@@ -662,7 +659,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
         let centerLocation = CLLocation(latitude: centerCoordinate.latitude, longitude: centerCoordinate.longitude)
         let topCenterLocation = CLLocation(latitude: topCenterCoordinate.latitude, longitude: topCenterCoordinate.longitude)
         let radiusInMeters = centerLocation.distance(from: topCenterLocation)
-        let radiusInKilometers = radiusInMeters / 1000.0
+        let radiusInKilometers = radiusInMeters
         return radiusInKilometers
     }
     @objc func handlePanGesture(_ gesture: UIPanGestureRecognizer) {
@@ -846,46 +843,139 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
             }
         }
     }
- 
+    func convertKilometersToMiles(kilometers: Double) -> Double {
+        return kilometers * 0.621371
+    }
+    func convertMilesToKilometers(miles: Double) -> Double {
+        return miles / 1.60934
+    }
     func mapData(radius: Double, type: Int, gigType: Int, lat: Double, long: Double) {
+       
          guard let userId = Store.userId else { return }
-         var param: [String: Any] = ["userId": userId, "lat": lat, "long": long, "radius": radius, "type": type]
-
+//         var param: [String: Any] = ["userId": userId, "lat": lat, "long": long, "radius": radius, "type": type]
+        var param: [String: Any] = ["userId": userId, "lat": lat, "long": long, "type": type]
          if Store.role == "user" {
              switch type {
              case 1: // Gig
                  if Store.isSelectGigFilter == true {
+                    
                      param.merge(Store.filterData ?? [:]) { _, new in new }
-                 }
-                 if Store.GigType == 0 || Store.GigType == 1 {
+                    
+                     param = param.mapValues { value in
+                         if let nsArray = value as? NSArray {
+                             return nsArray.compactMap { $0 as? Int }
+                         }
+                         return value
+                     }
+                     let allDistances = Set([1,2,3])
+                     let selectedDistances = Set(Store.taskMiles)
+                     
+                     if allDistances.isSubset(of: selectedDistances) {
+                         print("All")
+                         param["minDistanceInMeters"] = minDitance
+                         param["maxDistanceInMeters"] = maxDistance
+                     } else if selectedDistances == [1] {
+                         print("Only 1")
+                         param["minDistanceInMeters"] = minDitance
+                         param["maxDistanceInMeters"] = maxDistance
+                     }else if selectedDistances == [2] {
+                         print("Only 2")
+                       
+                         param["minDistanceInMeters"] = minDitance
+                         param["maxDistanceInMeters"] = maxDistance
+                     } else if selectedDistances == [3] {
+                         print("Only 3")
+                         param["minDistanceInMeters"] = minDitance
+                         param["maxDistanceInMeters"] = 1000000
+//                         param.removeValue(forKey: "maxDistanceInMeters")
+                     } else if selectedDistances == [1,2] {
+                         print("Only 1,2")
+                        
+                         param["minDistanceInMeters"] = minDitance
+                         param["maxDistanceInMeters"] = 24140.2
+                     } else if selectedDistances == [2,3] {
+                         print("Only 2,3")
+                         param["maxDistanceInMeters"] = 1000000
+                         param["minDistanceInMeters"] = minDitance
+                        
+                     } else if selectedDistances == [1,3] {
+                         print("Only 1,3")
+                       
+                         param["minDistanceInMeters"] = minDitance
+                         param["maxDistanceInMeters"] = maxDistance
+                     }
                      param["gigType"] = gigType
+                 }else{
+                     param["minDistanceInMeters"] = minDitance
+                     param["maxDistanceInMeters"] = maxDistance
+                    param["gigType"] = gigType
+                     
                  }
+                 
              case 2: // Store
                  if Store.isSelectPopUpFilter == true {
                      param.merge(Store.filterDataPopUp ?? [:]) { _, new in new }
+                     param = param.mapValues { value in
+                         if let nsArray = value as? NSArray {
+                             return nsArray.compactMap { $0 as? Int }
+                         }
+                         return value
+                     }
+                     param["minDistanceInMeters"] = minDitance
+                     param["maxDistanceInMeters"] = maxDistance
+                 }else{
+                     param["minDistanceInMeters"] = minDitance
+                     param["maxDistanceInMeters"] = maxDistance
                  }
              default: // Business
                  if Store.isSelectBusinessFilter == true {
                      param.merge(Store.filterDataBusiness ?? [:]) { _, new in new }
+                     param = param.mapValues { value in
+                         if let nsArray = value as? NSArray {
+                             return nsArray.compactMap { $0 as? Int }
+                         }
+                         return value
+                     }
+                     param["minDistanceInMeters"] = minDitance
+                     param["maxDistanceInMeters"] = maxDistance
+                 }else{
+                     param["minDistanceInMeters"] = minDitance
+                     param["maxDistanceInMeters"] = maxDistance
                  }
              }
-         }
+             print("Param-----",param)
+             SocketIOManager.sharedInstance.home(dict: param)
 
-         print("Param----", param)
-         SocketIOManager.sharedInstance.home(dict: param)
-
-         SocketIOManager.sharedInstance.homeData = { data in
-             guard let data = data, data.count > 0 else { return }
-             if !self.homeListenerCall {
-                 self.updateData(from: data[0].data)
+             SocketIOManager.sharedInstance.homeData = { data in
+                
+                 guard let data = data, data.count > 0 else { return }
+             
+                 if !self.homeListenerCall {
+                     self.updateData(from: data[0].data)
+                 }
              }
+         }else{
+             let param2: [String: Any] = ["userId": userId, "lat": lat, "long": long, "radius": radius]
+             print("Param-----",param2)
+              SocketIOManager.sharedInstance.home(dict: param2)
+
+              SocketIOManager.sharedInstance.homeData = { data in
+                  guard let data = data, data.count > 0 else { return }
+                  print("Data------",data)
+                  if !self.homeListenerCall {
+                      self.updateData(from: data[0].data)
+                  }
+              }
          }
+
+        
+      
      }
 
      // Helper Methods
      private func updateData(from data: HomeData?) {
          guard let data = data else { return }
-
+    
          // Update notifications count
          Store.userNotificationCount = data.notificationsCount ?? 0
 
@@ -923,38 +1013,51 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
          navigationController?.present(vc, animated: true)
      }
 
-     private func updateAnnotations(from items: [FilteredItem]) {
-         for item in items {
-             let centerCoordinate = CLLocationCoordinate2D(latitude: item.lat ?? 0, longitude: item.long ?? 0)
-             
-             switch isSelectType {
-             case 1: // Gig
-                 let userId = item.userID
-                 if Store.userId == userId{
-                     
-                     self.customAnnotations.append(ClusterPoint(coordinate: CLLocationCoordinate2D(latitude: item.lat ?? 0, longitude: item.long ?? 0 ), price: item.price ?? 0, seen: 2))
-                 }else{
-                     
-                     self.customAnnotations.append(ClusterPoint(coordinate: CLLocationCoordinate2D(latitude: item.lat ?? 0, longitude: item.long ?? 0 ), price: item.price ?? 0, seen: item.seen ?? 0))
-                 }
-                 processGigImageAndAnnotation(for: item)
-             case 2: // Business
-                 downloadBusinessImage(for: item)
-             default: // Popup
-                 handlePopupAnnotation(for: item)
-             }
-         }
-
-         if pointAnnotationManager == nil {
-             pointAnnotationManager = mapView.annotations.makePointAnnotationManager()
-             pointAnnotationManager?.delegate = self
-         }
-
-         homeListenerCall = true
-     }
-
+    private func updateAnnotations(from items: [FilteredItem]) {
+        print("Items----",items)
+        for item in items {
+            let centerCoordinate = CLLocationCoordinate2D(latitude: item.lat ?? 0, longitude: item.long ?? 0)
+            if Store.role == "user"{
+                switch isSelectType {
+                case 1: // Gig
+                    let userId = item.userID
+                    if Store.userId == userId{
+                        
+                        self.customAnnotations.append(ClusterPoint(coordinate: CLLocationCoordinate2D(latitude: item.lat ?? 0, longitude: item.long ?? 0 ), price: Int(item.price ?? 0), seen: 2))
+                    }else{
+                        
+                        self.customAnnotations.append(ClusterPoint(coordinate: CLLocationCoordinate2D(latitude: item.lat ?? 0, longitude: item.long ?? 0 ), price: Int(item.price ?? 0), seen: item.seen ?? 0))
+                    }
+                    processGigImageAndAnnotation(for: item)
+                case 2: // Business
+                    downloadBusinessImage(for: item)
+                default: // Popup
+                    handlePopupAnnotation(for: item)
+                }
+                
+                
+            }else{
+                let userId = item.userID
+                if Store.userId == userId{
+                    
+                    self.customAnnotations.append(ClusterPoint(coordinate: CLLocationCoordinate2D(latitude: item.lat ?? 0, longitude: item.long ?? 0 ), price: Int(item.price ?? 0), seen: 2))
+                }else{
+                    
+                    self.customAnnotations.append(ClusterPoint(coordinate: CLLocationCoordinate2D(latitude: item.lat ?? 0, longitude: item.long ?? 0 ), price: Int(item.price ?? 0), seen: item.seen ?? 0))
+                }
+                processGigImageAndAnnotation(for: item)
+                downloadBusinessImage(for: item)
+                handlePopupAnnotation(for: item)
+            }
+            if pointAnnotationManager == nil {
+                pointAnnotationManager = mapView.annotations.makePointAnnotationManager()
+                pointAnnotationManager?.delegate = self
+            }
+            
+            homeListenerCall = true
+        }
+    }
      private func handlePopupAnnotation(for item: FilteredItem) {
-       
          downloadPopUpImage(for: item)
      }
 
@@ -969,7 +1072,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
          
          let width = calculateGigImageWidth(for: Double(item.price ?? 0))
          guard let originalImage = UIImage(named: item.seen == 1 ? "seeGig" : "seeGig") else { return }
-         let resizedImage = resizeGigImage(originalImage, to: item.price ?? 0, withTitle: "", width: Int(width), height: Int(width))
+         let resizedImage = resizeGigImage(originalImage, to: Int(item.price ?? 0), withTitle: "", width: Int(width), height: Int(width))
 
          let pointAnnotation = createPointAnnotation(for: centerCoordinate, withImage: resizedImage, uniqueID: uniqueID)
          updateGigAnnotations(with: pointAnnotation, uniqueID: uniqueID)
@@ -1007,64 +1110,72 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
              self.pointAnnotationManager?.annotations = self.arrGigPointAnnotations
          }
      }
-    
-     func downloadPopUpImage(for item: FilteredItem) {
-         let uniqueID = "popup_\(item.id ?? "")"
-         let logoURL = URL(string: item.image ?? "")
-         
-         guard let logoURL = logoURL else {
-             print("Invalid URL")
-             return
-         }
-         
-         SDWebImageDownloader.shared.downloadImage(with: logoURL) { [weak self] downloadedImage, _, _, error in
-             guard let self = self else { return }
-             guard let downloadedImage = downloadedImage else {
-                 print("Failed to download image")
-                 return
-             }
-             
-             do {
-                 let processedImage = try BackgroundRemoval().removeBackground(image: downloadedImage)
-                 let centerCoordinate = CLLocationCoordinate2D(latitude: item.lat ?? 0, longitude: item.long ?? 0)
-                 
-                 if !self.arrPoint.contains(where: { $0.coordinates == centerCoordinate }) {
-                     self.arrPoint.append(Point(centerCoordinate))
-                     self.isAppendHeatMap = true
-                 }
-                 
-                 let combinedImage = self.combineImagesPopUp(overlayImage: processedImage, overlaySize: CGSize(width: 70, height: 70))
-                 
-                 guard let combinedImage = combinedImage else {
-                     print("Failed to create combined image")
-                     return
-                 }
-                 
-                 let pointAnnotation = self.createPointAnnotation(for: centerCoordinate, withImage: combinedImage, uniqueID: uniqueID)
-                 self.updatePopUpAnnotations(with: pointAnnotation, uniqueID: uniqueID)
-             } catch {
-                 print("Error processing background removal: \(error)")
-             }
-         }
-     }
+  
+    func downloadPopUpImage(for item: FilteredItem) {
+        let uniqueID = "popup_\(item.id ?? "")"
+        let logoURL = URL(string: (item.businessLogo ?? item.image) ?? "")
+        
+        guard let logoURL = logoURL else {
+            print("Invalid URL")
+            return
+        }
+        
+        SDWebImageDownloader.shared.downloadImage(with: logoURL) { [weak self] downloadedImage, _, _, error in
+            guard let self = self else { return }
+            guard let downloadedImage = downloadedImage else {
+                print("Failed to download image")
+                return
+            }
+      
+            // Remove background and process image on a background thread
+            DispatchQueue.global(qos: .userInitiated).async {
+                do {
+                    
+                    let centerCoordinate = CLLocationCoordinate2D(latitude: item.lat ?? 0, longitude: item.long ?? 0)
+                    
+                    if !self.arrPoint.contains(where: { $0.coordinates == centerCoordinate }) {
+                        self.arrPoint.append(Point(centerCoordinate))
+                        self.isAppendHeatMap = true
+                    }
+                    
+                    // Combine images on the background thread as well
+                    let combinedImage = self.combineImagesPopUp(overlayImage: UIImage(named: "newPopUp") ?? UIImage(), overlaySize: CGSize(width: 60, height: 70))
 
-     private func updatePopUpAnnotations(with pointAnnotation: PointAnnotation, uniqueID: String) {
-         if let existingIndex = arrPopUpPointAnnotations.firstIndex(where: { $0.image?.name == uniqueID }) {
-             arrPopUpPointAnnotations[existingIndex] = pointAnnotation
-         } else {
-             arrPopUpPointAnnotations.append(pointAnnotation)
-         }
+                    guard let combinedImage = combinedImage else {
+                        print("Failed to create combined image")
+                        return
+                    }
+                    
+                    // Switch back to the main thread for UI updates
+                    DispatchQueue.main.async {
+                        let pointAnnotation = self.createPointAnnotation(for: centerCoordinate, withImage: combinedImage, uniqueID: uniqueID)
+                        self.updatePopUpAnnotations(with: pointAnnotation, uniqueID: uniqueID)
+                    }
+                } catch {
+                    print("Error processing background removal: \(error)")
+                }
+            }
+        }
+    }
 
-         DispatchQueue.main.async {
-             if self.mapView.mapboxMap.cameraState.zoom > 7 {
-                 self.pointAnnotationManager?.annotations = self.arrPopUpPointAnnotations
+         private func updatePopUpAnnotations(with pointAnnotation: PointAnnotation, uniqueID: String) {
+             if let existingIndex = arrPopUpPointAnnotations.firstIndex(where: { $0.image?.name == uniqueID }) {
+                 arrPopUpPointAnnotations[existingIndex] = pointAnnotation
              } else {
-                 self.pointAnnotationManager?.annotations = []
+                 arrPopUpPointAnnotations.append(pointAnnotation)
+             }
+
+             DispatchQueue.main.async {
+                 if self.mapView.mapboxMap.cameraState.zoom > 7 {
+                     self.pointAnnotationManager?.annotations = self.arrPopUpPointAnnotations
+                 } else {
+                     self.pointAnnotationManager?.annotations = []
+                 }
              }
          }
-     }
 
      func downloadBusinessImage(for item: FilteredItem) {
+         
          let uniqueID = "business_\(item.id ?? "")"
          guard let logoURL = URL(string: item.profilePhoto ?? "") else {
              print("Invalid business image URL")
@@ -1088,7 +1199,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
              self.updateBusinessAnnotations(with: pointAnnotation, uniqueID: uniqueID)
          }
      }
-
+   
      private func updateBusinessAnnotations(with pointAnnotation: PointAnnotation, uniqueID: String) {
          if let existingIndex = arrBusinessPointAnnotations.firstIndex(where: { $0.image?.name == uniqueID }) {
              arrBusinessPointAnnotations[existingIndex] = pointAnnotation
@@ -1116,7 +1227,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
             
             let clusterManager = ClusterManager(mapView: self.mapView)
             
-            if zoomLevel < 5 {
+            if zoomLevel < 7 {
                 // Remove all existing annotations
                 self.pointAnnotationManager?.annotations = []
                 self.arrPopUpPointAnnotations.removeAll()
@@ -1227,20 +1338,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
              }
              self.tblVwList.reloadData()
          }else if type == 2{
-             if self.deviceHasNotch{
-              
-                 if UIDevice.current.hasDynamicIsland {
-                     self.topMapVw.constant = -69
-                     self.bottomCollVw.constant = 68
-                     }else{
-                     self.topMapVw.constant = -59
-                     self.bottomCollVw.constant = 58
-                 }
-             }else{
-                 self.topMapVw.constant = 0
-                 self.bottomCollVw.constant = 70
-                 
-             }
+           
              self.heightTblVwGigList.constant = 0
              self.viewNoMatch.isHidden = true
              self.viewGigList.isHidden = true
@@ -1263,20 +1361,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
              }
              self.collVwStore.reloadData()
          }else{
-             if self.deviceHasNotch{
-              
-                 if UIDevice.current.hasDynamicIsland {
-                     self.topMapVw.constant = -69
-                     self.bottomCollVw.constant = 68
-                     }else{
-                     self.topMapVw.constant = -59
-                     self.bottomCollVw.constant = 58
-                 }
-             }else{
-                 self.topMapVw.constant = 0
-                 self.bottomCollVw.constant = 70
-                 
-             }
+            
              if self.arrData.count > 0{
                  if self.viewBusinessList.isHidden{
                      self.bottomStackVwRefreshAndRecenter.constant = 20
@@ -1398,6 +1483,8 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
         
         return resultImage ?? image
     }
+    
+
 
     func combineImagesPopUp(
         overlayImage: UIImage,
@@ -1482,7 +1569,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
         print("DidBegan")
        
         if isSelectType == 2{
-            self.viewBusinessList.isHidden = true
+            self.viewBusinessList.isHidden = false
             if arrData.count > 0{
               bottomStackVwRefreshAndRecenter.constant = 20
             }else{
@@ -1532,6 +1619,38 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
         let radius = getMapRadiusInKilometers()
             
         mapRadius = radius
+            if (Store.isSelectGigFilter ?? false){
+                let allDistances = Set([1,2,3])
+                let selectedDistances = Set(Store.taskMiles)
+                
+                if allDistances.isSubset(of: selectedDistances) {
+                    minDitance = 0
+                    maxDistance = radius
+                } else if selectedDistances == [1] {
+                    minDitance = 0
+                    maxDistance = radius
+                }else if selectedDistances == [2] {
+                    minDitance = 0
+                    maxDistance = radius
+                } else if selectedDistances == [3] {
+                    minDitance = radius
+                    maxDistance = 1000000
+                } else if selectedDistances == [1,2] {
+                    minDitance = 0
+                    maxDistance = radius
+                } else if selectedDistances == [2,3] {
+                    minDitance = radius
+                    
+                    maxDistance = 1000000
+                } else if selectedDistances == [1,3] {
+                    print("Only 1,3")
+                    minDitance = 0
+                    maxDistance = radius
+                }
+            }else{
+                minDitance = 0
+                maxDistance = radius
+            }
         print("Radius of visible map area: \(radius) km\(mapView.mapboxMap.cameraState.center.latitude)")
             
             homeListenerCall = false
@@ -1545,7 +1664,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
         default:
             print("Location permission not determined")
         }
-        
+ 
     }
     func gestureManager(_ gestureManager: MapboxMaps.GestureManager, didEndAnimatingFor gestureType: MapboxMaps.GestureType) {
         heatMapLayer()
@@ -1822,46 +1941,165 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
         imgVwWorldwide.image = UIImage(named: "worldSel")
         
     }
-
+   
     @IBAction func actionFilter(_ sender: UIButton) {
-        let  vc = self.storyboard?.instantiateViewController(withIdentifier: "HomeFilterVC") as! HomeFilterVC
+        let  vc = self.storyboard?.instantiateViewController(withIdentifier: "AllFilterVC") as! AllFilterVC
         vc.modalPresentationStyle = .overFullScreen
-        vc.gigType = self.type
         vc.type = self.type
-        vc.lat = self.currentLat
-        vc.long = self.currentLong
-        vc.gigCount = self.arrData.count
-        vc.callBack = { (radius) in
-          
+        
+        vc.callBack = { (distance) in
             self.homeListenerCall = false
             if self.type == 1{
                 self.getGigData()
+                if (Store.isSelectGigFilter ?? false){
+                    self.minDitance = Store.filterData?["minDistanceInMeters"] as? Double ?? 0
+                    self.maxDistance = Store.filterData?["maxDistanceInMeters"] as? Double ?? 8046.72
+                    let mapWidth = self.mapView.bounds.width
+                    print(Store.filterData?["minDistanceInMeters"] as? Double ?? 0)
+                    print(Store.filterData?["maxDistanceInMeters"] as? Double ?? 8046.72)
+                    self.mapRadius = Double(radius)
+                    // Calculate the zoom level
+                  
+                    let zoom = self.zoomLevel(from: (distance ?? 8046.72)/1000, mapViewWidth: mapWidth)
+                    print("Zoom Level: \(zoom), Radius: \(radius) km")
+                    let cameraOptions = CameraOptions(
+                        center: CLLocationCoordinate2D(latitude: self.currentLat, longitude: self.currentLong),
+                        zoom: zoom,
+                        pitch: 0.0
+                    )
+                    
+                    self.mapView.camera.ease(to: cameraOptions, duration: 0.3, curve: .easeInOut)
+                }else{
+                    self.minDitance = 0
+                    self.maxDistance = 8046.72
+                    let mapWidth = self.mapView.bounds.width
+                    
+                    self.mapRadius = Double(radius)
+                    // Calculate the zoom level
+                  
+                    let zoom = self.zoomLevel(from: self.maxDistance/1000, mapViewWidth: mapWidth)
+                    print("Zoom Level: \(zoom), Radius: \(radius) km")
+                    let cameraOptions = CameraOptions(
+                        center: CLLocationCoordinate2D(latitude: self.currentLat, longitude: self.currentLong),
+                        zoom: zoom,
+                        pitch: 0.0
+                    )
+                    
+                    self.mapView.camera.ease(to: cameraOptions, duration: 0.3, curve: .easeInOut)
+                }
             }else if self.type == 2{
-                self.arrPopUpPointAnnotations.removeAll()
-                self.pointAnnotationManager.annotations = []
-                
-            }else{
-                self.arrBusinessPointAnnotations.removeAll()
-                self.pointAnnotationManager.annotations = []
-           
-            }
-         
-            let mapWidth = self.mapView.bounds.width
-            self.mapRadius = Double(radius)
-                  // Calculate the zoom level
-            
-            let zoom = self.zoomLevel(from: Double(radius), mapViewWidth: mapWidth)
-                  print("Zoom Level: \(zoom), Radius: \(radius) km")
-            let cameraOptions = CameraOptions(
-                center: CLLocationCoordinate2D(latitude: self.currentLat, longitude: self.currentLong),
-                zoom: zoom,
-                  pitch: 0.0
-              )
+                self.getStoreData()
+                if (Store.isSelectGigFilter ?? false){
+                    self.minDitance = Store.filterDataPopUp?["minDistanceInMeters"] as? Double ?? 0
+                    self.maxDistance = Store.filterDataPopUp?["maxDistanceInMeters"] as? Double ?? 8046.72
+                    let mapWidth = self.mapView.bounds.width
+                 
+                    self.mapRadius = Double(radius)
+                    // Calculate the zoom level
+                  
+                    let zoom = self.zoomLevel(from: (distance ?? 8046.72)/1000, mapViewWidth: mapWidth)
+                    print("Zoom Level: \(zoom), Radius: \(radius) km")
+                    let cameraOptions = CameraOptions(
+                        center: CLLocationCoordinate2D(latitude: self.currentLat, longitude: self.currentLong),
+                        zoom: zoom,
+                        pitch: 0.0
+                    )
+                    
+                    self.mapView.camera.ease(to: cameraOptions, duration: 0.3, curve: .easeInOut)
+                }else{
+                    self.minDitance = 0
+                    self.maxDistance = 8046.72
+                    let mapWidth = self.mapView.bounds.width
+                    
+                    self.mapRadius = Double(radius)
+                    // Calculate the zoom level
+                  
+                    let zoom = self.zoomLevel(from: self.maxDistance/1000, mapViewWidth: mapWidth)
+                    print("Zoom Level: \(zoom), Radius: \(radius) km")
+                    let cameraOptions = CameraOptions(
+                        center: CLLocationCoordinate2D(latitude: self.currentLat, longitude: self.currentLong),
+                        zoom: zoom,
+                        pitch: 0.0
+                    )
+                    
+                    self.mapView.camera.ease(to: cameraOptions, duration: 0.3, curve: .easeInOut)
+                }
 
-            self.mapView.camera.ease(to: cameraOptions, duration: 0.3, curve: .easeInOut)
-           
+            }else if self.type == 3{
+                if (Store.isSelectBusinessFilter ?? false){
+                    self.minDitance = Store.filterDataBusiness?["minDistanceInMeters"] as? Double ?? 0
+                    self.maxDistance = Store.filterDataBusiness?["maxDistanceInMeters"] as? Double ?? 8046.72
+                    let mapWidth = self.mapView.bounds.width
+                 
+                    self.mapRadius = Double(radius)
+                    // Calculate the zoom level
+                  
+                    let zoom = self.zoomLevel(from: (distance ?? 8046.72)/1000, mapViewWidth: mapWidth)
+                    print("Zoom Level: \(zoom), Radius: \(radius) km")
+                    let cameraOptions = CameraOptions(
+                        center: CLLocationCoordinate2D(latitude: self.currentLat, longitude: self.currentLong),
+                        zoom: zoom,
+                        pitch: 0.0
+                    )
+                    
+                    self.mapView.camera.ease(to: cameraOptions, duration: 0.3, curve: .easeInOut)
+                }else{
+                    self.minDitance = 0
+                    self.maxDistance = 8046.72
+                    let mapWidth = self.mapView.bounds.width
+                    
+                    self.mapRadius = Double(radius)
+                    // Calculate the zoom level
+                  
+                    let zoom = self.zoomLevel(from: self.maxDistance/1000, mapViewWidth: mapWidth)
+                    print("Zoom Level: \(zoom), Radius: \(radius) km")
+                    let cameraOptions = CameraOptions(
+                        center: CLLocationCoordinate2D(latitude: self.currentLat, longitude: self.currentLong),
+                        zoom: zoom,
+                        pitch: 0.0
+                    )
+                    
+                    self.mapView.camera.ease(to: cameraOptions, duration: 0.3, curve: .easeInOut)
+                }
+            }
+          
         }
-        self.navigationController?.present(vc, animated:false)
+        self.navigationController?.present(vc, animated:true)
+//        let  vc = self.storyboard?.instantiateViewController(withIdentifier: "HomeFilterVC") as! HomeFilterVC
+//        vc.modalPresentationStyle = .overFullScreen
+//        vc.gigType = self.type
+//        vc.type = self.type
+//        vc.lat = self.currentLat
+//        vc.long = self.currentLong
+//        vc.gigCount = self.arrData.count
+//        vc.callBack = { (radius) in
+//
+//            self.homeListenerCall = false
+//            if self.type == 1{
+//                self.getGigData()
+//            }else if self.type == 2{
+//                self.getStoreData()
+//
+//            }else{
+//                self.getBusinessData()
+//            }
+//
+//            let mapWidth = self.mapView.bounds.width
+//            self.mapRadius = Double(radius)
+//                  // Calculate the zoom level
+//
+//            let zoom = self.zoomLevel(from: Double(radius), mapViewWidth: mapWidth)
+//                  print("Zoom Level: \(zoom), Radius: \(radius) km")
+//            let cameraOptions = CameraOptions(
+//                center: CLLocationCoordinate2D(latitude: self.currentLat, longitude: self.currentLong),
+//                zoom: zoom,
+//                  pitch: 0.0
+//              )
+//
+//            self.mapView.camera.ease(to: cameraOptions, duration: 0.3, curve: .easeInOut)
+//
+//        }
+//        self.navigationController?.present(vc, animated:false)
     }
     
     func zoomLevel(from radius: Double, mapViewWidth: CGFloat) -> Double {
@@ -2018,8 +2256,10 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
 
     }
     func getGigData(){
+     
 //        viewWorldwide.isHidden = false
 //        viewInMyLocation.isHidden = false
+      
         heightTblVwGigList.constant = 0
         viewBusinessList.isHidden = true
         viewStoreList.isHidden = true
@@ -2067,6 +2307,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
         arrPopUpPointAnnotations.removeAll()
         arrPoint.removeAll()
         arrData.removeAll()
+        customAnnotations.removeAll()
     }
     @IBAction func actionStores(_ sender: UIButton) {
         self.visibleIndex = 0
@@ -2108,6 +2349,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
 
     }
     func getStoreData(){
+      
         viewWorldwide.isHidden = true
         viewInMyLocation.isHidden = true
         self.heightTblVwGigList.constant = 0
@@ -2123,8 +2365,8 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
         case .restricted, .denied:
             removeDataWhileLocationDenied()
         case .authorizedWhenInUse, .authorizedAlways:
-            if homeListenerCall{
-                if isPopupType{
+            if !homeListenerCall{
+//                if isPopupType{
                     isPopupType = false
                     isGigType = true
                     isBusinessType = true
@@ -2139,7 +2381,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                         self.getWillApearAllData()
                     }
                     isSelectStoreAndBusinessBtn()
-                }
+//                }
             }
         default:
             print("Location permission not determined")
@@ -2162,7 +2404,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
         case .restricted, .denied:
             removeDataWhileLocationDenied()
         case .authorizedWhenInUse, .authorizedAlways:
-            if homeListenerCall{
+            if !homeListenerCall{
                 if isBusinessType{
                     isBusinessType = false
                     isGigType = true
@@ -2188,6 +2430,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
 
     }
     func getBusinessData(){
+     
         viewWorldwide.isHidden = true
         viewInMyLocation.isHidden = true
         customAnnotations.removeAll()
@@ -2204,7 +2447,7 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
             removeDataWhileLocationDenied()
         case .authorizedWhenInUse, .authorizedAlways:
             if homeListenerCall{
-                if isBusinessType{
+//                if isBusinessType{
                     isBusinessType = false
                     isGigType = true
                     isPopupType = true
@@ -2223,11 +2466,11 @@ class ExploreTabVC: UIViewController, JJFloatingActionButtonDelegate, GestureMan
                     if self.arrData.count > 0{
                         self.viewBusinessList.isHidden = false
                     }else{
-                        self.viewBusinessList.isHidden = true
+                        self.viewBusinessList.isHidden = false
                     }
 
                     isSelectStoreAndBusinessBtn()
-                }
+//                }
             }
     default:
         print("Location permission not determined")
@@ -2469,7 +2712,7 @@ extension ExploreTabVC:AnnotationInteractionDelegate{
                 vc.callBack = { [weak self] isSelect,isChat,data,isUserGig in
                     if isUserGig{
                         
-                        let vc = self?.storyboard?.instantiateViewController(withIdentifier: "NewGigAddVC") as! NewGigAddVC
+                        let vc = self?.storyboard?.instantiateViewController(withIdentifier: "AddTaskVC") as! AddTaskVC
                         vc.isComing = false
                         vc.IsUserGig = true
 //                        vc.userGigDetail = data
@@ -2488,29 +2731,56 @@ extension ExploreTabVC:AnnotationInteractionDelegate{
                             SocketIOManager.sharedInstance.home(dict: param)
                             
                         }
-                            let vc = self?.storyboard?.instantiateViewController(withIdentifier: "ApplyGigVC") as! ApplyGigVC
-                            vc.gigId = selectedItem.id ?? ""
-                            vc.callBack = { [weak self] in
-                                guard let self = self else { return }
-                                self.customAnnotations.removeAll()
-                                let clusterManager = ClusterManager(mapView: self.mapView)
-                                clusterManager.removeClusters()
-                                let status = CLLocationManager.authorizationStatus()
-                                switch status {
-                                case .restricted, .denied:
-                                    print("denied")
-                                case .authorizedWhenInUse, .authorizedAlways:
-                                    self.dismiss(animated: false)
-                                    self.removeAllArray()
-                                    self.tblVwList.reloadData()
-                                    self.collVwStore.reloadData()
-                                    self.collVwBusiness.reloadData()
-                                    self.getWillApearAllData()
-                                default:
-                                    print("Location permission not determined")
-                                }
+                        let vc = self?.storyboard?.instantiateViewController(withIdentifier: "ViewTaskVC") as! ViewTaskVC
+                        vc.gigId = selectedItem.id ?? ""
+                        vc.callBack = { [weak self] in
+                            guard let self = self else { return }
+                            self.customAnnotations.removeAll()
+                            let clusterManager = ClusterManager(mapView: self.mapView)
+                            
+                            clusterManager.removeClusters()
+                            
+                            
+                            let status = CLLocationManager.authorizationStatus()
+                            switch status {
+                            case .restricted, .denied:
+                                print("denied")
+                            case .authorizedWhenInUse, .authorizedAlways:
+                                self.dismiss(animated: false)
+                                self.removeAllArray()
+                                self.tblVwList.reloadData()
+                                self.collVwStore.reloadData()
+                                self.collVwBusiness.reloadData()
+                                self.getWillApearAllData()
+                            default:
+                                print("Location permission not determined")
                             }
-                            self?.navigationController?.pushViewController(vc, animated: true)
+                        }
+                        self?.navigationController?.pushViewController(vc, animated: true)
+                        
+//                            let vc = self?.storyboard?.instantiateViewController(withIdentifier: "ApplyGigVC") as! ApplyGigVC
+//                            vc.gigId = selectedItem.id ?? ""
+//                            vc.callBack = { [weak self] in
+//                                guard let self = self else { return }
+//                                self.customAnnotations.removeAll()
+//                                let clusterManager = ClusterManager(mapView: self.mapView)
+//                                clusterManager.removeClusters()
+//                                let status = CLLocationManager.authorizationStatus()
+//                                switch status {
+//                                case .restricted, .denied:
+//                                    print("denied")
+//                                case .authorizedWhenInUse, .authorizedAlways:
+//                                    self.dismiss(animated: false)
+//                                    self.removeAllArray()
+//                                    self.tblVwList.reloadData()
+//                                    self.collVwStore.reloadData()
+//                                    self.collVwBusiness.reloadData()
+//                                    self.getWillApearAllData()
+//                                default:
+//                                    print("Location permission not determined")
+//                                }
+//                            }
+//                            self?.navigationController?.pushViewController(vc, animated: true)
                         
                     }
              
@@ -2518,31 +2788,53 @@ extension ExploreTabVC:AnnotationInteractionDelegate{
                 self.present(vc, animated: true)
             }else{
       
-                    let vc = self.storyboard?.instantiateViewController(withIdentifier: "ApplyGigVC") as! ApplyGigVC
-                    vc.gigId = selectedItem.id ?? ""
-                    vc.isComing = 1
-                    vc.callBack = { [weak self] in
-                        guard let self = self else { return }
+                let vc = self.storyboard?.instantiateViewController(withIdentifier: "ViewTaskVC") as! ViewTaskVC
+                vc.gigId = selectedItem.id ?? ""
+                vc.isComing = 1
+                vc.callBack = { [weak self] in
+                    guard let self = self else { return }
 //                        self.mapView.viewAnnotations.removeAll()
-                        self.pointAnnotationManager.annotations = []
-                        self.arrGigPointAnnotations.removeAll()
-                        self.animateZoomInOut()
-                        self.mapData(radius:self.mapRadius, type: self.type, gigType: Store.GigType ?? 0 ,lat: self.mapView.mapboxMap.cameraState.center.latitude,long: self.mapView.mapboxMap.cameraState.center.longitude)
-                    }
-                    self.navigationController?.pushViewController(vc, animated: true)
+               
+                    self.pointAnnotationManager.annotations = []
+                    self.arrGigPointAnnotations.removeAll()
+                    self.animateZoomInOut()
+                    self.mapData(radius:self.mapRadius, type: self.type, gigType: Store.GigType ?? 0 ,lat: self.mapView.mapboxMap.cameraState.center.latitude,long: self.mapView.mapboxMap.cameraState.center.longitude)
+                }
+                self.navigationController?.pushViewController(vc, animated: true)
+//                    let vc = self.storyboard?.instantiateViewController(withIdentifier: "ApplyGigVC") as! ApplyGigVC
+//                    vc.gigId = selectedItem.id ?? ""
+//                    vc.isComing = 1
+//                    vc.callBack = { [weak self] in
+//                        guard let self = self else { return }
+////                        self.mapView.viewAnnotations.removeAll()
+//                        self.pointAnnotationManager.annotations = []
+//                        self.arrGigPointAnnotations.removeAll()
+//                        self.animateZoomInOut()
+//                        self.mapData(radius:self.mapRadius, type: self.type, gigType: Store.GigType ?? 0 ,lat: self.mapView.mapboxMap.cameraState.center.latitude,long: self.mapView.mapboxMap.cameraState.center.longitude)
+//                    }
+//                    self.navigationController?.pushViewController(vc, animated: true)
                 
             }
         }else if selectedItem.type == "popUp"{
-          guard !isPopUpVCShown else { return }
-          isPopUpVCShown = true
-          let vc = self.storyboard?.instantiateViewController(withIdentifier: "PopUpDeatilVC") as! PopUpDeatilVC
-          vc.popupId = selectedItem.id ?? ""
-            vc.callBack = { [weak self] index in
+//          guard !isPopUpVCShown else { return }
+//          isPopUpVCShown = true
+//          let vc = self.storyboard?.instantiateViewController(withIdentifier: "PopUpDeatilVC") as! PopUpDeatilVC
+//          vc.popupId = selectedItem.id ?? ""
+//            vc.callBack = { [weak self] index in
+//                guard let self = self else { return }
+//            self.isPopUpVCShown = false
+//            self.animateZoomInOut()
+//          }
+//          self.navigationController?.pushViewController(vc, animated: true)
+            let vc = self.storyboard?.instantiateViewController(withIdentifier: "PopupUserVC") as! PopupUserVC
+                    vc.popupId = selectedItem.id ?? ""
+            vc.callBack = { [weak self]  in
                 guard let self = self else { return }
-            self.isPopUpVCShown = false
-            self.animateZoomInOut()
-          }
-          self.navigationController?.pushViewController(vc, animated: true)
+               
+                self.isPopUpVCShown = false
+                self.animateZoomInOut()
+            }
+           self.navigationController?.pushViewController(vc, animated: true)
         }else {
           guard !isPopUpVCShown else { return }
           isPopUpVCShown = true
@@ -2559,6 +2851,7 @@ extension ExploreTabVC:AnnotationInteractionDelegate{
               vc.businessIndex = visibleIndex
               vc.callBack = { [weak self] index in
                   guard let self = self else { return }
+                 
                 self.visibleIndex = index
               self.animateZoomInOut()
               self.isPopUpVCShown = false
@@ -2649,48 +2942,89 @@ extension ExploreTabVC:AnnotationInteractionDelegate{
            print("View More button pressed")
            print("selectItemSeen: \(selectItemSeen)")
            if selectItemSeen == 1 {
-            let vc = self.storyboard?.instantiateViewController(withIdentifier: "ApplyGigVC") as! ApplyGigVC
-            vc.gigId = selectGigId
-            vc.callBack = {[weak self] in
+               
+               let vc = self.storyboard?.instantiateViewController(withIdentifier: "ViewTaskVC") as! ViewTaskVC
+               vc.gigId = selectGigId
+               vc.callBack = {[weak self] in
+                   
+                   guard let self = self else { return }
                 
-                guard let self = self else { return }
-             self.mapView.viewAnnotations.removeAll()
-             self.pointAnnotationManager.annotations = []
-             self.arrGigPointAnnotations.removeAll()
-             self.mapData(radius: self.mapRadius, type: self.type, gigType: Store.GigType ?? 0 ,lat: self.mapView.mapboxMap.cameraState.center.latitude,long: self.mapView.mapboxMap.cameraState.center.longitude)
-            }
-            self.navigationController?.pushViewController(vc, animated: true)
+                self.mapView.viewAnnotations.removeAll()
+                self.pointAnnotationManager.annotations = []
+                self.arrGigPointAnnotations.removeAll()
+                self.mapData(radius: self.mapRadius, type: self.type, gigType: Store.GigType ?? 0 ,lat: self.mapView.mapboxMap.cameraState.center.latitude,long: self.mapView.mapboxMap.cameraState.center.longitude)
+               }
+               self.navigationController?.pushViewController(vc, animated: true)
+               
+//            let vc = self.storyboard?.instantiateViewController(withIdentifier: "ApplyGigVC") as! ApplyGigVC
+//            vc.gigId = selectGigId
+//            vc.callBack = {[weak self] in
+//
+//                guard let self = self else { return }
+//             self.mapView.viewAnnotations.removeAll()
+//             self.pointAnnotationManager.annotations = []
+//             self.arrGigPointAnnotations.removeAll()
+//             self.mapData(radius: self.mapRadius, type: self.type, gigType: Store.GigType ?? 0 ,lat: self.mapView.mapboxMap.cameraState.center.latitude,long: self.mapView.mapboxMap.cameraState.center.longitude)
+//            }
+//            self.navigationController?.pushViewController(vc, animated: true)
            } else if selectItemSeen == 0 {
             let param: parameters = ["userId": Store.userId ?? "", "lat": "\(currentLat)", "long": "\(currentLong)", "radius": mapRadius, "gigId": selectGigId,"type":2,"gigType":Store.GigType ?? 0 ]
             SocketIOManager.sharedInstance.home(dict: param)
-             let vc = self.storyboard?.instantiateViewController(withIdentifier: "ApplyGigVC") as! ApplyGigVC
-             vc.callBack = { [weak self] in
-                 guard let self = self else { return }
-            self.mapView.viewAnnotations.removeAll()
-            self.pointAnnotationManager.annotations = []
-            self.arrGigPointAnnotations.removeAll()
-              self.removeAllArray()
-              self.mapData(radius:self.mapRadius, type: self.type, gigType: Store.GigType ?? 0 ,lat: self.mapView.mapboxMap.cameraState.center.latitude,long: self.mapView.mapboxMap.cameraState.center.longitude)
-             }
-             vc.gigId = self.selectGigId
-             print("Pushing ApplyGigVC with gigId: \(vc.gigId)")
-             self.navigationController?.pushViewController(vc, animated: true)
+               let vc = self.storyboard?.instantiateViewController(withIdentifier: "ViewTaskVC") as! ViewTaskVC
+               vc.callBack = { [weak self] in
+                   guard let self = self else { return }
+                  
+              self.mapView.viewAnnotations.removeAll()
+              self.pointAnnotationManager.annotations = []
+              self.arrGigPointAnnotations.removeAll()
+                self.removeAllArray()
+                self.mapData(radius:self.mapRadius, type: self.type, gigType: Store.GigType ?? 0 ,lat: self.mapView.mapboxMap.cameraState.center.latitude,long: self.mapView.mapboxMap.cameraState.center.longitude)
+               }
+               vc.gigId = self.selectGigId
+               print("Pushing ApplyGigVC with gigId: \(vc.gigId)")
+               self.navigationController?.pushViewController(vc, animated: true)
+//             let vc = self.storyboard?.instantiateViewController(withIdentifier: "ApplyGigVC") as! ApplyGigVC
+//             vc.callBack = { [weak self] in
+//                 guard let self = self else { return }
+//            self.mapView.viewAnnotations.removeAll()
+//            self.pointAnnotationManager.annotations = []
+//            self.arrGigPointAnnotations.removeAll()
+//              self.removeAllArray()
+//              self.mapData(radius:self.mapRadius, type: self.type, gigType: Store.GigType ?? 0 ,lat: self.mapView.mapboxMap.cameraState.center.latitude,long: self.mapView.mapboxMap.cameraState.center.longitude)
+//             }
+//             vc.gigId = self.selectGigId
+//             print("Pushing ApplyGigVC with gigId: \(vc.gigId)")
+//             self.navigationController?.pushViewController(vc, animated: true)
            }
           }
          }else{
-          let vc = self.storyboard?.instantiateViewController(withIdentifier: "ApplyGigVC") as! ApplyGigVC
-          vc.gigId = self.selectGigId
-          vc.isComing = 1
-          vc.callBack = {[weak self] in
-              
-              guard let self = self else { return }
-           self.mapView.viewAnnotations.removeAll()
-           self.pointAnnotationManager.annotations = []
-           self.arrGigPointAnnotations.removeAll()
-           self.animateZoomInOut()
-           self.mapData(radius:self.mapRadius, type: self.type, gigType: Store.GigType ?? 0 ,lat: self.mapView.mapboxMap.cameraState.center.latitude,long: self.mapView.mapboxMap.cameraState.center.longitude)
-          }
-          self.navigationController?.pushViewController(vc, animated: true)
+             let vc = self.storyboard?.instantiateViewController(withIdentifier: "ViewTaskVC") as! ViewTaskVC
+             vc.gigId = self.selectGigId
+             vc.isComing = 1
+             vc.callBack = {[weak self] in
+                 
+                 guard let self = self else { return }
+                
+              self.mapView.viewAnnotations.removeAll()
+              self.pointAnnotationManager.annotations = []
+              self.arrGigPointAnnotations.removeAll()
+              self.animateZoomInOut()
+              self.mapData(radius:self.mapRadius, type: self.type, gigType: Store.GigType ?? 0 ,lat: self.mapView.mapboxMap.cameraState.center.latitude,long: self.mapView.mapboxMap.cameraState.center.longitude)
+             }
+             self.navigationController?.pushViewController(vc, animated: true)
+//          let vc = self.storyboard?.instantiateViewController(withIdentifier: "ApplyGigVC") as! ApplyGigVC
+//          vc.gigId = self.selectGigId
+//          vc.isComing = 1
+//          vc.callBack = {[weak self] in
+//
+//              guard let self = self else { return }
+//           self.mapView.viewAnnotations.removeAll()
+//           self.pointAnnotationManager.annotations = []
+//           self.arrGigPointAnnotations.removeAll()
+//           self.animateZoomInOut()
+//           self.mapData(radius:self.mapRadius, type: self.type, gigType: Store.GigType ?? 0 ,lat: self.mapView.mapboxMap.cameraState.center.latitude,long: self.mapView.mapboxMap.cameraState.center.longitude)
+//          }
+//          self.navigationController?.pushViewController(vc, animated: true)
          }
         }
     }
@@ -2715,33 +3049,33 @@ extension ExploreTabVC:UICollectionViewDelegate,UICollectionViewDataSource,UICol
             cell.isComing = true
             if arrData.count > 0{
                 cell.indexpath = indexPath.row
-                if arrData[indexPath.row].categoryName?.count ?? 0 > 0{
-                    cell.arrCategories = arrData[indexPath.row].categoryName ?? []
-                }
+//                if arrData[indexPath.row].categoryName?.count ?? 0 > 0{
+//                    cell.arrCategories = arrData[indexPath.row].userservices ?? []
+//                }
                 cell.uiSet()
                 let business = arrData[indexPath.row]
                 let rating = business.UserRating ?? 0
                 let formattedRating = String(format: "%.1f", rating)
                 cell.lblRating.text = formattedRating
-                cell.lblUserRatingCount.text = "(\(business.userRatingCount ?? 0))"
+              
                 cell.lblServiceName.text = business.businessname ?? ""
                 cell.imgVwUser.imageLoad(imageUrl: business.profilePhoto ?? "")
-                cell.imgVwService.imageLoad(imageUrl: business.coverPhoto ?? "")
+                cell.lblAddress.text = business.place ?? ""
                 if business.status == 2{
                     cell.imgVwBlueTick.isHidden = false
                 }else{
                     cell.imgVwBlueTick.isHidden = true
                 }
                 var openingHoursFound = false
-                for openingHour in business.openingHours ?? [] {
-                    if openingHour.day == currentDay {
-                        openingHoursFound = true
-                        let startTime12 = convertTo12HourFormat(openingHour.starttime ?? "")
-                        let endTime12 = convertTo12HourFormat(openingHour.endtime ?? "")
-                        cell.lblTime.text = "\(startTime12) - \(endTime12)"
-                        break
-                    }
-                }
+//                for openingHour in business.openingHours ?? [] {
+//                    if openingHour.day == currentDay {
+//                        openingHoursFound = true
+//                        let startTime12 = convertTo12HourFormat(openingHour.starttime ?? "")
+//                        let endTime12 = convertTo12HourFormat(openingHour.endtime ?? "")
+//                        cell.lblTime.text = "\(startTime12) - \(endTime12)"
+//                        break
+//                    }
+//                }
                 if !openingHoursFound {
                     cell.lblTime.text = "Closed"
                 }
@@ -2789,22 +3123,31 @@ extension ExploreTabVC:UICollectionViewDelegate,UICollectionViewDataSource,UICol
                     }
                     self.navigationController?.pushViewController(vc, animated: true)
                 }else{
-                    let vc = self.storyboard?.instantiateViewController(withIdentifier: "PopUpDeatilVC") as! PopUpDeatilVC
-                    vc.popupId = arrData[indexPath.row].id ?? ""
-                    vc.popupIndex = indexPath.row
-                    vc.callBack = { [weak self] index in
+                    let vc = self.storyboard?.instantiateViewController(withIdentifier: "PopupUserVC") as! PopupUserVC
+                            vc.popupId = arrData[indexPath.row].id ?? ""
+                    vc.callBack = { [weak self]  in
                         guard let self = self else { return }
+                        self.isPopUpVCShown = false
                         self.animateZoomInOut()
                         self.getStoreData()
                     }
-                    self.navigationController?.pushViewController(vc, animated: true)
+                   self.navigationController?.pushViewController(vc, animated: true)
+//                    let vc = self.storyboard?.instantiateViewController(withIdentifier: "PopUpDeatilVC") as! PopUpDeatilVC
+//                    vc.popupId = arrData[indexPath.row].id ?? ""
+//                    vc.popupIndex = indexPath.row
+//                    vc.callBack = { [weak self] index in
+//                        guard let self = self else { return }
+//                        self.animateZoomInOut()
+//                        self.getStoreData()
+//                    }
+//                    self.navigationController?.pushViewController(vc, animated: true)
                 }
             }
         }
     }
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         if collectionView == collVwBusiness{
-            return CGSize(width: view.frame.size.width / 1-20, height: 200)
+            return CGSize(width: view.frame.size.width / 1-20, height: 100)
         }else{
             return CGSize(width: view.frame.size.width / 1-20, height: 100)
         }
@@ -2848,9 +3191,23 @@ extension ExploreTabVC: UITableViewDelegate,UITableViewDataSource{
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "GigNearByTVC", for: indexPath) as! GigNearByTVC
         if arrData.count > 0 {
+       
             cell.lblName.text = arrData[indexPath.row].name
             cell.lblTitle.text = arrData[indexPath.row].title
             cell.lblPrice.text = "$\(arrData[indexPath.row].price ?? 0)"
+            cell.lblAddress.text = arrData[indexPath.row].place ?? ""
+            
+            if let formattedDate = convertToDateFormat(arrData[indexPath.row].startDate ?? "", dateFormat: "yyyy-MM-dd'T'HH:mm:ss.SSSZ", convertFormat:"dd MMM yyyy") {
+                cell.lblDate.text = formattedDate
+            } else {
+                print("Invalid date format")
+            }
+            if let formattedDate = convertToDateFormat(arrData[indexPath.row].startDate ?? "", dateFormat: "yyyy-MM-dd'T'HH:mm:ss.SSSZ", convertFormat:"h a") {
+                cell.lblTime.text = formattedDate
+            } else {
+                print("Invalid date format")
+            }
+            print(arrData[indexPath.row].startDate ?? "")
             cell.viewShadow.applyShadow()
             let rating = arrData[indexPath.row].UserRating ?? 0.0
             let formattedRating = String(format: "%.1f", rating)
@@ -2883,18 +3240,20 @@ extension ExploreTabVC: UITableViewDelegate,UITableViewDataSource{
         return cell
     }
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 230
+        return UITableView.automaticDimension
+    }
+    func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 120
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if homeListenerCall{
             self.dismiss(animated: true)
-            let vc = self.storyboard?.instantiateViewController(withIdentifier: "ApplyGigVC") as! ApplyGigVC
+            let vc = self.storyboard?.instantiateViewController(withIdentifier: "ViewTaskVC") as! ViewTaskVC
             if arrData.count > 0{
                 vc.gigId = arrData[indexPath.row].id ?? ""
             }
-            vc.callBack = {[weak self] in
+            vc.callBack = {
                 
-                guard let self = self else { return }
                 self.animateZoomInOut()
                 self.getGigData()
                 if self.type == 1{
@@ -2903,7 +3262,36 @@ extension ExploreTabVC: UITableViewDelegate,UITableViewDataSource{
             }
 
             self.navigationController?.pushViewController(vc, animated: true)
+//            let vc = self.storyboard?.instantiateViewController(withIdentifier: "ApplyGigVC") as! ApplyGigVC
+//            if arrData.count > 0{
+//                vc.gigId = arrData[indexPath.row].id ?? ""
+//            }
+//            vc.callBack = {[weak self] in
+//
+//                guard let self = self else { return }
+//                self.animateZoomInOut()
+//                self.getGigData()
+//                if self.type == 1{
+//                    self.viewThreeDot.isHidden = false
+//                }
+//            }
+//
+//            self.navigationController?.pushViewController(vc, animated: true)
         }
+    }
+    func convertToDateFormat(_ dateString: String,dateFormat:String,convertFormat:String) -> String? {
+        let inputFormatter = DateFormatter()
+        inputFormatter.dateFormat = dateFormat
+        inputFormatter.timeZone = TimeZone(abbreviation: "UTC")
+
+        if let date = inputFormatter.date(from: dateString) {
+            let outputFormatter = DateFormatter()
+            outputFormatter.dateFormat = convertFormat
+            outputFormatter.timeZone = TimeZone.current // Adjust as needed
+
+            return outputFormatter.string(from: date)
+        }
+        return nil // Return nil if parsing fails
     }
 }
 
@@ -2933,3 +3321,22 @@ extension ExploreTabVC: MSStickerBrowserViewDataSource{
     }
 }
 
+extension UIImage {
+    func resize(to targetSize: CGSize) -> UIImage? {
+        let size = self.size
+        let widthRatio  = targetSize.width  / size.width
+        let heightRatio = targetSize.height / size.height
+        
+        // Determine the scale factor to maintain the aspect ratio
+        let scaleFactor = min(widthRatio, heightRatio)
+        
+        // Calculate the new size maintaining the aspect ratio
+        let newSize = CGSize(width: size.width * scaleFactor, height: size.height * scaleFactor)
+        
+        // Create a new UIGraphicsImageRenderer to resize the image
+        let renderer = UIGraphicsImageRenderer(size: newSize)
+        return renderer.image { _ in
+            self.draw(in: CGRect(origin: .zero, size: newSize))
+        }
+    }
+}

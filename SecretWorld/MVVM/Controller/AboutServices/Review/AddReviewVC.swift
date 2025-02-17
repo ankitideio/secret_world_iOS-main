@@ -165,7 +165,7 @@ class AddReviewVC: UIViewController, FloatRatingViewDelegate {
             //from businesss detail
             heightViewRating.constant = 30
             imgVwStar.isHidden = false
-            arrUserCategory =  Store.UserServiceDetailData
+            arrUserCategory =  Store.BusinessDetailData
             lblPlace.text = arrUserCategory?.getBusinessDetails?.place ?? ""
             let rating = arrUserCategory?.getBusinessDetails?.rating ?? 0.0
             let formattedRating = String(format: "%.1f", rating)

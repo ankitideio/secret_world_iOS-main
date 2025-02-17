@@ -222,19 +222,30 @@ extension NotificationsVC: UITableViewDelegate,UITableViewDataSource{
             if Store.userId == notification?.gigUser{
                 
                 if Store.role == "b_user"{
-                    let vc = self.storyboard?.instantiateViewController(withIdentifier: "ApplyGigVC") as! ApplyGigVC
+//                    let vc = self.storyboard?.instantiateViewController(withIdentifier: "ApplyGigVC") as! ApplyGigVC
+//                    vc.gigId = notification?.gigId ?? ""
+//                    vc.isComing = 1
+//                    self.navigationController?.pushViewController(vc, animated: true)
+                    let vc = self.storyboard?.instantiateViewController(withIdentifier: "TaskDetailOwnerVC") as! TaskDetailOwnerVC
                     vc.gigId = notification?.gigId ?? ""
                     vc.isComing = 1
                     self.navigationController?.pushViewController(vc, animated: true)
                 }else{
-                    let vc = self.storyboard?.instantiateViewController(withIdentifier: "UserApplyGigVC") as! UserApplyGigVC
+                    let vc = self.storyboard?.instantiateViewController(withIdentifier: "TaskDetailOwnerVC") as! TaskDetailOwnerVC
                     vc.gigId = notification?.gigId ?? ""
+                    vc.isComing = 0
                     self.navigationController?.pushViewController(vc, animated: true)
+//                    let vc = self.storyboard?.instantiateViewController(withIdentifier: "UserApplyGigVC") as! UserApplyGigVC
+//                    vc.gigId = notification?.gigId ?? ""
+//                    self.navigationController?.pushViewController(vc, animated: true)
                 }
                
             }else{
                 
-                let vc = self.storyboard?.instantiateViewController(withIdentifier: "ApplyGigVC") as! ApplyGigVC
+//                let vc = self.storyboard?.instantiateViewController(withIdentifier: "ApplyGigVC") as! ApplyGigVC
+//                vc.gigId = notification?.gigId ?? ""
+//                self.navigationController?.pushViewController(vc, animated: true)
+                let vc = self.storyboard?.instantiateViewController(withIdentifier: "ViewTaskVC") as! ViewTaskVC
                 vc.gigId = notification?.gigId ?? ""
                 self.navigationController?.pushViewController(vc, animated: true)
             }

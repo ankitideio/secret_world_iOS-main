@@ -18,6 +18,7 @@ struct GetBusinessUserDetail: Codable {
     let userProfile: UserProfiles?
     let serviceCount, gigCount,userRatingCount,postedPopup: Int?
     let UserRating:Double?
+    let businessDeals:[businessDeals]?
     let reviews: [Reviewwe]?
 }
 
@@ -57,24 +58,29 @@ struct UserID: Codable {
 struct UserProfiles: Codable {
     let id, name: String?
     let profilePhoto: String?
-    let mobile: Int?
+    let mobile,category: Int?
     let businessname: String?
     let coverPhoto: String?
     let gender, about, place: String?
     let services: [Service]?
+    let deals:[String]?
     let dob: String?
+    let isVerified:Bool?
+    let latitude,longitude:Double?
     let openingHours: [OpeningHourr]?
-
+    let typesOfCategoryDetails:[String]?
+    let businessDeals:[businessDeals]?
     enum CodingKeys: String, CodingKey {
         case id = "_id"
-        case name
+        case name,category,isVerified,latitude,longitude
         case profilePhoto = "profile_photo"
         case mobile, businessname
         case coverPhoto = "cover_photo"
         case gender, about, place
         case services = "Services"
-        case dob
+        case dob,deals,typesOfCategoryDetails
         case openingHours = "opening_hours"
+        case businessDeals
     }
 }
 
@@ -88,6 +94,13 @@ struct OpeningHourr: Codable {
     }
 }
 
+struct businessDeals:Codable{
+    let title:String?
+    enum CodingKeys:String, CodingKey{
+        case title
+    }
+                    
+}
 // MARK: - Service
 struct Service: Codable {
     let id, name: String?

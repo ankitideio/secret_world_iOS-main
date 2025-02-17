@@ -32,8 +32,10 @@ class ExploreVM{
         print(param)
         WebService.service(API.getUserServiceDetail,param: param,service: .get,showHud: loader,is_raw_form: true) { (model:GetUserServiceDetail,jsonData,jsonSer) in
             Store.UserServiceDetailData = model.data
-           
+            Store.BusinessDetailData = model.data
             NotificationCenter.default.post(name: Notification.Name("GetStoreUserServices"), object: nil)
+            
+            
             onSccess(model.data)
         }
         
@@ -195,7 +197,7 @@ class ExploreVM{
                                      "media": imageInfo,
                                      "isUploading":isUploading]
             print(param)
-            WebService.service(API.updateReview,param: param,service: .put,showHud: false,is_raw_form: false) { (model:CommonModel,jsonData,jsonSer) in
+            WebService.service(API.updateReview,param: param,service: .put,showHud: true,is_raw_form: false) { (model:CommonModel,jsonData,jsonSer) in
                 
                 onSccess(model.message)
             }
@@ -206,7 +208,7 @@ class ExploreVM{
                                             "starCount": starCount,
                                             "isUploading":isUploading]
             print(paramWithImg)
-            WebService.service(API.updateReview,param: paramWithImg,service: .put,showHud: false,is_raw_form: false) { (model:CommonModel,jsonData,jsonSer) in
+            WebService.service(API.updateReview,param: paramWithImg,service: .put,showHud: true,is_raw_form: false) { (model:CommonModel,jsonData,jsonSer) in
                 
                 onSccess(model.message)
             }

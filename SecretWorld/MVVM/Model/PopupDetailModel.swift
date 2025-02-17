@@ -15,22 +15,24 @@ struct PopupDetailModel: Codable {
 
 // MARK: - DataClass
 struct PopupDetailData: Codable {
-    let id, name, usertype,place: String?
+    let id, name, usertype,place,deals: String?
     let businessLogo,image: String?
     let description: String?
     let addProducts: [AddProducts]?
-    let lat, long: Double?
+    let lat, long,rating: Double?
     let startDate, endDate: String?
     let status: Status?
+    let productImages:[String]?
     let createdAt, updatedAt: String?
     let user: UserDetaa?
-    let Requests,timeStatus,storeType: Int?
+    let reviews:[PopUpReview]?
+    let Requests,timeStatus,storeType,categoryType,availability,hitCount: Int?
 
     enum CodingKeys: String, CodingKey {
         case id = "_id"
         case name, usertype,timeStatus
         case businessLogo = "business_logo"
-        case description, addProducts, lat, long, startDate, endDate, status, createdAt, updatedAt, user,place,Requests,image,storeType
+        case description, addProducts, lat, long, startDate, endDate, status, createdAt, updatedAt, user,place,Requests,image,storeType,categoryType,deals,productImages,rating,availability,hitCount,reviews
        
     }
 }
@@ -42,6 +44,18 @@ struct Status: Codable {
     enum CodingKeys: String, CodingKey {
         case id = "_id"
         case status
+    }
+}
+
+// MARK: - AddProduct
+struct PopUpReview: Codable {
+    let comment,media,createdAt,updatedAt: String?
+    let starCount: Int?
+    let id: String?
+    let userId:UserDetaa?
+    enum CodingKeys: String, CodingKey {
+        case comment,media,createdAt,starCount,userId,updatedAt
+        case id = "_id"
     }
 }
 // MARK: - AddProduct

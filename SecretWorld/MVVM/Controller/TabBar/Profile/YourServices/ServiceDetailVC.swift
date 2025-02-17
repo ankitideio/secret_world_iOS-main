@@ -7,33 +7,30 @@
 
 import UIKit
 import FXExpandableLabel
+import AlignedCollectionViewFlowLayout
 
 class ServiceDetailVC: UIViewController,UIGestureRecognizerDelegate{
-    @IBOutlet var lblNoData: UILabel!
-    @IBOutlet var btnThreedot: UIButton!
-    @IBOutlet var btnViewAllImgs: UIButton!
-    
-    @IBOutlet var tblVwTop: NSLayoutConstraint!
-    @IBOutlet var lblReviewTitle: UILabel!
-    @IBOutlet var lblRating: UILabel!
-    @IBOutlet var heightTblVwReview: NSLayoutConstraint!
-    @IBOutlet var viewProvider: UIView!
-    @IBOutlet var lblImgsCount: UILabel!
-    @IBOutlet var lblImgCount: UILabel!
-    @IBOutlet var widthBtnAddReview: NSLayoutConstraint!
-    @IBOutlet var heightBtnAddReview: NSLayoutConstraint!
-    @IBOutlet var heightViewServiceprovider: NSLayoutConstraint!
-    @IBOutlet var lblService: UILabel!
-    @IBOutlet var lblPrice: UILabel!
-    @IBOutlet var lblName: UILabel!
-    @IBOutlet var lblLocation: UILabel!
-    @IBOutlet var lblNameServiceProvider: UILabel!
-    @IBOutlet var imgVwServiceProvider: UIImageView!
-    @IBOutlet var lblSubcategory: UILabel!
-    @IBOutlet var imgVwProfile: UIImageView!
-    @IBOutlet var lblAbout: ExpandableLabel!
-    @IBOutlet var tblVwReview: UITableView!
-    @IBOutlet var collvwGallary: UICollectionView!
+  
+    @IBOutlet weak var vwImages: UIView!
+    @IBOutlet weak var vwAddReview: UIView!
+    @IBOutlet weak var lblDataFound: UILabel!
+    @IBOutlet weak var widthImagesVw: NSLayoutConstraint!
+    @IBOutlet weak var heightTblVwReview: NSLayoutConstraint!
+    @IBOutlet weak var tblVwReview: CustomTableView!
+    @IBOutlet weak var btnAddReview: UIButton!
+    @IBOutlet weak var lblName: UILabel!
+    @IBOutlet weak var imgVwOwner: UIImageView!
+    @IBOutlet weak var lblDiscountPrice: UILabel!
+    @IBOutlet weak var lblPrice: UILabel!
+    @IBOutlet weak var lblDiscount: UILabel!
+    @IBOutlet weak var heightCollVwCategory: NSLayoutConstraint!
+    @IBOutlet weak var collVwCategory: UICollectionView!
+    @IBOutlet weak var vwAbout: UIView!
+    @IBOutlet weak var lblAbout: UILabel!
+    @IBOutlet weak var collVwServiceImages: UICollectionView!
+    @IBOutlet weak var lblServiceRating: UILabel!
+    @IBOutlet weak var vwOwner: UIView!
+    @IBOutlet weak var imgVwService: UIImageView!
     
     var isLabelExpanded = false
     var viewModel = AddServiceVM()
@@ -47,6 +44,8 @@ class ServiceDetailVC: UIViewController,UIGestureRecognizerDelegate{
     var reviewHeight = 0
     var phoneNumber: Int?
     var providerId = ""
+    var arrCategory = [Subcategoryz]()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         let swipeRight = UISwipeGestureRecognizer(target: self, action: #selector(handleSwipe))
@@ -64,29 +63,37 @@ class ServiceDetailVC: UIViewController,UIGestureRecognizerDelegate{
     override func viewWillLayoutSubviews() {
         if self.arrReview.count > 0{
             self.heightTblVwReview.constant = self.tblVwReview.contentSize.height+10
-            
         }else{
             self.heightTblVwReview.constant = 100
-            
         }
     }
     func uiSet(){
+        let nib = UINib(nibName: "ReviewTVC", bundle: nil)
+        tblVwReview.register(nib, forCellReuseIdentifier: "ReviewTVC")
+       
+        let nibCollvw = UINib(nibName: "BusinessCategoryCVC", bundle: nil)
+        collVwCategory.register(nibCollvw, forCellWithReuseIdentifier: "BusinessCategoryCVC")
+      
+        let alignedFlowLayoutCollVwInterst = AlignedCollectionViewFlowLayout(horizontalAlignment: .left, verticalAlignment: .top)
+        collVwCategory.collectionViewLayout = alignedFlowLayoutCollVwInterst
+        
+        if let flowLayout = collVwCategory.collectionViewLayout as? UICollectionViewFlowLayout {
+            flowLayout.estimatedItemSize = CGSize(width: 0, height: 36)
+            flowLayout.itemSize = UICollectionViewFlowLayout.automaticSize
+            
+        }
         tblVwReview.estimatedRowHeight = 100
         tblVwReview.rowHeight = UITableView.automaticDimension
         if Store.role == "b_user"{
-            btnThreedot.isHidden = false
-            viewProvider.isHidden = true
-            heightBtnAddReview.constant = 0
-            widthBtnAddReview.constant = 0
-            lblAbout.numberOfLines = 5
+//            btnThreedot.isHidden = false
+            vwOwner.isHidden = true
+            vwAddReview.isHidden = true
             
         }else{
-            lblReviewTitle.isHidden = false
-            btnThreedot.isHidden = true
-            viewProvider.isHidden = false
-            heightBtnAddReview.constant = 25
-            widthBtnAddReview.constant = 100
-            lblAbout.numberOfLines = 5
+            vwAddReview.isHidden = false
+//            btnThreedot.isHidden = true
+            vwOwner.isHidden = false
+        
             
         }
         getUserServiceDetailApi()
@@ -95,52 +102,65 @@ class ServiceDetailVC: UIViewController,UIGestureRecognizerDelegate{
     func getUserServiceDetailApi(){
         viewModel.GetServiceDetailUserSideApi(service_id: serviceId) { data in
             Store.ServiceId = self.serviceId
+            self.arrCategory = data?.subcategories ?? []
+            self.collVwCategory.reloadData()
             self.userServiceDetail = data
             self.arrReview = data?.reviews ?? []
                 if self.arrReview.count > 0{
-                    self.lblNoData.isHidden = true
+                    self.lblDataFound.isHidden = true
                 }else{
-                    self.lblNoData.isHidden = false
+                    self.lblDataFound.isHidden = false
                     
                 }
             self.phoneNumber = data?.user?.mobile ?? 0
+            if data?.serviceImages?.count ?? 0 > 0{
+                self.imgVwService.imageLoad(imageUrl: data?.serviceImages?[0] ?? "")
+                if self.widthImagesVw.constant < self.view.frame.width{
+                    self.widthImagesVw.constant = CGFloat((data?.serviceImages?.count ?? 0)*54)+10
+                }else{
+                    self.widthImagesVw.constant = self.view.frame.width-40
+                }
+             
+            }
             self.lblName.text = data?.user?.name ?? ""
-            self.lblNameServiceProvider.text = data?.user?.name ?? ""
-            self.imgVwServiceProvider.imageLoad(imageUrl: data?.user?.profilePhoto ?? "")
-            self.lblLocation.text = data?.user?.place ?? ""
+            self.imgVwOwner.imageLoad(imageUrl: data?.user?.profilePhoto ?? "")
+//            self.lblLocation.text = data?.user?.place ?? ""
             let rating = data?.rating ?? 0.0
             let formattedRating = String(format: "%.1f", rating)
             if data?.reviews?.count ?? 0 > 1{
-                self.lblRating.text = "\(formattedRating) (\(data?.reviews?.count ?? 0) Reviews)"
+                self.lblServiceRating.text = "\(formattedRating) (\(data?.reviews?.count ?? 0) Reviews)"
             }else{
-                self.lblRating.text = "\(formattedRating) (\(data?.reviews?.count ?? 0) Review)"
+                self.lblServiceRating.text = "\(formattedRating) (\(data?.reviews?.count ?? 0) Review)"
             }
             
-            self.lblPrice.text = " $\(data?.price ?? 0)"
-            self.lblService.text = data?.serviceName ?? ""
+            let price = Double(data?.actualPrice ?? 0)
+            let roundedPrice = floor(price)
+            self.lblDiscountPrice.text = String(format: "$%.0f", roundedPrice)
+
+            self.lblDiscount.text = "\(data?.discount ?? 0)% Off"
+            self.lblPrice.text = "$\(data?.price ?? 0)"
             self.lblAbout.text = data?.description ?? ""
             if data?.serviceImages?.count ?? 0 > 0{
                 self.arrImgs = data?.serviceImages ?? []
-                self.lblImgCount.text = "Gallery(\(self.arrImgs.count))"
-                if data?.serviceImages?.count ?? 0 > 0{
-                    self.imgVwProfile.imageLoad(imageUrl: data?.serviceImages?[0] ?? "")
-                }
+            
             }
-            if let userCategories = data?.userCategories {
-                let subcategoryNames = userCategories.userSubCategories?.compactMap { $0.subcategoryName } ?? []
-                let joinedSubcategories = subcategoryNames.joined(separator: " , ")
-                self.lblSubcategory.text = "\(data?.userCategories?.categoryName ?? "") / \(joinedSubcategories)"
-            }
-            if self.arrImgs.count > 2{
-                self.btnViewAllImgs.isHidden = false
-            }else{
-                self.btnViewAllImgs.isHidden = true
-            }
-            self.collvwGallary.reloadData()
+          
+            self.collVwServiceImages.reloadData()
             self.tblVwReview.reloadData()
             self.tblVwReview.invalidateIntrinsicContentSize()
+            self.updateCollectionViewHeight(for: self.collVwCategory, heightConstraint: self.heightCollVwCategory)
         }
     }
+    private func updateCollectionViewHeight(for collectionView: UICollectionView, heightConstraint: NSLayoutConstraint) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            let height = collectionView.collectionViewLayout.collectionViewContentSize.height
+            heightConstraint.constant = height
+            self.view.layoutIfNeeded()
+        }
+    }
+
+
+
     @IBAction func actionServiceProviderProfile(_ sender: UIButton) {
         let vc = self.storyboard?.instantiateViewController(withIdentifier: "BusinessProfileVC") as! BusinessProfileVC
         vc.businessId = Store.UserServiceDetailData?.getBusinessDetails?.id ?? ""
@@ -153,7 +173,7 @@ class ServiceDetailVC: UIViewController,UIGestureRecognizerDelegate{
             
             if isSelect == true{
                 let vc = self.storyboard?.instantiateViewController(withIdentifier: "EditServiceVC") as! EditServiceVC
-                vc.arrServiceDetail = self.arrServiceDetail
+                vc.arrSelectSubCate = self.arrCategory
                 vc.editServiceDetail = self.userServiceDetail
                 vc.serviceId = self.userServiceDetail?.id ?? ""
                 vc.callBack = {
@@ -227,32 +247,54 @@ class ServiceDetailVC: UIViewController,UIGestureRecognizerDelegate{
 //MARK: - UICollectionViewDelegate
 extension ServiceDetailVC:UICollectionViewDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout{
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return min(arrImgs.count,2)
+        if collectionView == collVwServiceImages{
+            return arrImgs.count
+        }else{
+            return arrCategory.count
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        if collectionView == collVwServiceImages{
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "GallaryImgsCVC", for: indexPath) as! GallaryImgsCVC
+            cell.imgVwService.imageLoad(imageUrl: arrImgs[indexPath.row])
+            return cell
+        }else{
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "BusinessCategoryCVC", for: indexPath) as! BusinessCategoryCVC
+            if arrCategory.count > 0{
+                cell.lblName.text = arrCategory[indexPath.row].subcategoryName
+            }
+            cell.vwBg.layer.cornerRadius = 20
+            cell.widthBtnCross.constant = 0
+            cell.lblName.textColor = .black
+            cell.vwBg.backgroundColor = UIColor(hex: "#e7f3e6")
+            cell.vwBg.layer.cornerRadius = 4
+            return cell
+        }
         
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "GallaryImgsCVC", for: indexPath) as! GallaryImgsCVC
-        cell.imgVwService.imageLoad(imageUrl: arrImgs[indexPath.row])
-        return cell
         
     }
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let vc = self.storyboard?.instantiateViewController(withIdentifier: "ViewImageVC") as! ViewImageVC
-        vc.arrImage = self.arrImgs
-        self.navigationController?.pushViewController(vc, animated: true)
+        if collectionView == collVwServiceImages{
+            let vc = self.storyboard?.instantiateViewController(withIdentifier: "ViewImageVC") as! ViewImageVC
+            vc.arrImage = self.arrImgs
+            self.navigationController?.pushViewController(vc, animated: true)
+        }
     }
-//    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-//        let vc = self.storyboard?.instantiateViewController(withIdentifier: "ChangePhotoVC") as! ChangePhotoVC
-//        vc.isComing = 7
-//        vc.img = arrImgs[indexPath.row]
-//        self.navigationController?.pushViewController(vc, animated: true)
-//    }
+    //    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+    //        let vc = self.storyboard?.instantiateViewController(withIdentifier: "ChangePhotoVC") as! ChangePhotoVC
+    //        vc.isComing = 7
+    //        vc.img = arrImgs[indexPath.row]
+    //        self.navigationController?.pushViewController(vc, animated: true)
+    //    }
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: collvwGallary.frame.size.width / 2 - 5, height: 130)
+        if collectionView == collVwServiceImages{
+            return CGSize(width: 44, height: 44)
+        }else{
+            return CGSize(width: 0, height: 30)
+        }
     }
 }
-
 //MARK: -UITableViewDelegate
 extension ServiceDetailVC: UITableViewDelegate,UITableViewDataSource{
     
@@ -300,4 +342,3 @@ extension ServiceDetailVC: UITableViewDelegate,UITableViewDataSource{
     
    
 }
-

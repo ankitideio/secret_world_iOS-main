@@ -49,6 +49,7 @@ class CurrentLocationVC: UIViewController{
     private var solar: Solar?
     var pointAnnotationManager: PointAnnotationManager!
     var currentAnnotation: [PointAnnotation] = []
+    var isSignUp = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -60,6 +61,10 @@ class CurrentLocationVC: UIViewController{
         NotificationCenter.default.addObserver(self, selector: #selector(self.getLocationDenied(notification:)), name: Notification.Name("locationDenied"), object: nil)
 
         locationPermission()
+    }
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: Notification.Name("locationAllow"), object: nil)
+        NotificationCenter.default.removeObserver(self, name: Notification.Name("locationDenied"), object: nil)
     }
     func locationPermission(){
              let status = CLLocationManager.authorizationStatus()
@@ -73,6 +78,7 @@ class CurrentLocationVC: UIViewController{
                  let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleMapTap(_:)))
                 mapView.addGestureRecognizer(tapGesture)
                  setupLocationManager()
+                 
              default:
                  print("Location permission not determined")
              }
@@ -321,6 +327,7 @@ extension CurrentLocationVC: UITextFieldDelegate {
 extension CurrentLocationVC: CLLocationManagerDelegate {
 
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        
         guard let location = locations.last else { return }
         
         // Check if `PointAnnotationManager` is nil and initialize if necessary
@@ -333,43 +340,90 @@ extension CurrentLocationVC: CLLocationManagerDelegate {
             pointAnnotationManager.annotations = []
             currentAnnotation.removeAll()
         }
-        let coordinate = CLLocation(latitude: Store.userLatLong?["lat"] as? Double ?? 0, longitude: Store.userLatLong?["long"] as? Double ?? 0)
-
-        if let solar = Solar(coordinate: coordinate.coordinate) {
-            self.solar = solar
-            let isDaytime = solar.isDaytime
-            print(isDaytime ? "It's day time!" : "It's night time!")
-            if isDaytime{
-                if let styleURL = URL(string: "mapbox://styles/kevinzhang23a/cm2bod8mi00qg01pgepsohjq0") {
-                    mapView.mapboxMap.loadStyle(StyleURI(url: styleURL) ?? .light)
+        if isSignUp{
+          
+            if let solar = Solar(coordinate: location.coordinate) {
+                self.solar = solar
+                let isDaytime = solar.isDaytime
+                print(isDaytime ? "It's day time!" : "It's night time!")
+                if isDaytime{
+                    if let styleURL = URL(string: "mapbox://styles/kevinzhang23a/cm2bod8mi00qg01pgepsohjq0") {
+                        mapView.mapboxMap.loadStyle(StyleURI(url: styleURL) ?? .light)
+                    }
+                    
+                }else{
+                    mapView.mapboxMap.styleURI = .dark
                 }
-                
-            }else{
-                mapView.mapboxMap.styleURI = .dark
+            }
+          
+            print("Updating map center to: \(location.coordinate.latitude), \(location.coordinate.longitude)")
+
+            mapView.mapboxMap.setCamera(to: CameraOptions(center: location.coordinate, zoom: 15, bearing: 0, pitch: 0))
+
+            print("Camera update should be applied.")
+            let geocoder = GMSGeocoder()
+            geocoder.reverseGeocodeCoordinate(location.coordinate) { response, error in
+                guard let address = response?.firstResult(), let lines = address.lines else {
+                    return
+                }
+                let fullAddress = lines.joined(separator: ", ")
+                DispatchQueue.main.async {
+                    print("Current Location: \(fullAddress)")
+                    self.showLocationDetails(placeName: fullAddress, latitude: Store.userLatLong?["lat"] as? Double ?? 0, longitude: Store.userLatLong?["long"] as? Double ?? 0)
+                    
+                    // Download and set annotation image
+                    let userImage = (Store.role == "b_user") ? Store.BusinessUserDetail?["profileImage"] as? String ?? "" : Store.UserDetail?["profileImage"] as? String ?? ""
+                    let annotationImage = self.isComing ? "business" : "dron"
+                    self.downloadCurrentImage(centerCoordinate: location.coordinate, customImg: annotationImage, dynamicImg: userImage)
+                }
+            }
+        }else{
+            let coordinate = CLLocation(latitude: Store.userLatLong?["lat"] as? Double ?? 0, longitude: Store.userLatLong?["long"] as? Double ?? 0)
+
+            if let solar = Solar(coordinate: coordinate.coordinate) {
+                self.solar = solar
+                let isDaytime = solar.isDaytime
+                print(isDaytime ? "It's day time!" : "It's night time!")
+                if isDaytime{
+                    if let styleURL = URL(string: "mapbox://styles/kevinzhang23a/cm2bod8mi00qg01pgepsohjq0") {
+                        mapView.mapboxMap.loadStyle(StyleURI(url: styleURL) ?? .light)
+                    }
+                    
+                }else{
+                    mapView.mapboxMap.styleURI = .dark
+                }
+            }
+          
+            print("Updating map center to: \(coordinate.coordinate.latitude), \(coordinate.coordinate.longitude)")
+
+            mapView.mapboxMap.setCamera(to: CameraOptions(center: coordinate.coordinate, zoom: 15, bearing: 0, pitch: 0))
+
+            print("Camera update should be applied.")
+            let geocoder = GMSGeocoder()
+            geocoder.reverseGeocodeCoordinate(coordinate.coordinate) { response, error in
+                guard let address = response?.firstResult(), let lines = address.lines else {
+                    return
+                }
+                let fullAddress = lines.joined(separator: ", ")
+                DispatchQueue.main.async {
+                    print("Current Location: \(fullAddress)")
+                    self.showLocationDetails(placeName: fullAddress, latitude: Store.userLatLong?["lat"] as? Double ?? 0, longitude: Store.userLatLong?["long"] as? Double ?? 0)
+                    
+                    // Download and set annotation image
+                    let userImage = (Store.role == "b_user") ? Store.BusinessUserDetail?["profileImage"] as? String ?? "" : Store.UserDetail?["profileImage"] as? String ?? ""
+                    let annotationImage = self.isComing ? "business" : "dron"
+                    self.downloadCurrentImage(centerCoordinate: coordinate.coordinate, customImg: annotationImage, dynamicImg: userImage)
+                }
             }
         }
-        mapView.mapboxMap.setCamera(to: CameraOptions(center: coordinate.coordinate,zoom: 15,bearing: 0,pitch: 0))
+       
         
         locationManager.stopUpdatingLocation()
 
         // Reverse geocode and update the UI
-        let geocoder = GMSGeocoder()
-        geocoder.reverseGeocodeCoordinate(coordinate.coordinate) { response, error in
-            guard let address = response?.firstResult(), let lines = address.lines else {
-                return
-            }
-            let fullAddress = lines.joined(separator: ", ")
-            DispatchQueue.main.async {
-                print("Current Location: \(fullAddress)")
-                self.showLocationDetails(placeName: fullAddress, latitude: Store.userLatLong?["lat"] as? Double ?? 0, longitude: Store.userLatLong?["long"] as? Double ?? 0)
-                
-                // Download and set annotation image
-                let userImage = (Store.role == "b_user") ? Store.BusinessUserDetail?["profileImage"] as? String ?? "" : Store.UserDetail?["profileImage"] as? String ?? ""
-                let annotationImage = self.isComing ? "business" : "dron"
-                self.downloadCurrentImage(centerCoordinate: coordinate.coordinate, customImg: annotationImage, dynamicImg: userImage)
-            }
-        }
+      
     }
+    
   func showLocationDetails(placeName: String, latitude: Double, longitude: Double){
       
     self.lblLocationName.text = placeName
@@ -379,22 +433,31 @@ extension CurrentLocationVC: CLLocationManagerDelegate {
   func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
     print("Location manager error: \(error.localizedDescription)")
   }
+//    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+//        
+//            switch status {
+//            case .notDetermined:
+//                print("User has not yet made a choice regarding location permissions")
+//            case .restricted, .denied:
+//                print("Location access denied")
+//                locationDeniedAlert()
+//            case .authorizedWhenInUse, .authorizedAlways:
+//                print("Location access granted")
+//            @unknown default:
+//                print("Unknown location permission status")
+//                
+//            }
+//        }
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-        
-            switch status {
-            case .notDetermined:
-                print("User has not yet made a choice regarding location permissions")
-            case .restricted, .denied:
-                print("Location access denied")
-                locationDeniedAlert()
-            case .authorizedWhenInUse, .authorizedAlways:
-                print("Location access granted")
-            @unknown default:
-                print("Unknown location permission status")
-                
-            }
+        switch status {
+        case .authorizedWhenInUse, .authorizedAlways:
+            setupLocationManager()
+        case .denied, .restricted:
+            locationDeniedAlert()
+        default:
+            break
         }
-
+    }
 }
 //MARK: - GMSAutocompleteViewControllerDelegate
 extension CurrentLocationVC: GMSAutocompleteViewControllerDelegate {
