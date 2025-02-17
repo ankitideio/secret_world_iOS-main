@@ -407,6 +407,4 @@ enum constantMessages:String{
     var instance : String {
         return self.rawValue
     }
-    
-    
 }

@@ -3,17 +3,19 @@ import UIKit
 open class EventView: UIView {
     public var descriptor: EventDescriptor?
     public var color = SystemColors.label
-    
+    public var heightConstraint: NSLayoutConstraint?
     public var contentHeight: Double {
         textView.frame.height
+        
     }
     
     public private(set) lazy var textView: UITextView = {
         let view = UITextView()
         view.isUserInteractionEnabled = false
         view.backgroundColor = .clear
-        view.isScrollEnabled = false
+        view.isScrollEnabled = true
         view.clipsToBounds = true
+         
         return view
     }()
     
@@ -31,30 +33,49 @@ open class EventView: UIView {
         configure()
     }
     
+
     private func configure() {
-        clipsToBounds = false
-        color = tintColor
+        // Add textView to the view
         addSubview(textView)
+        textView.translatesAutoresizingMaskIntoConstraints = false
+        textView.backgroundColor = .clear
+      
+        // Set Auto Layout constraints
+        NSLayoutConstraint.activate([
+            textView.topAnchor.constraint(equalTo: topAnchor, constant: 8),
+            textView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 8),
+            textView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -8),
+        ])
         
-        for (idx, handle) in eventResizeHandles.enumerated() {
-            handle.tag = idx
-            addSubview(handle)
-        }
+        // Add a height constraint for EventView
+        heightConstraint = heightAnchor.constraint(equalToConstant: 100)
+        heightConstraint?.isActive = true
     }
-    
+
+    public func updateHeight() {
+        // Calculate the new height based on textView content
+        let textViewContentHeight = textView.sizeThatFits(CGSize(width: textView.frame.width, height: CGFloat.greatestFiniteMagnitude)).height
+        
+        // Update the height constraint
+        heightConstraint?.constant = textViewContentHeight  // Add padding
+        setNeedsLayout()
+        layoutIfNeeded()
+    }
+    public func setLineSpacing(_ spacing: CGFloat) {
+        guard let text = textView.text else { return }
+        
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.lineSpacing = spacing // Set the desired line spacing
+
+        let attributedString = NSMutableAttributedString(string: text)
+        attributedString.addAttribute(.paragraphStyle, value: paragraphStyle, range: NSRange(location: 0, length: text.count))
+        
+        textView.attributedText = attributedString
+    }
     public func updateWithDescriptor(event: EventDescriptor) {
-        if let attributedText = event.attributedText {
-            textView.attributedText = attributedText
-            textView.setNeedsLayout()
-        } else {
-            textView.text = event.text
-            textView.textColor = event.textColor
-            textView.font = event.font
-        }
-        if let lineBreakMode = event.lineBreakMode {
-            textView.textContainer.lineBreakMode = lineBreakMode
-        }
-        descriptor = event
+        // Update the text of textView
+        textView.text = "\(event.text)\n\(event.description)"
+    
         backgroundColor = .clear
         layer.backgroundColor = event.backgroundColor.cgColor
         layer.cornerRadius = 5
@@ -64,9 +85,13 @@ open class EventView: UIView {
             $0.isHidden = event.editedEvent == nil
         }
         drawsShadow = event.editedEvent != nil
-        setNeedsDisplay()
-        setNeedsLayout()
+        setLineSpacing(0)
+        textView.setNeedsLayout()
+       
+        // Recalculate the intrinsic size
+        invalidateIntrinsicContentSize()
     }
+
     
     public func animateCreation() {
         transform = CGAffineTransform(scaleX: 0.8, y: 0.8)
@@ -98,7 +123,10 @@ open class EventView: UIView {
         }
         return super.hitTest(point, with: event)
     }
-    
+    open override var intrinsicContentSize: CGSize {
+        let textViewHeight = textView.sizeThatFits(CGSize(width: bounds.width - 16, height: CGFloat.greatestFiniteMagnitude)).height
+        return CGSize(width: UIView.noIntrinsicMetric, height: textViewHeight) // Add padding
+    }
     override open func draw(_ rect: CGRect) {
         super.draw(rect)
         guard let context = UIGraphicsGetCurrentContext() else {
@@ -108,6 +136,7 @@ open class EventView: UIView {
         context.saveGState()
         context.setStrokeColor(color.cgColor)
         context.setLineWidth(3)
+     
         context.setLineCap(.round)
         context.translateBy(x: 0, y: 0.5)
         let leftToRight = UIView.userInterfaceLayoutDirection(for: semanticContentAttribute) == .leftToRight
@@ -123,40 +152,21 @@ open class EventView: UIView {
     }
     
     private var drawsShadow = false
-    
-    override open func layoutSubviews() {
+    open override func layoutSubviews() {
         super.layoutSubviews()
-        textView.frame = {
-            if UIView.userInterfaceLayoutDirection(for: semanticContentAttribute) == .rightToLeft {
-                return CGRect(x: bounds.minX, y: bounds.minY, width: bounds.width - 3, height: bounds.height)
-            } else {
-                return CGRect(x: bounds.minX + 8, y: bounds.minY, width: bounds.width - 6, height: bounds.height)
-            }
-        }()
-        if frame.minY < 0 {
-            var textFrame = textView.frame;
-            textFrame.origin.y = frame.minY * -1;
-            textFrame.size.height += frame.minY;
-            textView.frame = textFrame;
-        }
-        let first = eventResizeHandles.first
-        let last = eventResizeHandles.last
-        let radius: Double = 40
-        let yPad: Double =  -radius / 2
-        let width = bounds.width
-        let height = bounds.height
-        let size = CGSize(width: radius, height: radius)
-        first?.frame = CGRect(origin: CGPoint(x: width - radius - layoutMargins.right, y: yPad),
-                              size: size)
-        last?.frame = CGRect(origin: CGPoint(x: layoutMargins.left, y: height - yPad - radius),
-                             size: size)
         
-        if drawsShadow {
-            applySketchShadow(alpha: 0.13,
-                              blur: 10)
-        }
+        // Calculate textView's content height
+        let textViewContentHeight = textView.sizeThatFits(CGSize(width: textView.frame.width, height: CGFloat.greatestFiniteMagnitude)).height
+        
+        // Adjust the frame of EventView based on textView content height
+        var frame = self.frame
+        frame.size.height = textViewContentHeight
+        self.frame = frame
+        
+        // Update textView's frame to fit the new height
+        textView.frame = CGRect(x: 0, y: 0, width: frame.width - 16, height: textViewContentHeight)
     }
-    
+
     private func applySketchShadow(
         color: UIColor = .black,
         alpha: Float = 0.5,

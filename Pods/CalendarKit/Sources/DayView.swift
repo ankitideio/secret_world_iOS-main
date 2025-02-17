@@ -148,6 +148,7 @@ public class DayView: UIView, TimelinePagerViewDelegate {
     }
     
     public func move(to date: Date) {
+        
         state?.move(to: date)
     }
     
@@ -186,7 +187,10 @@ public class DayView: UIView, TimelinePagerViewDelegate {
         delegate?.dayView(dayView: self, willMoveTo: date)
     }
     public func timelinePager(timelinePager: TimelinePagerView, didMoveTo  date: Date) {
-        delegate?.dayView(dayView: self, didMoveTo: date)
+        let currentdate = Date()
+       
+       delegate?.dayView(dayView: self, didMoveTo: date)
+        
     }
     public func timelinePager(timelinePager: TimelinePagerView, didLongPressTimelineAt date: Date) {
         delegate?.dayView(dayView: self, didLongPressTimelineAt: date)

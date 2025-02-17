@@ -51,58 +51,55 @@ class AIImageCreateVC: UIViewController {
          self.activityIndicator.startAnimating()
          btnImageGenerate.isEnabled = false
 
-        if let apiKey = ProcessInfo.processInfo.environment["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"] {
-            print("API Key: \(apiKey)")
-            let url = URL(string: "https://api.openai.com/v1/images/generations")!
-            var request = URLRequest(url: url)
-            request.httpMethod = "POST"
-           request.addValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
-            request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+         let apiKey = "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"
+         let url = URL(string: "https://api.openai.com/v1/images/generations")!
+         var request = URLRequest(url: url)
+         request.httpMethod = "POST"
+         request.addValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
 
-            let parameters: [String: Any] = [
-                "model": "dall-e-3",
-                "prompt": prompt,
-                "n": 1,
-                "size": "1024x1024"
-            ]
+         let parameters: [String: Any] = [
+             "model": "dall-e-3",
+             "prompt": prompt,
+             "n": 1,
+             "size": "1024x1024"
+         ]
 
-            request.httpBody = try? JSONSerialization.data(withJSONObject: parameters)
+         request.httpBody = try? JSONSerialization.data(withJSONObject: parameters)
 
-            URLSession.shared.dataTask(with: request) { data, response, error in
-                DispatchQueue.main.async {
-                    self.activityIndicator.stopAnimating()
-                    self.btnImageGenerate.isEnabled = true
-                }
+         URLSession.shared.dataTask(with: request) { data, response, error in
+             DispatchQueue.main.async {
+                 self.activityIndicator.stopAnimating()
+                 self.btnImageGenerate.isEnabled = true
+             }
 
-                if let error = error {
-                    DispatchQueue.main.async {
-                        self.showAlert(title: "Error", message: error.localizedDescription)
-                    }
-                    return
-                }
+             if let error = error {
+                 DispatchQueue.main.async {
+                     self.showAlert(title: "Error", message: error.localizedDescription)
+                 }
+                 return
+             }
 
-                guard let data = data,
-                      let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-                      let dataArray = json["data"] as? [[String: Any]],
-                      let imageUrlString = dataArray.first?["url"] as? String,
-                      let imageUrl = URL(string: imageUrlString) else {
-                    DispatchQueue.main.async {
-                        self.showAlert(title: "Error", message: "Failed to generate image. Please try again.")
-                    }
-                    return
-                }
+             guard let data = data,
+                   let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                   let dataArray = json["data"] as? [[String: Any]],
+                   let imageUrlString = dataArray.first?["url"] as? String,
+                   let imageUrl = URL(string: imageUrlString) else {
+                 DispatchQueue.main.async {
+                     self.showAlert(title: "Error", message: "Failed to generate image. Please try again.")
+                 }
+                 return
+             }
 
-                // Load the image
-                DispatchQueue.main.async {
-                    self.imgVwGenerate.sd_setImage(with: imageUrl, completed: { _, _, _, _ in
-                        self.btnCross.isHidden = false
-                        self.btnAddImage.isHidden = false
-                        self.btnImageGenerate.setTitle("Re-generate", for: .normal)
-                    })
-                }
-            }.resume()
-        }
-       
+             // Load the image
+             DispatchQueue.main.async {
+                 self.imgVwGenerate.sd_setImage(with: imageUrl, completed: { _, _, _, _ in
+                     self.btnCross.isHidden = false
+                     self.btnAddImage.isHidden = false
+                     self.btnImageGenerate.setTitle("Re-generate", for: .normal)
+                 })
+             }
+         }.resume()
      }
 
      private func showAlert(title: String, message: String) {

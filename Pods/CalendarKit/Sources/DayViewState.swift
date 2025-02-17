@@ -25,7 +25,9 @@ public final class DayViewState {
         let date = date.dateOnly(calendar: calendar)
         notify(clients: allClientsWithout(client: client),
                moveTo: date)
+        
         selectedDate = date
+        
     }
 
     public func subscribe(client: DayViewStateUpdating) {
@@ -43,6 +45,7 @@ public final class DayViewState {
     private func notify(clients: [DayViewStateUpdating], moveTo date: Date) {
         for client in clients {
             client.move(from: selectedDate, to: date)
+            
         }
     }
 }

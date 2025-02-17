@@ -47,4 +47,6 @@ target 'SecretWorld' do
   pod 'FSCalendar'
   pod 'CalendarKit'
   pod 'Charts'
+  pod 'MaterialComponents'
+  
 end
