@@ -57,7 +57,7 @@ import UIKit
         }
 
         //Allow label to adjust so that am/pm can be displayed if format is changed.
-        timeLabel.numberOfLines = 1
+        timeLabel.numberOfLines = 3
         timeLabel.textAlignment = .right
         timeLabel.adjustsFontSizeToFitWidth = true
         timeLabel.minimumScaleFactor = 0.5

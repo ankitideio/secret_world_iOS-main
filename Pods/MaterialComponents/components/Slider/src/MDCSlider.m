@@ -29,7 +29,7 @@ static const CGFloat kSliderDefaultThumbRadius = 6;
 static const CGFloat kSliderAccessibilityIncrement = (CGFloat)0.1;
 static const CGFloat kSliderLightThemeTrackAlpha = (CGFloat)0.26;
 
-static inline UIColor *MDCThumbTrackDefaultColor(void) { return MDCPalette.greenPalette.tint500; }
+static inline UIColor *MDCThumbTrackDefaultColor(void) { return MDCPalette.bluePalette.tint500; }
 
 @interface MDCSlider () <MDCThumbTrackDelegate>
 @property(nonnull, nonatomic, strong)

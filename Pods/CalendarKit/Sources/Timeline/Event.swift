@@ -4,6 +4,9 @@ public final class Event: EventDescriptor {
     public var dateInterval = DateInterval()
     public var isAllDay = false
     public var text = ""
+    public var description = ""
+    public var selectTask = ""
+    public var taskId = ""
     public var attributedText: NSAttributedString?
     public var lineBreakMode: NSLineBreakMode?
     public var color = SystemColors.systemBlue {
@@ -28,6 +31,7 @@ public final class Event: EventDescriptor {
         cloned.dateInterval = dateInterval
         cloned.isAllDay = isAllDay
         cloned.text = text
+        cloned.description = description
         cloned.attributedText = attributedText
         cloned.lineBreakMode = lineBreakMode
         cloned.color = color
